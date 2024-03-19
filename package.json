@@ -1,0 +1,11 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "khnp bs",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
