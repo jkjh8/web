@@ -36,6 +36,8 @@
     "@src": "src",
     "@db": "src/db",
     "@logger": "src/logger",
-    "@api": "src/api"
+    "@api": "src/api",
+    "@clients": "src/io/clients",
+    "@bridge": "src/io/bridge"
   }
 }

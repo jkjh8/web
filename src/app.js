@@ -1,9 +1,9 @@
 /** @format */
+const path = require('node:path')
+
 require('module-alias/register')
 require('dotenv').config()
 require('@db')
-
-const path = require('node:path')
 
 // server
 const express = require('express')
@@ -17,6 +17,11 @@ const { logInfo, logDebug, logError } = require('@logger')
 
 // start codes
 const app = express()
+
+// global settings
+global.gStatus = require('./defaultVal').gStatus
+require('@api/setup')()
+require('@api/setup/folders')(__dirname)
 
 app.use(require('morgan')('dev'))
 app.use(express.json())
@@ -56,6 +61,10 @@ app.use(
     credentials: true
   })
 )
+// static
+app.use(express.static(path.join(__dirname, 'public', 'spa')))
+app.use('/', require('@src/routes'))
+
 // 서버
 const server = http.createServer(app)
 const io = new Server(server, {
@@ -63,6 +72,7 @@ const io = new Server(server, {
 })
 
 io.engine.use(sessionMiddleware)
+require('./io')(io)
 // 서버 시작
 try {
   server.listen(3000, () => {
@@ -72,5 +82,7 @@ try {
   logError('웹서버 오류', 'server', 'boot')
 }
 
-exports.app = app
-exports.io = io
+// functions
+require('@api/barix').fnStartBarix()
+
+module.exports = { app, io }

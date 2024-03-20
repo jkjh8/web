@@ -1,15 +1,15 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const bcrypt = require('bcrypt')
-const { userFindOne } = require('@db/user')
+const { dbUserFindOne } = require('@db/user')
 
 module.exports = () => {
   passport.serializeUser((user, done) => {
-    done(null, user._id)
+    done(null, user)
   })
   passport.deserializeUser(async (user, done) => {
     try {
-      return done(null, await userFindOne({ email: user.email }))
+      return done(null, await dbUserFindOne({ email: user.email }))
     } catch (error) {
       return done(error, null)
     }
@@ -19,7 +19,7 @@ module.exports = () => {
       { usernameField: 'email', passwordField: 'userPassword' },
       async (email, password, done) => {
         try {
-          const user = await userFindOne({ email: email })
+          const user = await dbUserFindOne({ email: email })
           // not find user email
           if (!user)
             return done(null, false, {
