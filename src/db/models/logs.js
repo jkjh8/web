@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { searchArrToStr, makeSearchField } = require('@logger/search')
+const { searchArrToStr, makeSearchField } = require('@api/utils/search')
 
 const logsSchema = new mongoose.Schema(
   {

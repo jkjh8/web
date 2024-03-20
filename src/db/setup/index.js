@@ -4,7 +4,7 @@ module.exports = {
   dbSetupFind: async () => {
     return await Setup.find()
   },
-  dbSetupindOne: (obj) => {
+  dbSetupFindOne: (obj) => {
     return new Promise((resolve, reject) => {
       Setup.findOne(obj)
         .then((doc) => {
