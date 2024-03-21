@@ -72,7 +72,11 @@ const io = new Server(server, {
 })
 
 io.engine.use(sessionMiddleware)
-require('./io')(io)
+const client = io.of('/clients')
+require('@io/client')(client)
+const bridge = io.of('/qsys')
+require('@io/bridge')(bridge)
+
 // 서버 시작
 try {
   server.listen(3000, () => {
@@ -85,4 +89,6 @@ try {
 // functions
 require('@api/barix').fnStartBarix()
 
-module.exports = { app, io }
+exports.io = io
+exports.client = client
+exports.bridge = bridge

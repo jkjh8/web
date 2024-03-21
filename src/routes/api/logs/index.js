@@ -8,7 +8,6 @@ const router = express.Router()
 
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
-    console.log(req.query)
     let sort = {}
     const { pagination, filter, level } = JSON.parse(req.query.options)
     const { rowsPerPage, page, sortBy, descending } = pagination
@@ -44,7 +43,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       }
     })
   } catch (error) {
-    logError(`로그 데이터 가져오기 실패: ${error}`, 'server', 'log')
+    logError(`로그 데이터 가져오기 오류 ${error}`, req.user.email, 'log')
     res.status(500).json({ result: false, error })
   }
 })

@@ -18,8 +18,8 @@ module.exports = async (defaultFolder, app = null) => {
       }
     }
     gStatus.mediaFolder = path.join(gStatus.defaultFolder, 'media')
-    gStatus.globalFolder = path.join(gStatus.defaultFolder, 'global')
-    gStatus.tempFolder = path.join(gStatus.defaultFolder, 'temp')
+    gStatus.globalFolder = path.join(gStatus.mediaFolder, 'global')
+    gStatus.tempFolder = path.join(gStatus.mediaFolder, 'temp')
     fnCMFolder(gStatus.mediaFolder)
     fnCMFolder(gStatus.globalFolder)
     fnCMFolder(gStatus.tempFolder)

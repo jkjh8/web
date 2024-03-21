@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^7.0.1",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cheerio": "^1.0.0-rc.12",
@@ -38,6 +39,8 @@
     "@logger": "src/logger",
     "@api": "src/api",
     "@clients": "src/io/clients",
-    "@bridge": "src/io/bridge"
+    "@bridge": "src/io/bridge",
+    "@io": "src/io",
+    "@app": "src/app"
   }
 }

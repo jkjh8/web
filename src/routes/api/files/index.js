@@ -1,17 +1,15 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const { isAdmin } = require('@api/user')
-const { logDebug, logError } = require('@logger')
+const { logInfo, logDebug, logError } = require('@logger')
+const ziper = require('./ziper')
 
 const uploader = require('./uploader')
 const {
-  fnGFolder,
   fnCMFolder,
   fnGFolders,
   fnGFiles,
   fnGFSize,
-  fnRTemp,
   fnRFAF
 } = require('@api/files')
 
@@ -77,9 +75,48 @@ router.delete('/', (req, res) => {
     )
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`파일(폴더) 삭제 오류: ${error}`, req.user.email, 'files')
+    logError(`파일(폴더) 삭제 오류 ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
   }
 })
+
+router.get('/download', async (req, res) => {
+  try {
+    res.download(await ziper(JSON.parse(req.query.files)))
+  } catch (error) {
+    logError(`File 다운로드 오류 ${error}`, req.user.email, 'files')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.put('/rename', (req, res) => {
+  try {
+    const { oldName, newName } = req.body
+    fs.renameSync(oldName, newName)
+    logInfo(
+      `파일(폴더) 이름 변경: ${oldName} -> ${newName}`,
+      req.user.email,
+      'files'
+    )
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`파일(폴더) 이름 변경 오류 ${error}`, req.user.email, 'files')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.get('/size', (req, res) => {
+  try {
+    const { fullpath } = req.query
+    let size = 0
+    size = fnGFSize(fullpath)
+    res.status(200).json({ result: true, size })
+  } catch (error) {
+    logError(`파일(폴더) 크기 확인 오류 ${error}`, req.user.email, 'files')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.use('/temp', require('./temp'))
 
 module.exports = router
