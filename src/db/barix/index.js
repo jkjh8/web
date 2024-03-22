@@ -4,8 +4,8 @@ module.exports = {
   dbBarixMake: async (obj) => {
     return await Barix.create({ ...obj })
   },
-  dbBarixFind: async () => {
-    return await Barix.find()
+  dbBarixFind: async (obj) => {
+    return await Barix.find({ ...obj })
   },
   dbBarixFindOne: (obj) => {
     return new Promise((resolve, reject) => {

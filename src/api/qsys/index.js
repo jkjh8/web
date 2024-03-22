@@ -27,6 +27,13 @@ const fnSCDs = async () => {
     logError(`QSYS 데이터 Client 송신 오류 ${error}`, 'server', 'qsys')
   }
 }
+const fnSBData = async (key, obj) => {
+  try {
+    app.bridge.emit(key, obj)
+  } catch (error) {
+    logError(`Bridge 전송 오류 ${error}`, 'server', 'bridge')
+  }
+}
 const fnSADs = async () => {
   try {
     const data = await dbQsysFindAll()
@@ -37,4 +44,4 @@ const fnSADs = async () => {
   }
 }
 
-module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs }
+module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs, fnSBData }

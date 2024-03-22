@@ -1,7 +1,7 @@
 const express = require('express')
 const { logInfo, logDebug, logError } = require('@logger')
 
-const { dbBarixFind, dbBarixMake } = require('@db/barix')
+const { dbBarixFind, dbBarixMake, dbBarixExists } = require('@db/barix')
 
 const router = express.Router()
 
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
   try {
     await dbBarixMake({ ...req.body })
     // add event log
-    logEvent(
+    logInfo(
       `Barix 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
       'barix'
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
 router.delete('/', async (req, res) => {
   try {
     const r = await barixRemoveById(req.body._id)
-    logEvent(
+    logInfo(
       `Barix 장치 삭제 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
       'barix'
@@ -49,9 +49,11 @@ router.delete('/', async (req, res) => {
 
 router.get('/exists', async (req, res) => {
   try {
-    res.status(200).json({ result: await barixExists({ ...req.query.value }) })
+    res
+      .status(200)
+      .json({ result: await dbBarixExists({ ...req.query.value }) })
   } catch (error) {
-    req.status(500).json({ result: false, error })
+    res.status(500).json({ result: false, error })
   }
 })
 

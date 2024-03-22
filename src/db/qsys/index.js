@@ -7,8 +7,8 @@ module.exports = {
   dbQsysFindAll: async () => {
     return await Qsys.find().populate('ZoneStatus.destination')
   },
-  dbQsysFind: async () => {
-    return await Qsys.find()
+  dbQsysFind: async (args) => {
+    return await Qsys.find({ ...args })
   },
   dbQsysFindOne: (obj) => {
     return new Promise((resolve, reject) => {

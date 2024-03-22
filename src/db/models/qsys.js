@@ -18,8 +18,8 @@ const qsysSchema = new mongoose.Schema(
         Squelch: Boolean,
         Station: Number,
         Zone: Number,
-        gain: Number,
-        mute: Number,
+        gain: { type: Number, default: 0 },
+        mute: { type: Boolean, default: false },
         name: String,
         destination: {
           type: mongoose.Types.ObjectId,
