@@ -15,17 +15,26 @@ const fnSQD = async (deviceId, obj) => {
   try {
     app.client.emit('qsys:device', { deviceId, data: obj })
   } catch (error) {
-    logError(`QSYS 단일 데이터 송신 오류 ${error}`, 'server', 'qsys')
+    logError(`QSYS 단일 데이터 Client 송신 오류 ${error}`, 'server', 'qsys')
   }
 }
 
-const fnSCDS = async () => {
+const fnSCDs = async () => {
   try {
     const data = await dbQsysFindAll()
     app.client.emit('qsys:devices', data)
   } catch (error) {
-    logError(`QSYS 데이터 브릿지 공유 오류 ${error}`, 'server', 'qsys')
+    logError(`QSYS 데이터 Client 송신 오류 ${error}`, 'server', 'qsys')
+  }
+}
+const fnSADs = async () => {
+  try {
+    const data = await dbQsysFindAll()
+    app.bridge.emit('qsys:devices', data)
+    app.client.emit('qsys:devices', data)
+  } catch (error) {
+    logError(`QSYS 데이터 전체 송신 오류 ${error}`, 'server', 'qsys')
   }
 }
 
-module.exports = { fnSQD, fnSSQD, fnSCDS }
+module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs }

@@ -25,7 +25,16 @@ const fnGetBarixInfo = (ipaddr) => {
 }
 
 const fnGetBarixes = async () => {
-  const devices = await dbBarixFind()
+  let devices = []
+  try {
+    devices = await dbBarixFind()
+  } catch (error) {
+    logError(
+      `Barix DB 정보 조회 오류 ${JSON.stringify(error)}`,
+      'server',
+      'barix'
+    )
+  }
   devices.forEach((element) => {
     try {
       fnGetBarixInfo(element.ipaddress)

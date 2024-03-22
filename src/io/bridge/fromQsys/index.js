@@ -14,11 +14,18 @@ module.exports = function (socket) {
     fnSQD(deviceId, { connected: false })
   })
 
-  socket.on('qsys:EngineStatus', async (args) => {
-    const { deviceId, EngineStatus } = args
-    await dbQsysUpdate({ deviceId }, { EngineStatus })
-    fnSQD(deviceId, { EngineStatus })
+  socket.on('qsys:device', async (obj) => {
+    console.log(obj)
+    const { deviceId, data } = obj
+    await dbQsysUpdate({ deviceId }, { ...data })
+    fnSQD(deviceId, { ...data })
   })
+
+  // socket.on('qsys:EngineStatus', async (args) => {
+  //   const { deviceId, EngineStatus } = args
+  //   await dbQsysUpdate({ deviceId }, { EngineStatus })
+  //   fnSQD(deviceId, { EngineStatus })
+  // })
 
   socket.on('qsys:ZoneStatus', async (args) => {
     const { deviceId, ZoneStatus } = args

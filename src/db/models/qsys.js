@@ -4,7 +4,7 @@ const qsysSchema = new mongoose.Schema(
   {
     name: String,
     idx: { type: Number, default: 0 },
-    deviceId: { type: String, unique: true },
+    deviceId: { type: String, unique: true, required: true },
     ipaddress: { type: String, unique: true },
     connected: { type: Boolean, default: false },
     header: { type: String, default: 'root' },

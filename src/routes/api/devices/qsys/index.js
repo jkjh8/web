@@ -1,6 +1,6 @@
 const express = require('express')
 const { logInfo, logDebug, logError } = require('@logger')
-
+const { fnSADs, fnSCDs, fnSQD, fnSSQD } = require('@api/qsys')
 const {
   dbQsysMake,
   dbQsysFind,
@@ -20,6 +20,29 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/gainstep', async (req, res) => {})
+router.post('/', async (req, res) => {
+  try {
+    await dbQsysMake({ ...req.body })
+    await fnSADs()
+    logDebug(
+      `QSYS 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
+      req.user.email,
+      'qsys'
+    )
+    res.status(200).json({ result: true })
+    // add event log
+  } catch (error) {
+    logError(`QSYS 장치 추가 오류: ${error}`, req.user.email, 'qsys')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.get('/exists', async (req, res) => {
+  try {
+    res.status(200).json({ result: await dbQsysExists({ ...req.query.value }) })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+  }
+})
 
 module.exports = router
