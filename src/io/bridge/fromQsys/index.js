@@ -34,22 +34,4 @@ module.exports = function (socket) {
       { 'ZoneStatus.$.destination': id ? id : null }
     )
   })
-
-  // socket.on('qsys:EngineStatus', async (args) => {
-  //   const { deviceId, EngineStatus } = args
-  //   await dbQsysUpdate({ deviceId }, { EngineStatus })
-  //   fnSQD(deviceId, { EngineStatus })
-  // })
-
-  // socket.on('qsys:ZoneStatus', async (args) => {
-  //   const { deviceId, ZoneStatus } = args
-  //   await dbQsysUpdate({ deviceId }, { ZoneStatus })
-  //   fnSQD(deviceId, { ZoneStatus })
-  // })
-
-  // socket.on('qsys:GainMute', async (args) => {
-  //   const { deviceId, ZoneStatus } = args
-  //   await dbQsysUpdate({ deviceId }, { ZoneStatus })
-  //   fnSQD(deviceId, { ZoneStatus })
-  // })
 }

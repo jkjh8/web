@@ -2,7 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 
-const { dbUserMake, dbUserFind } = require('@db/user')
+const { dbUserMake, dbUserFind, dbUserExists } = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
 
 const { logInfo, logDebug, logError } = require('@logger')
@@ -42,8 +42,9 @@ router.post('/signup', async (req, res) => {
     })
     logInfo(`사용자 계정 생성: ${userEmail}`, 'server', 'user')
     res.status(200).json({ result: true })
-  } catch (err) {
-    logError(`사용자 계정 생성 실패: ${err}`, 'server', 'user')
+  } catch (error) {
+    console.log(error)
+    logError(`사용자 계정 생성 실패: ${error}`, 'server', 'user')
     res.status(500).json(err)
   }
 })
@@ -51,8 +52,7 @@ router.post('/signup', async (req, res) => {
 router.get('/exists_email', async (req, res) => {
   try {
     const { email } = req.query
-    const r = await dbUserFind({ email: email }, { userPassword: false })
-    res.status(200).json({ result: true, user: r })
+    res.status(200).json({ result: true, user: await dbUserExists({ email }) })
   } catch (err) {
     logError(`이메일 중복 체크 오류: ${err}`, 'server', 'user')
     res.status(500).json(err)

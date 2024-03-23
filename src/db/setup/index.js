@@ -1,8 +1,8 @@
 const Setup = require('@db/models/setup')
 
 module.exports = {
-  dbSetupFind: async () => {
-    return await Setup.find()
+  dbSetupFind: async (obj) => {
+    return await Setup.find(obj)
   },
   dbSetupFindOne: (obj) => {
     return new Promise((resolve, reject) => {

@@ -1,6 +1,7 @@
 /** @format */
 const path = require('node:path')
 const fs = require('node:fs')
+const MongoStore = require('connect-mongo')
 
 require('module-alias/register')
 require('dotenv').config()
@@ -10,14 +11,15 @@ require('@db')
 const express = require('express')
 const https = require('node:https')
 const http = require('node:http')
-const { Server } = require('socket.io')
 const createError = require('http-errors')
 const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const { Server } = require('socket.io')
 
 const { logInfo, logDebug, logError } = require('@logger')
-const io = require('@io')
 // start codes
 const app = express()
+app.enable('trust proxy')
 
 const options = {
   key: fs.readFileSync('./ssl/key.pem'),
@@ -37,7 +39,20 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 // session
-const sessionMiddleware = require('@api/middleware/session')
+
+const sessionMiddleware = session({
+  secret: process.env.SESSION_PASS,
+  resave: true,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'None'
+  },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_ADDR // 주소변경
+  })
+})
 app.use(sessionMiddleware)
 
 // passport
@@ -55,7 +70,6 @@ app.use(
     credentials: true
   })
 )
-app.enable('trust proxy')
 
 app.use(function (req, res, next) {
   if (!req.secure) {
@@ -72,9 +86,6 @@ app.use('/', require('@src/routes'))
 // 서버
 const httpServer = http.createServer(app)
 const httpsServer = https.createServer(options, app)
-// const io = new Server(server, {
-//   maxHttpBufferSize: 1e8 // file transfer limit 100MB
-// })
 
 // 서버 시작
 try {
@@ -97,4 +108,16 @@ try {
 require('@api/barix').fnStartBarix()
 
 // io
-io.initIO(httpsServer)
+const io = new Server(httpsServer, {
+  cors: {
+    origin: (origin, cb) => {
+      cb(null, origin)
+    },
+    maxHttpBufferSize: 1e8, // file transfer limit 100MB
+    credentials: true
+  }
+})
+io.engine.use(sessionMiddleware)
+io.engine.use(passport.session())
+
+require('@io').initIO(io)

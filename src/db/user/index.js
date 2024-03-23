@@ -2,7 +2,7 @@ const User = require('@db/models/user')
 
 module.exports = {
   dbUserMake: async (obj) => {
-    return await User.create({ ...obj }, { userPassword: 0, _id: 0 })
+    return await User.create({ ...obj })
   },
   dbUserFind: async () => {
     return await User.find({}, { userPassword: 0 })
@@ -23,5 +23,8 @@ module.exports = {
   },
   dbUserRemove: async (id) => {
     return await User.findByIdAndDelete(id)
+  },
+  dbUserExists: async (obj) => {
+    return await User.exists(obj)
   }
 }
