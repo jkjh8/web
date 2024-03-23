@@ -1,7 +1,6 @@
 const { logInfo, logDebug, logError } = require('@logger')
 const { dbQsysFindAll } = require('@db/qsys')
 const fromQsys = require('./fromQsys')
-const app = require('@app')
 
 module.exports = (socketio) => {
   socketio.on('connection', async (socket) => {

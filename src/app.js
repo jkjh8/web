@@ -15,7 +15,7 @@ const createError = require('http-errors')
 const cookieParser = require('cookie-parser')
 
 const { logInfo, logDebug, logError } = require('@logger')
-
+const io = require('@io')
 // start codes
 const app = express()
 
@@ -37,28 +37,11 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 // session
-const session = require('express-session')
-const MongoStore = require('connect-mongo')
-const sessionMiddleware = session({
-  secret: process.env.SESSION_PASS,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: 'None'
-  },
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_ADDR // 주소변경
-    // mongoOptions: { useUnifiedTopology: true }
-  })
-})
-
+const sessionMiddleware = require('@api/middleware/session')
 app.use(sessionMiddleware)
 
 // passport
 const passport = require('passport')
-const { Socket } = require('node:dgram')
 require('@api/user/passport')()
 app.use(passport.initialize())
 app.use(passport.session())
@@ -72,6 +55,16 @@ app.use(
     credentials: true
   })
 )
+app.enable('trust proxy')
+
+app.use(function (req, res, next) {
+  if (!req.secure) {
+    // 호스팅시 주소 수정 요망!!!!
+    return res.redirect('https://192.168.1.70:3443' + req.url)
+  }
+  next()
+})
+
 // static
 app.use(express.static(path.join(__dirname, 'public', 'spa')))
 app.use('/', require('@src/routes'))
@@ -103,24 +96,5 @@ try {
 // functions
 require('@api/barix').fnStartBarix()
 
-const io = new Server(httpsServer, {
-  cors: {
-    origin: (origin, cb) => {
-      cb(null, origin)
-    },
-    credentials: true
-  }
-})
-// io.attach(httpServer)
-
-// io.engine.use(sessionMiddleware)
-const client = io.of('/clients').use((socket, next) => {
-  sessionMiddleware(socket.request, {}, next)
-})
-require('@io/client')(client)
-const bridge = io.of('/qsys')
-require('@io/bridge')(bridge)
-
-exports.io = io
-exports.client = client
-exports.bridge = bridge
+// io
+io.initIO(httpsServer)

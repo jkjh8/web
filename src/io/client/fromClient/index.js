@@ -11,6 +11,7 @@ module.exports = function (socket) {
     fnSBData('qsys:volume', obj)
   })
   socket.on('qsys:mute', async (obj) => {
+    console.log(obj)
     const { deviceId, zone, value } = obj
     await dbQsysUpdate(
       { deviceId, 'ZoneStatus.Zone': zone },
