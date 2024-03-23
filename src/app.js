@@ -117,7 +117,17 @@ const io = new Server(httpsServer, {
     credentials: true
   }
 })
-io.engine.use(sessionMiddleware)
-io.engine.use(passport.session())
+function onlyForHandshake(middleware) {
+  return (req, res, next) => {
+    const isHandshake = req._query.sid === undefined
+    if (isHandshake) {
+      middleware(req, res, next)
+    } else {
+      next()
+    }
+  }
+}
+io.engine.use(onlyForHandshake(sessionMiddleware))
+io.engine.use(onlyForHandshake(passport.session()))
 
 require('@io').initIO(io)

@@ -2,26 +2,46 @@ const { logDebug, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
 
-module.exports = async (socketio, sessionMiddleware) => {
+function onlyForHandshake(middleware) {
+  return (req, res, next) => {
+    const isHandshake = req._query.sid === undefined
+    if (isHandshake) {
+      middleware(req, res, next)
+    } else {
+      next()
+    }
+  }
+}
+
+module.exports = async (socketio) => {
+  socketio.use((socket, next) => {
+    if (socket.request.user) {
+      return next()
+    }
+    next(new Error('UnAuthorized'))
+  })
   // socketio.use(sessionMiddleware)
   // socketio.use((socket, next) => {
   //   middleware(socket.request, {}, next)
   // })
 
-  socketio.use((socket, next) => {
-    const session = socket.request.session
-
-    console.log(session)
-    if (session && session.passport) {
-    }
-    return next()
-  })
+  // socketio.use(
+  //   onlyForHandshake((req, res, next) => {
+  //     console.log(req.user)
+  //     next()
+  //   })
+  // )
 
   socketio.on('connection', async (socket) => {
-    logDebug(`Socket.IO clients 연결 ${socket.id}`, 'server', 'socket.io')
+    const user = socket.request.user
+    logDebug(`Socket.IO clients 연결 ${user.email}`, 'server', 'socket.io')
 
     socket.on('disconnect', (reason) => {
-      logDebug(`Socket.IO clients 연결해제 ${socket.id}`, 'server', 'socket.io')
+      logDebug(
+        `Socket.IO clients 연결해제 ${user.email}`,
+        'server',
+        'socket.io'
+      )
     })
     fromClient(socket)
     try {
