@@ -4,6 +4,7 @@ const { fnSADs, fnSCDs, fnSQD, fnSSQD, fnSBData } = require('@api/qsys')
 const {
   dbQsysMake,
   dbQsysFind,
+  dbQsysFindOne,
   dbQsysFindAll,
   dbQsysUpdate,
   dbQsysExists,
@@ -71,7 +72,7 @@ router.put('/zoneupdate', async (req, res) => {
     )
 
     // set zone
-    fnSBData('qsys:tr', { deviceId, zone, destination, ipaddress })
+    fnSBData('qsys:device:gtr', { deviceId, zone, destination, ipaddress })
     // share data all
     res.status(200).json({ result: true, value: r })
   } catch (error) {
@@ -111,6 +112,43 @@ router.put('/modifiedzonename', async (req, res) => {
     )
   } catch (error) {
     logError(`QSYS 방송구간 이름변경 오류: ${error}`)
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.get('/gtrs', (req, res) => {
+  try {
+    const { deviceId } = req.query
+    fnSBData('qsys:device:gtrs', { deviceId })
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(
+      `Qsys 오디오 전송채널 재수집 오류 ${error}`,
+      req.user.email,
+      'qsys'
+    )
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.put('/strs', (req, res) => {
+  try {
+    const device = req.body.device
+    console.log(device)
+
+    fnSBData('qsys:device:strs', { device })
+    logDebug(
+      `Qsys 오디오 전송 채널 재설정 ${device.name}, ${device.ipaddress}`,
+      req.user.email,
+      'qsys'
+    )
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(
+      `Qsys 오디오 전송채널 재설정 오류 ${error}`,
+      req.user.email,
+      'qsys'
+    )
     res.status(500).json({ result: false, error })
   }
 })
