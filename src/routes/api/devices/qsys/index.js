@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
 router.delete('/', async (req, res) => {
   try {
     const r = await dbQsysRemove(req.body._id)
-    await sendQsysDevices()
+    await fnSADs()
     logDebug(
       `QSYS 장치 제거 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
@@ -86,7 +86,6 @@ router.get('/existszone', async (req, res) => {
     const r = await dbQsysFind({
       ZoneStatus: { $elemMatch: { destination: id } }
     })
-    console.log(r)
     res.status(200).json({
       result: true,
       value: r
@@ -104,7 +103,7 @@ router.put('/modifiedzonename', async (req, res) => {
       { deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.name': name }
     )
-    res.status(200).json({ result: true, devices: await qsysFind() })
+    res.status(200).json({ result: true, devices: await dbQsysFindAll() })
     logDebug(
       `QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}, 사용자: ${req.user.email}`,
       'q-sys',

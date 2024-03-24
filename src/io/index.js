@@ -1,6 +1,6 @@
 exports.initIO = (io) => {
   let client = io.of('/client')
-  let bridge = io.of('/bridge')
+  let bridge = io.of('/qsys')
 
   require('@io/client')(client)
   require('@io/bridge')(bridge)

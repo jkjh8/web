@@ -4,9 +4,9 @@ const fromQsys = require('./fromQsys')
 
 module.exports = (socketio) => {
   socketio.use((socket, next) => {
-    const header = socket.request.handshake.headers
-    if (header.host === 'localhost:3443') {
-      next()
+    const header = socket.handshake.headers
+    if (header.host === 'localhost:3443' && header.auth === 'qsys') {
+      return next()
     }
     next(new Error('UnAuthorized'))
   })

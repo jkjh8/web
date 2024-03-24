@@ -50,7 +50,7 @@ const sessionMiddleware = session({
     sameSite: 'None'
   },
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_ADDR // 주소변경
+    mongoUrl: process.env.MONGOBD_SESS_ADDR // 주소변경
   })
 })
 app.use(sessionMiddleware)
@@ -88,21 +88,21 @@ const httpServer = http.createServer(app)
 const httpsServer = https.createServer(options, app)
 
 // 서버 시작
-try {
-  httpServer.listen(3000, () => {
-    logDebug('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
-  })
-} catch (err) {
-  logError('HTTP 서버 오류', 'server', 'boot')
-}
+httpServer.listen(3000)
+httpsServer.listen(3443)
 
-try {
-  httpsServer.listen(3443, () => {
-    logDebug('3443번 포트에서 HTTPS 서버가 시작 되었습니다.', 'server', 'boot')
-  })
-} catch (error) {
+httpsServer.on('listening', () => {
+  logDebug('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
+})
+httpServer.on('error', (error) => {
+  logError(`HTTP 서버 오류 ${error}`, 'server', 'boot')
+})
+httpsServer.on('listening', () => {
+  logDebug('3443번 포트에서 HTTPS 서버가 시작 되었습니다.', 'server', 'boot')
+})
+httpsServer.on('error', (error) => {
   logError(`HTTPS 서버 오류 ${error}`, 'server', 'boot')
-}
+})
 
 // functions
 require('@api/barix').fnStartBarix()
@@ -114,7 +114,8 @@ const io = new Server(httpsServer, {
       cb(null, origin)
     },
     maxHttpBufferSize: 1e8, // file transfer limit 100MB
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['auth']
   }
 })
 function onlyForHandshake(middleware) {

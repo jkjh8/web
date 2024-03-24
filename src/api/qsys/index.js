@@ -29,7 +29,6 @@ const fnSCDs = async () => {
 }
 const fnSBData = async (key, obj) => {
   try {
-    console.log(io)
     io.bridge.emit(key, obj)
   } catch (error) {
     logError(`Bridge 전송 오류 ${error}`, 'server', 'bridge')
