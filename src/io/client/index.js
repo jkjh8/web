@@ -2,17 +2,6 @@ const { logDebug, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
 
-function onlyForHandshake(middleware) {
-  return (req, res, next) => {
-    const isHandshake = req._query.sid === undefined
-    if (isHandshake) {
-      middleware(req, res, next)
-    } else {
-      next()
-    }
-  }
-}
-
 module.exports = async (socketio) => {
   socketio.use((socket, next) => {
     if (socket.request.user) {
@@ -20,17 +9,6 @@ module.exports = async (socketio) => {
     }
     next(new Error('UnAuthorized'))
   })
-  // socketio.use(sessionMiddleware)
-  // socketio.use((socket, next) => {
-  //   middleware(socket.request, {}, next)
-  // })
-
-  // socketio.use(
-  //   onlyForHandshake((req, res, next) => {
-  //     console.log(req.user)
-  //     next()
-  //   })
-  // )
 
   socketio.on('connection', async (socket) => {
     const user = socket.request.user

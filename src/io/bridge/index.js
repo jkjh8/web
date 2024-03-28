@@ -3,13 +3,13 @@ const { dbQsysFindAll } = require('@db/qsys')
 const fromQsys = require('./fromQsys')
 
 module.exports = (socketio) => {
-  socketio.use((socket, next) => {
-    const header = socket.handshake.headers
-    if (header.host === 'localhost:3443' && header.auth === 'qsys') {
-      return next()
-    }
-    next(new Error('UnAuthorized'))
-  })
+  // socketio.use((socket, next) => {
+  //   const header = socket.handshake.headers
+  //   if (header.host === 'localhost' && header.auth === 'qsys') {
+  //     return next()
+  //   }
+  //   next(new Error('UnAuthorized'))
+  // })
 
   socketio.on('connection', async (socket) => {
     logDebug(`Socket.IO Bridge 연결 ${socket.id}`, 'server', 'socket.io')

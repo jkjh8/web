@@ -19,14 +19,6 @@ const { Server } = require('socket.io')
 const { logInfo, logDebug, logError } = require('@logger')
 // start codes
 const app = express()
-app.enable('trust proxy')
-
-const options = {
-  key: fs.readFileSync('./ssl/key.pem'),
-  cert: fs.readFileSync('./ssl/cert.pem'),
-  requestCert: false,
-  rejectUnauthorized: false
-}
 
 // global settings
 global.gStatus = require('./defaultVal').gStatus
@@ -43,12 +35,12 @@ app.use(cookieParser())
 const sessionMiddleware = session({
   secret: process.env.SESSION_PASS,
   resave: true,
-  saveUninitialized: false,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: 'None'
-  },
+  saveUninitialized: true,
+  // cookie: {
+  //   secure: true,
+  // httpOnly: false,
+  //   sameSite: 'None'
+  // },
   store: MongoStore.create({
     mongoUrl: process.env.MONGOBD_SESS_ADDR // 주소변경
   })
@@ -71,44 +63,28 @@ app.use(
   })
 )
 
-app.use(function (req, res, next) {
-  if (!req.secure) {
-    // 호스팅시 주소 수정 요망!!!!
-    return res.redirect('https://192.168.1.70:3443' + req.url)
-  }
-  next()
-})
-
 // static
 app.use(express.static(path.join(__dirname, 'public', 'spa')))
 app.use('/', require('@src/routes'))
 
 // 서버
 const httpServer = http.createServer(app)
-const httpsServer = https.createServer(options, app)
 
 // 서버 시작
 httpServer.listen(3000)
-httpsServer.listen(3443)
 
-httpsServer.on('listening', () => {
+httpServer.on('listening', () => {
   logDebug('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
 })
 httpServer.on('error', (error) => {
   logError(`HTTP 서버 오류 ${error}`, 'server', 'boot')
-})
-httpsServer.on('listening', () => {
-  logDebug('3443번 포트에서 HTTPS 서버가 시작 되었습니다.', 'server', 'boot')
-})
-httpsServer.on('error', (error) => {
-  logError(`HTTPS 서버 오류 ${error}`, 'server', 'boot')
 })
 
 // functions
 require('@api/barix').fnStartBarix()
 
 // io
-const io = new Server(httpsServer, {
+const io = new Server(httpServer, {
   cors: {
     origin: (origin, cb) => {
       cb(null, origin)
