@@ -65,9 +65,9 @@ router.get('/exists', async (req, res) => {
 // 방송구간 바릭스 세팅
 router.put('/zoneupdate', async (req, res) => {
   try {
-    const { id, deviceId, zone, destination, ipaddress } = req.body
+    const { deviceId, zone, destination, ipaddress } = req.body
     const r = await dbQsysUpdate(
-      { '_id': id, 'ZoneStatus.Zone': zone },
+      { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.destination': destination }
     )
 

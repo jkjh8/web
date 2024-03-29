@@ -18,6 +18,7 @@ const router = express.Router()
 router.get('/', (req, res) => {
   try {
     const { folder } = req.query
+    console.log(folder)
     res.status(200).json({ files: fnGFiles(folder) })
   } catch (error) {
     logError(`파일 검색 오류: ${error}`, req.user.email, 'files')
