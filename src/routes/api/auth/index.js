@@ -1,31 +1,42 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
-
+const jwt = require('jsonwebtoken')
 const { dbUserMake, dbUserFind, dbUserExists } = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
+const { isLoggedIn } = require('@api/user')
 
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logWarn, logDebug, logError } = require('@logger')
+const { loggers } = require('winston')
 
 const router = express.Router()
 
-router.get('/', (req, res) => {
-  if (req.isAuthenticated()) return res.json(req.user)
-  res.send(null)
+router.get('/', isLoggedIn, (req, res) => {
+  try {
+    const { user } = req
+    const token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
+      expiresIn: '300s'
+    })
+    res
+      .cookie('jwt', token, { sameSite: 'none', secure: true })
+      .status(200)
+      .json({ result: true, user })
+  } catch (error) {
+    res.status(500).json({ result: false, user: null, error: error })
+  }
 })
 
 router.post('/', (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
     if (err) return res.status(500).json({ err, info })
     if (!user) return res.status(401).json({ err, info })
-    req.login(user, (err) => {
-      if (err) {
-        logError(`사용자 로그인 실패 ${err}`, 'server', 'user')
-        return next(err)
-      }
-      logDebug(`사용자 로그인: ${req.user.email}`, 'server', 'user')
-      return res.status(200).json({ result: true, info })
+    const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
+      expiresIn: '300s'
     })
+    res
+      .cookie('jwt', token, { sameSite: 'none', secure: true })
+      .status(200)
+      .json({ result: true, user })
   })(req, res, next)
 })
 
@@ -59,19 +70,18 @@ router.get('/exists_email', async (req, res) => {
   }
 })
 
-router.get('/signout', async (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      logWarn(
-        `사용자 로그아웃 오류: ${req.user.email} ${err}`,
-        'server',
-        'user'
-      )
-      return res.status(500).json({ error: err })
+router.get('/signout', isLoggedIn, async (req, res) => {
+  try {
+    // console.log(req.user)
+    if (req.cookies['jwt']) {
+      // logInfo(`사용자 로그아웃: ${req.user.email}`)
+      res.clearCookie('jwt').status(200).json({ result: true, user: null })
+    } else {
+      res.status(401).json({ error: '잘못된 토큰' })
     }
-    req.session.destroy()
-    res.status(200).json({ result: true, user: null })
-  })
+  } catch (error) {
+    logError(`사용자 로그아웃 오류: ${req.user.email} ${err}`, 'server', 'user')
+  }
 })
 
 module.exports = router

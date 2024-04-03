@@ -12,6 +12,7 @@ const express = require('express')
 const https = require('node:https')
 const http = require('node:http')
 const createError = require('http-errors')
+const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const { Server } = require('socket.io')
@@ -30,28 +31,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-// session
-
-const sessionMiddleware = session({
-  secret: process.env.SESSION_PASS,
-  resave: true,
-  saveUninitialized: true,
-  // cookie: {
-  //   secure: true,
-  // httpOnly: false,
-  //   sameSite: 'None'
-  // },
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGOBD_SESS_ADDR // 주소변경
-  })
-})
-app.use(sessionMiddleware)
-
 // passport
 const passport = require('passport')
 require('@api/user/passport')()
 app.use(passport.initialize())
-app.use(passport.session())
 
 // cors
 app.use(
@@ -65,6 +48,7 @@ app.use(
 
 // static
 app.use(express.static(path.join(__dirname, 'public', 'spa')))
+app.use('/media', express.static(path.join(__dirname, 'media')))
 app.use('/', require('@src/routes'))
 
 // 서버
@@ -94,17 +78,17 @@ const io = new Server(httpServer, {
     allowedHeaders: ['auth']
   }
 })
-function onlyForHandshake(middleware) {
-  return (req, res, next) => {
-    const isHandshake = req._query.sid === undefined
-    if (isHandshake) {
-      middleware(req, res, next)
-    } else {
-      next()
-    }
-  }
-}
-io.engine.use(onlyForHandshake(sessionMiddleware))
-io.engine.use(onlyForHandshake(passport.session()))
+// function onlyForHandshake(middleware) {
+//   return (req, res, next) => {
+//     const isHandshake = req._query.sid === undefined
+//     if (isHandshake) {
+//       middleware(req, res, next)
+//     } else {
+//       next()
+//     }
+//   }
+// }
+// io.engine.use(onlyForHandshake(sessionMiddleware))
+// io.engine.use(onlyForHandshake(passport.session()))
 
 require('@io').initIO(io)

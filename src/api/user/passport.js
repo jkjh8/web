@@ -1,19 +1,50 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const { ExtractJwt, Strategy: JWTStrategy } = require('passport-jwt')
 const bcrypt = require('bcrypt')
 const { dbUserFindOne } = require('@db/user')
 
+const cookieExtrator = (req) => {
+  let token = null
+  if (req && req.cookies) {
+    token = req.cookies['jwt']
+  }
+  return token
+}
+
 module.exports = () => {
-  passport.serializeUser((user, done) => {
-    done(null, user)
-  })
-  passport.deserializeUser(async (user, done) => {
-    try {
-      return done(null, await dbUserFindOne({ email: user.email }))
-    } catch (error) {
-      return done(error, null)
-    }
-  })
+  passport.use(
+    new JWTStrategy(
+      {
+        jwtFromRequest: cookieExtrator,
+        secretOrKey: process.env.JWT_SECRET_KEY
+      },
+      async (jwtPayload, done) => {
+        try {
+          const { user } = jwtPayload
+          if (user) {
+            return done(null, user)
+          }
+          return done(null, false, {
+            message: '사용자를 찾을 수 없습니다. 이메일을 확인해 주세요'
+          })
+        } catch (error) {
+          done(error)
+        }
+      }
+    )
+  )
+  // passport.serializeUser((user, done) => {
+  //   console.log(user)
+  //   done(null, user)
+  // })
+  // passport.deserializeUser(async (user, done) => {
+  //   try {
+  //     return done(null, await dbUserFindOne({ email: user.email }))
+  //   } catch (error) {
+  //     return done(error, null)
+  //   }
+  // })
   passport.use(
     new LocalStrategy(
       { usernameField: 'email', passwordField: 'userPassword' },

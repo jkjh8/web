@@ -1,9 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 
-const fnGFolder = async (dir) =>
+const fnGFolder = (dir) =>
   fs.readdirSync(dir).reduce((files, file) => {
-    const name = path.join(dir, file)
+    const name = path.resolve(dir, file)
     const isDirectory = fs.statSync(name).isDirectory()
     return isDirectory
       ? [...files, { label: file, path: name, children: fnGFolder(name) }]
@@ -19,7 +19,7 @@ const fnCMFolder = (folder) => {
 const fnGFolders = (email) => {
   const { globalFolder, mediaFolder } = gStatus
   const gFolders = fnGFolder(globalFolder)
-  const userFolder = path.join(mediaFolder, email)
+  const userFolder = path.resolve(mediaFolder, email)
   fnCMFolder(userFolder)
   const uFolders = fnGFolder(userFolder)
   return {
@@ -33,10 +33,11 @@ const fnGFolders = (email) => {
 }
 
 const fnGFiles = (folder) => {
+  console.log('folder', folder)
   const files = fs.readdirSync(folder)
   const fileWith = []
   for (let file of files) {
-    const fullpath = path.join(folder, file)
+    const fullpath = path.resolve(folder, file)
     const stat = fs.statSync(fullpath)
     fileWith.push({
       fullpath,

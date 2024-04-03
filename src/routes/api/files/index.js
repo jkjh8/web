@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const { logInfo, logDebug, logError } = require('@logger')
+
 const ziper = require('./ziper')
 
 const uploader = require('./uploader')
@@ -12,6 +13,7 @@ const {
   fnGFSize,
   fnRFAF
 } = require('@api/files')
+const { gStatus } = require('../../../defaultVal')
 
 const router = express.Router()
 
@@ -19,7 +21,7 @@ router.get('/', (req, res) => {
   try {
     const { folder } = req.query
     console.log(folder)
-    res.status(200).json({ files: fnGFiles(folder) })
+    res.status(200).json({ files: fnGFiles(folder ?? gStatus.globalFolder) })
   } catch (error) {
     logError(`파일 검색 오류: ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
