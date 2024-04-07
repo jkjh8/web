@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logWarn, logDebug, logError } = require('@logger')
 const { dbUserFind, dbUserUpdate, dbUserRemove } = require('@db/user')
 const { isAdmin } = require('@api/user')
 
@@ -31,14 +31,12 @@ router.put('/', async (req, res) => {
   }
 })
 
-router.put('/admin', async (req, res) => {
+router.put('/admin', isAdmin, async (req, res) => {
   try {
-    const { _id, isAdmin } = req.body.user
+    const { _id, email, isAdmin } = req.body
     await dbUserUpdate({ _id }, { isAdmin: !isAdmin })
     logDebug(
-      `사용자의 관리자 권한이 변경되었습니다. ${
-        req.body.user.email
-      } - ${!isAdmin}`,
+      `사용자의 관리자 권한이 변경되었습니다. ${email} - ${!isAdmin}`,
       req.user.email,
       'user'
     )
@@ -52,7 +50,7 @@ router.put('/admin', async (req, res) => {
 router.delete('/', isAdmin, async (req, res) => {
   try {
     const r = await dbUserRemove(req.body._id)
-    logEvent(
+    logWarn(
       `사용자 삭제 ${req.body.name}:${req.body.email}`,
       req.user.email,
       'user'

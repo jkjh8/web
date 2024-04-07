@@ -15,7 +15,7 @@ router.get('/', isLoggedIn, (req, res) => {
   try {
     const { user } = req
     const token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '300s'
+      expiresIn: '1h'
     })
     res
       .cookie('jwt', token, { sameSite: 'none', secure: true })
@@ -31,7 +31,7 @@ router.post('/', (req, res, next) => {
     if (err) return res.status(500).json({ err, info })
     if (!user) return res.status(401).json({ err, info })
     const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '300s'
+      expiresIn: '1h'
     })
     res
       .cookie('jwt', token, { sameSite: 'none', secure: true })
@@ -42,21 +42,31 @@ router.post('/', (req, res, next) => {
 
 router.post('/signup', async (req, res) => {
   try {
-    const { userName, userEmail, userPass } = req.body.auth
+    const { name, email, userPassword } = req.body
     const salt = bcrypt.genSaltSync(10)
-    const hash = bcrypt.hashSync(userPass, salt)
-    await dbUserMake({
-      name: userName,
-      email: userEmail,
-      userPassword: hash,
-      folder: uniqueId(12)
-    })
-    logInfo(`사용자 계정 생성: ${userEmail}`, 'server', 'user')
+    if (email === 'superuser@superuser.com') {
+      await dbUserMake({
+        name: 'superuser',
+        email: 'superuser@superuser.com',
+        userPassword: bcrypt.hashSync('superuser', salt),
+        isAdmin: true,
+        folder: uniqueId(12)
+      })
+      logDebug('슈퍼 사용자 생성', 'server', 'user')
+    } else {
+      await dbUserMake({
+        name: name,
+        email: email,
+        userPassword: bcrypt.hashSync(userPassword, salt),
+        folder: uniqueId(12)
+      })
+      logInfo(`사용자 계정 생성: ${email}`, 'server', 'user')
+    }
     res.status(200).json({ result: true })
   } catch (error) {
     console.log(error)
     logError(`사용자 계정 생성 실패: ${error}`, 'server', 'user')
-    res.status(500).json(err)
+    res.status(500).json(error)
   }
 })
 
@@ -75,7 +85,10 @@ router.get('/signout', isLoggedIn, async (req, res) => {
     // console.log(req.user)
     if (req.cookies['jwt']) {
       // logInfo(`사용자 로그아웃: ${req.user.email}`)
-      res.clearCookie('jwt').status(200).json({ result: true, user: null })
+      res
+        .clearCookie('jwt', { sameSite: 'none', secure: true })
+        .status(200)
+        .json({ result: true, user: null })
     } else {
       res.status(401).json({ error: '잘못된 토큰' })
     }
