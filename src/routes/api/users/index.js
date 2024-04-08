@@ -15,7 +15,7 @@ router.get('/', isAdmin, async (req, res) => {
   }
 })
 
-router.put('/', async (req, res) => {
+router.put('/', isAdmin, async (req, res) => {
   try {
     const { user, update } = req.body
     await dbUserUpdate({ _id: user._id }, update)
