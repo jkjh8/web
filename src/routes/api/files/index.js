@@ -83,9 +83,19 @@ router.delete('/', (req, res) => {
   }
 })
 
-router.get('/download', async (req, res) => {
+router.get('/downloads', async (req, res) => {
   try {
     res.download(await ziper(JSON.parse(req.query.files)))
+  } catch (error) {
+    logError(`Files 다운로드 오류 ${error}`, req.user.email, 'files')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.get('/download', async (req, res) => {
+  try {
+    const file = JSON.parse(req.query.file)
+    res.download(file.fullpath)
   } catch (error) {
     logError(`File 다운로드 오류 ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
@@ -94,10 +104,13 @@ router.get('/download', async (req, res) => {
 
 router.put('/rename', (req, res) => {
   try {
-    const { oldName, newName } = req.body
-    fs.renameSync(oldName, newName)
+    const { oldFile, newName } = req.body
+    fs.renameSync(
+      oldFile.fullpath,
+      path.join(oldFile.dir, newName + oldFile.ext)
+    )
     logInfo(
-      `파일(폴더) 이름 변경: ${oldName} -> ${newName}`,
+      `파일(폴더) 이름 변경: ${oldFile.name} -> ${newName}`,
       req.user.email,
       'files'
     )

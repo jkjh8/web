@@ -4,6 +4,7 @@ const { logInfo, logError, logDebug } = require('@logger')
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const { folder } = req.headers
+    console.log(file.fieldname.toString('utf8'))
     cb(null, decodeURIComponent(folder))
   },
   filename: (req, file, cb) => {

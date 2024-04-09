@@ -13,7 +13,7 @@ router.get('/gainstep', async (req, res) => {
     }
     res.status(200).json({ result: true, value: gStatus.gainStep })
   } catch (error) {
-    logError(`볼륨 간격 조회 ${error}`), 'server', 'setup'
+    logError(`볼륨 간격 조회 ${error}`), req.user.email, 'setup'
   }
 })
 
@@ -24,12 +24,12 @@ router.put('/gainstep', isAdmin, async (req, res) => {
     // update global tts address
     logInfo(
       `볼륨 간격 변경 ${newGainStep} by ${req.user.email}`,
-      'server',
+      req.user.email,
       'setup'
     )
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`볼륨 간격 변경 ${error}`, 'server', 'setup')
+    logError(`볼륨 간격 변경 ${error}`, req.user.email, 'setup')
     res.status(500).json({ result: false, error })
   }
 })

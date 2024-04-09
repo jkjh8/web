@@ -17,7 +17,7 @@ module.exports = (files) => {
       //
     })
 
-    archiver.on('warning', (err) => {
+    archive.on('warning', (err) => {
       if (err.code === 'ENOENT') {
         //
       } else {
