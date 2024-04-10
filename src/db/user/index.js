@@ -18,6 +18,17 @@ module.exports = {
         })
     })
   },
+  dbUserFindOneNonePass: (obj) => {
+    return new Promise((resolve, reject) => {
+      User.findOne(obj, { userPassword: 0, _id: 0 })
+        .then((user) => {
+          resolve(user)
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  },
   dbUserUpdate: async (filer, value) => {
     return await User.findOneAndUpdate(filer, value, { new: true })
   },

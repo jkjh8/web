@@ -2,7 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
-const { dbUserMake, dbUserFind, dbUserExists } = require('@db/user')
+const { dbUserMake, dbUserFindOneNonePass, dbUserExists } = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
 const { isLoggedIn } = require('@api/user')
 
@@ -11,9 +11,9 @@ const { loggers } = require('winston')
 
 const router = express.Router()
 
-router.get('/', isLoggedIn, (req, res) => {
+router.get('/', isLoggedIn, async (req, res) => {
   try {
-    const { user } = req
+    const user = await dbUserFindOneNonePass({ email: req.user.email })
     const token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
       expiresIn: '1h'
     })
