@@ -153,4 +153,22 @@ router.put('/strs', (req, res) => {
   }
 })
 
+router.get('/cancel', (req, res) => {
+  try {
+    if (req.user.isAdmin) {
+      const { name, ipaddress, deviceId } = req.query.device
+      fnSBData(`qsys:page:cancelAll`, deviceId)
+      logInfo(
+        `Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`,
+        req.user.email,
+        'qsys'
+      )
+      return res.status(200).json({ result: true })
+    }
+    res.status(401).json({ result: false, message: 'invaild auth' })
+  } catch (error) {
+    logError(`Qsys 방송 취소 오류`, req.user.email, 'qsys')
+  }
+})
+
 module.exports = router

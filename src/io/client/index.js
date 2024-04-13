@@ -1,22 +1,29 @@
 const { logDebug, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
+const jwt = require('jsonwebtoken')
 
 module.exports = async (socketio) => {
   socketio.use((socket, next) => {
-    if (socket.request.user) {
-      return next()
+    try {
+      const token = socket.handshake.headers.cookie.substring(4)
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
+        socket.user = decoded.user
+      }
+      next()
+    } catch (error) {
+      next(new Error('invaild token'))
     }
-    next(new Error('UnAuthorized'))
   })
 
   socketio.on('connection', async (socket) => {
-    const user = socket.request.user
-    logDebug(`Socket.IO clients 연결 ${user.email}`, 'server', 'socket.io')
+    // const user = socket.request.user
+    logDebug(`Socket.IO clients 연결 ${socket.id}`, 'server', 'socket.io')
 
     socket.on('disconnect', (reason) => {
       logDebug(
-        `Socket.IO clients 연결해제 ${user.email}`,
+        `Socket.IO clients 연결해제 ${socket.iid}`,
         'server',
         'socket.io'
       )

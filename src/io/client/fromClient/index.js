@@ -11,7 +11,7 @@ module.exports = function (socket) {
     fnSBData('qsys:volume', obj)
     logInfo(
       `Volumr device: ${deviceId} Zone: ${zone} Value: ${value}`,
-      socket.request.user.email,
+      socket.user.email,
       'qsys'
     )
   })
@@ -24,7 +24,7 @@ module.exports = function (socket) {
     fnSBData('qsys:mute', obj)
     logInfo(
       `Mute device: ${deviceId} Zone: ${zone} Value: ${value}`,
-      socket.request.user.email,
+      socket.user.email,
       'qsys'
     )
   })
