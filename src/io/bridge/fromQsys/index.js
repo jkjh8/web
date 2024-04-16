@@ -16,7 +16,6 @@ module.exports = function (socket) {
   })
 
   socket.on('qsys:device', async (obj) => {
-    console.log(obj)
     const { deviceId, data } = obj
     await dbQsysUpdate({ deviceId }, { ...data })
     fnSQD(deviceId, { ...data })
