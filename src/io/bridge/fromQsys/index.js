@@ -34,4 +34,24 @@ module.exports = function (socket) {
       { 'ZoneStatus.$.destination': id ? id : null }
     )
   })
+
+  // page
+  socket.on('qsys:page:id', async (obj) => {
+    const { deviceId, id, PageID } = obj
+    await dbQsysUpdate(
+      { deviceId, 'PageStatus.id': id },
+      { $set: { 'PageStatus.$.PageID': PageID } }
+    )
+  })
+
+  socket.on('qsys:page:status', async (obj) => {
+    const { deviceId, params } = obj
+    await dbQsysUpdate(
+      {
+        deviceId,
+        'PageStatus.PageID': params.PageID
+      },
+      { $set: { 'PageStatus.$': { ...params } } }
+    )
+  })
 }

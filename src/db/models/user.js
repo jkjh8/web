@@ -13,7 +13,14 @@ const userSchema = new mongoose.Schema(
     numberOfPaging: { type: Number, default: 0 },
     numberOfReservation: { type: Number, default: 0 },
     loginAt: { type: Date, default: new Date() },
-    folder: { type: String }
+    folder: { type: String },
+    socketId: { type: String },
+    pageId: [
+      {
+        id: String,
+        pageId: Number
+      }
+    ]
   },
   {
     timestamps: true
