@@ -44,4 +44,12 @@ const fnSADs = async () => {
   }
 }
 
-module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs, fnSBData }
+const fnSPM = async (obj) => {
+  try {
+    io.client.emit('qsys:page:message', obj)
+  } catch (error) {
+    logError(`QSYS Page message 전송 오류 ${error}`, 'server', 'qsys')
+  }
+}
+
+module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs, fnSBData, fnSPM }

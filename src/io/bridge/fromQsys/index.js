@@ -1,4 +1,6 @@
-const { fnSSQD, fnSQD } = require('@api/qsys')
+const { logInfo, logDebug, logError, logEvent } = require('@logger')
+const { fnSSQD, fnSQD, fnSPM } = require('@api/qsys')
+const { dbPageUpdate } = require('@db/page')
 const { dbQsysUpdate } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
 
@@ -37,21 +39,40 @@ module.exports = function (socket) {
 
   // page
   socket.on('qsys:page:id', async (obj) => {
-    const { deviceId, id, PageID } = obj
-    await dbQsysUpdate(
-      { deviceId, 'PageStatus.id': id },
-      { $set: { 'PageStatus.$.PageID': PageID } }
-    )
+    try {
+      const { deviceId, idx, PageID } = obj
+      await dbQsysUpdate(
+        { deviceId, 'PageStatus.idx': idx },
+        { $set: { 'PageStatus.$.PageID': PageID, 'PageStatus.$.idx': idx } }
+      )
+      await dbPageUpdate(
+        { idx, 'devices.deviceId': deviceId },
+        { $set: { 'devices.$.PageID': PageID } }
+      )
+    } catch (error) {
+      logError(`QSYS 방송 idx 갱신 오류 ${error}`, 'qsys', 'page')
+    }
   })
 
   socket.on('qsys:page:status', async (obj) => {
-    const { deviceId, params } = obj
-    await dbQsysUpdate(
-      {
-        deviceId,
-        'PageStatus.PageID': params.PageID
-      },
-      { $set: { 'PageStatus.$': { ...params } } }
-    )
+    try {
+      const { deviceId, params } = obj
+      if (params.State === 'done') {
+        fnSPM({ deviceId, message: '방송 종료' })
+        return await dbQsysUpdate(
+          { deviceId },
+          { $pull: { PageStatus: { PageID: params.PageID } } }
+        )
+      }
+      await dbQsysUpdate(
+        {
+          deviceId,
+          'PageStatus.PageID': params.PageID
+        },
+        { $set: { 'PageStatus.$': { ...params } } }
+      )
+    } catch (error) {
+      logError(`QSYS PAGE 상태 갱신오류 ${error}`, 'qsys', 'page')
+    }
   })
 }

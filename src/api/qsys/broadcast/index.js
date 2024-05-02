@@ -1,30 +1,36 @@
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
-const { dbUserUpdate } = require('@db/user')
+const { dbPageMake } = require('@db/page')
 const { dbQsysUpdate } = require('@db/qsys')
-const uniqueId = require('@api/utils/uniqueId')
 
-const fnSetLive = async (obj, email) => {
+const fnSetLive = async (idx, obj, email) => {
   try {
-    const { mode, priority, selected, maxPageTime } = obj
-    const id = uniqueId(8)
-    const zones = selected.zones
-    await dbUserUpdate({ email }, { $push: { pageId: { id } } })
-    if (mode === 'live') {
+    const { Mode, Priority, MaxPageTime, Station, file, devices } = obj
+    await dbPageMake({
+      user: email,
+      idx,
+      Mode,
+      Priority,
+      MaxPageTime,
+      Station,
+      file,
+      devices
+    })
+    if (Mode === 'live') {
       let arr = []
-      for (let item of zones) {
-        dbQsysUpdate(
+      for (let item of devices) {
+        await dbQsysUpdate(
           { deviceId: item.deviceId },
-          { $push: { PageStatus: { id } } }
+          { $push: { PageStatus: { idx } } }
         )
         arr.push({
           deviceId: item.deviceId,
-          id: id,
+          idx,
           params: {
-            Zones: item.value.map((e) => e.Zone),
-            Mode: 'live',
-            MaxPageTime: maxPageTime,
-            Station: 1,
-            Priority: priority
+            Zones: item.Zones,
+            Mode,
+            MaxPageTime,
+            Station,
+            Priority
           }
         })
       }

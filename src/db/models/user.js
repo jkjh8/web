@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     pageId: [
       {
         id: String,
-        pageId: Number
+        PageID: Number
       }
     ]
   },

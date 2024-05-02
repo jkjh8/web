@@ -5,6 +5,8 @@ ssl
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+web_out.log
+web_err.log
 
 # Editor directories and files
 .idea

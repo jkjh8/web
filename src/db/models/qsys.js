@@ -29,11 +29,8 @@ const qsysSchema = new mongoose.Schema(
     ],
     PageStatus: [
       {
-        id: String,
-        PageID: Number,
-        State: String,
-        SubState: String,
-        Message: String
+        idx: String,
+        PageID: Number
       }
     ],
     PaConfig: Object,

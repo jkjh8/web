@@ -4,8 +4,8 @@ module.exports = {
   dbUserMake: async (obj) => {
     return await User.create({ ...obj })
   },
-  dbUserFind: async () => {
-    return await User.find({}, { userPassword: 0 })
+  dbUserFind: async (obj) => {
+    return await User.find({ ...obj }, { userPassword: 0 })
   },
   dbUserFindOne: (obj) => {
     return new Promise((resolve, reject) => {
