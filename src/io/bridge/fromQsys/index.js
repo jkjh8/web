@@ -1,5 +1,6 @@
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
 const { fnSSQD, fnSQD, fnSPM } = require('@api/qsys')
+const { fnCheckMediaFolder } = require('@api/qsys/files')
 const { dbPageUpdate } = require('@db/page')
 const { dbQsysUpdate } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
@@ -7,8 +8,9 @@ const { dbBarixFindOne } = require('@db/barix')
 module.exports = function (socket) {
   socket.on('qsys:connect', async (device) => {
     const { deviceId } = device
-    await dbQsysUpdate({ deviceId }, { connected: true })
+    const r = await dbQsysUpdate({ deviceId }, { connected: true })
     fnSQD(deviceId, { connected: true })
+    fnCheckMediaFolder(r)
   })
 
   socket.on('qsys:disconnect', async (device) => {

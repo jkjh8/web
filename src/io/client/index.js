@@ -23,7 +23,8 @@ module.exports = async (socketio) => {
     const { email } = socket.user
 
     try {
-      dbUserUpdate({ email }, { socketId: socket.id })
+      await dbUserUpdate({ email }, { socketId: socket.id })
+      logDebug(`socket.io 연결 ${socket.id}`, 'server', 'socket.io')
     } catch (error) {
       logError(`socket.io 계정 오류`, 'server', 'socket.io')
     }
