@@ -10,6 +10,37 @@ const router = express.Router()
 
 router.use('/live', require('./live'))
 
+const fnSendPageMessage = (socket, deviceId, message) => {
+  return io.client.to(socket).emit('qsys:page:message', { deviceId, message })
+}
+
+const fnGetSocketId = async (email) => {
+  const r = await dbUserFindOne({ email })
+  return r.socketId
+}
+
+const fnFileUpload = async (file, ipaddress, addr, deviceId, socket) => {
+  try {
+    const stream = fs.createReadStream(file)
+    const form = new FormData()
+    form.append('media', stream)
+    const r = await api.post(`${fnMakeAddr(ipaddress)}/${addr}`, form, {
+      headers: { ...form.getHeaders() }
+    })
+    fnSendPageMessage(socket, deviceId, `파일 업로드 완료`)
+    return { deviceId, data: r.data }
+  } catch (error) {
+    if (error.response && error.response.data) {
+      fnSendPageMessage(
+        socket,
+        deviceId,
+        `파일 업로드 실패: ${error.response.data.error.message ?? ''}`
+      )
+    }
+    return { deviceId, error }
+  }
+}
+
 router.get('/stop', async (req, res) => {
   const page = await dbPageFindOne({ idx: req.query.idx })
   io.bridge.emit(
@@ -52,34 +83,3 @@ router.post('/file', async (req, res) => {
 })
 
 module.exports = router
-
-const fnSendPageMessage = (socket, deviceId, message) => {
-  return io.client.to(socket).emit('qsys:page:message', { deviceId, message })
-}
-
-const fnGetSocketId = async (email) => {
-  const r = await dbUserFindOne({ email })
-  return r.socketId
-}
-
-const fnFileUpload = async (file, ipaddress, addr, deviceId, socket) => {
-  try {
-    const stream = fs.createReadStream(file)
-    const form = new FormData()
-    form.append('media', stream)
-    const r = await api.post(`${fnMakeAddr(ipaddress)}/${addr}`, form, {
-      headers: { ...form.getHeaders() }
-    })
-    fnSendPageMessage(socket, deviceId, `파일 업로드 완료`)
-    return { deviceId, data: r.data }
-  } catch (error) {
-    if (error.response && error.response.data) {
-      fnSendPageMessage(
-        socket,
-        deviceId,
-        `파일 업로드 실패: ${error.response.data.error.message ?? ''}`
-      )
-    }
-    return { deviceId, error }
-  }
-}

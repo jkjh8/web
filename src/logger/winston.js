@@ -28,7 +28,7 @@ const config = {
 }
 
 const logFormat = winston.format.printf(
-  ({ timestamp, level, message, source, category }) => {
+  ({ timestamp, level, message, source, category, zones }) => {
     return `${
       config.colors[level] || ''
     } ${timestamp} ${level} - ${source} ${category} - ${message}\x1b[0m`

@@ -8,7 +8,7 @@ const pageSchema = new mongoose.Schema(
     MaxPageTime: Number,
     Station: { type: Number, default: 1 },
     Priority: { type: Number, default: 3 },
-    file: String,
+    file: Object,
     devices: [
       {
         deviceId: String,

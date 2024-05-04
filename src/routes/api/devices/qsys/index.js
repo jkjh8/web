@@ -156,7 +156,8 @@ router.put('/strs', (req, res) => {
 router.get('/cancel', (req, res) => {
   try {
     if (req.user.isAdmin) {
-      const { name, ipaddress, deviceId } = req.query.device
+      const { name, ipaddress, deviceId, pageId } = req.query.device
+
       fnSBData(`qsys:page:cancelAll`, deviceId)
       logInfo(
         `Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`,
