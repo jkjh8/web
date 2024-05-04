@@ -1,44 +1,17 @@
 const express = require('express')
-const fs = require('fs')
-const FormData = require('form-data')
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
 const { dbUserFindOne } = require('@db/user')
 const { dbPageFindOne } = require('@db/page')
 const io = require('@io')
-const { api, fnMakeAddr } = require('@api/qsys/files')
+const { fnFileUpload, fnFileDelete } = require('@api/qsys/files')
+const { fnSendPageMessage } = require('@io/client/api')
 const router = express.Router()
 
 router.use('/live', require('./live'))
 
-const fnSendPageMessage = (socket, deviceId, message) => {
-  return io.client.to(socket).emit('qsys:page:message', { deviceId, message })
-}
-
 const fnGetSocketId = async (email) => {
   const r = await dbUserFindOne({ email })
   return r.socketId
-}
-
-const fnFileUpload = async (file, ipaddress, addr, deviceId, socket) => {
-  try {
-    const stream = fs.createReadStream(file)
-    const form = new FormData()
-    form.append('media', stream)
-    const r = await api.post(`${fnMakeAddr(ipaddress)}/${addr}`, form, {
-      headers: { ...form.getHeaders() }
-    })
-    fnSendPageMessage(socket, deviceId, `파일 업로드 완료`)
-    return { deviceId, data: r.data }
-  } catch (error) {
-    if (error.response && error.response.data) {
-      fnSendPageMessage(
-        socket,
-        deviceId,
-        `파일 업로드 실패: ${error.response.data.error.message ?? ''}`
-      )
-    }
-    return { deviceId, error }
-  }
 }
 
 router.get('/stop', async (req, res) => {
@@ -75,6 +48,20 @@ router.post('/file', async (req, res) => {
     })
     await Promise.all(promises)
     // 완료 리턴
+    res.status(200).json({ result: true })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.delete('/file', async (req, res) => {
+  try {
+    const { addr, devices } = req.body
+    const promises = devices.map(async (item) => {
+      await fnFileDelete(item.file.base, item.ipaddress, addr, item.deviceId)
+    })
+    await Promise.all(promises)
     res.status(200).json({ result: true })
   } catch (error) {
     console.log(error)
