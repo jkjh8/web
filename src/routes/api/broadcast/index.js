@@ -8,6 +8,7 @@ const { fnSendPageMessage } = require('@io/client/api')
 const router = express.Router()
 
 router.use('/live', require('./live'))
+router.use('/tts', require('./tts'))
 
 const fnGetSocketId = async (email) => {
   const r = await dbUserFindOne({ email })

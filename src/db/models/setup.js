@@ -5,7 +5,8 @@ const setupSchema = new mongoose.Schema(
     key: String,
     value: String,
     valueNum: Number,
-    valueBoolean: Boolean
+    valueBoolean: Boolean,
+    valueArr: Array
   },
   {
     timestamps: true

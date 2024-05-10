@@ -1,0 +1,1 @@
+import{r,P as e}from"./index.854d2d6b.js";const t=r([]),c=async()=>{try{const a=await e.get("/devices/barix");a.data&&a.data.devices&&(t.value=a.data.devices)}catch(a){console.error(a)}};export{t as b,c as f};

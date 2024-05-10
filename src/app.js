@@ -80,3 +80,7 @@ const io = new Server(httpServer, {
 })
 
 require('@io').initIO(io)
+
+// tts
+const { fnGetTtsInfo } = require('@api/tts')
+fnGetTtsInfo()
