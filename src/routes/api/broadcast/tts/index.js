@@ -1,6 +1,10 @@
+const path = require('node:path')
 const express = require('express')
 const axios = require('axios')
+
 const { logError, logWarn, logDebug, logInfo } = require('@logger')
+const { fnGFile } = require('@api/files')
+const makeId = require('@api/utils/uniqueId.js')
 // const { tts, ttsProperty, fnResetInfo } = require('@api/tts')
 
 const router = express.Router()
@@ -36,11 +40,26 @@ router.get('/', async (req, res) => {
 
 router.put('/', async (req, res) => {
   try {
-    console.log(req.body)
-    res.status(200).json({ result: true })
+    const { rate, text, voice } = req.body
+    const name = `${makeId(12)}.mp3`
+    const filePath = path.join(gStatus.tempFolder, name)
+    const r = await tts.post('/speak', {
+      rate,
+      text,
+      voice: voice.id,
+      filePath
+    })
+    res.status(200).json({
+      result: true,
+      value: {
+        busy: r.data.busy,
+        text: r.data.text,
+        file: await fnGFile(r.data.fullpath)
+      }
+    })
   } catch (error) {
     logError(`TTS 생성 오류 ${error}`, req.user.email, 'tts')
-    req.status(500).json({ result: false, error })
+    res.status(500).json({ result: false, error })
   }
 })
 

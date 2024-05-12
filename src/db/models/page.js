@@ -12,7 +12,10 @@ const pageSchema = new mongoose.Schema(
     devices: [
       {
         deviceId: String,
-        Zones: Array,
+        name: String,
+        ipaddress: String,
+        params: Object,
+        barix: Array,
         PageID: Number,
         State: String,
         SubState: String,

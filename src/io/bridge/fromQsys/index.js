@@ -1,7 +1,8 @@
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
 const { fnSSQD, fnSQD, fnSPM } = require('@api/qsys')
 const { fnCheckMediaFolder } = require('@api/qsys/files')
-const { dbPageUpdate } = require('@db/page')
+const { fnBarixRelayOff } = require('@api/barix')
+const { dbPageUpdate, dbPageFindOne } = require('@db/page')
 const { dbQsysUpdate } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
 
@@ -59,13 +60,23 @@ module.exports = function (socket) {
   socket.on('qsys:page:status', async (obj) => {
     try {
       const { deviceId, params } = obj
+      // 종료시
       if (params.State === 'done') {
+        // 종료 메시지
         fnSPM({ deviceId, message: '방송 종료' })
+        // barix relay off
+        const r = await dbPageFindOne({
+          devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }
+        })
+        const index = r.devices.findIndex((e) => e.PageID === params.PageID)
+        await fnBarixRelayOff(r.devices[index].barix)
+        // delete PageID
         return await dbQsysUpdate(
           { deviceId },
           { $pull: { PageStatus: { PageID: params.PageID } } }
         )
       }
+      // Status update
       await dbQsysUpdate(
         {
           deviceId,

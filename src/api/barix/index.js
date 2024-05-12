@@ -2,7 +2,7 @@ const path = require('path')
 const { Worker } = require('worker_threads')
 const { dbBarixFind, dbBarixUpdate } = require('@db/barix')
 const { logError, logDebug } = require('@logger')
-
+const axios = require('axios')
 let barixInterval = null
 
 const fnGetBarixInfo = (ipaddr) => {
@@ -62,9 +62,49 @@ const fnStartBarix = () => {
   }, gStatus.interval * 1000)
 }
 
+// rc.cgi?{c}={value}
+const fnBarixRelayOn = async (arr) => {
+  let promises = arr.map(async (device) => {
+    if (!device) return
+    try {
+      await axios.get(`http://${device.ipaddress}/rc.cgi?R=1`)
+    } catch (error) {
+      logError(
+        `Barix Relay On 오류 ${error.cause ?? error.cause}`,
+        'server',
+        'barix'
+      )
+    }
+  })
+  await Promise.all(promises)
+}
+
+const fnBarixRelayOff = async (arr) => {
+  let promises = arr.map(async (device) => {
+    if (!device) return
+    try {
+      await axios.get(`http://${device.ipaddress}/rc.cgi?R=0`)
+    } catch (error) {
+      logError(
+        `Barix Relay Off 오류 ${error.cause ?? error.cause}`,
+        'server',
+        'barix'
+      )
+    }
+  })
+  await Promise.all(promises)
+}
+
 const fnRestartBarix = () => {
   clearInterval(barixInterval)
   fnStartBarix()
 }
 
-module.exports = { fnGetBarixInfo, fnGetBarixes, fnStartBarix, fnRestartBarix }
+module.exports = {
+  fnGetBarixInfo,
+  fnGetBarixes,
+  fnStartBarix,
+  fnRestartBarix,
+  fnBarixRelayOn,
+  fnBarixRelayOff
+}

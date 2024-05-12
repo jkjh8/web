@@ -1,14 +1,22 @@
 const express = require('express')
 const { logInfo, logDebug, logError, logData } = require('@logger')
 const { dbQsysFindOne } = require('@db/qsys')
+const { fnBarixRelayOn } = require('@api/barix')
 const { fnSetLive } = require('@api/qsys/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
 const io = require('@io')
 const router = express.Router()
 
+// barix 구동 만들어야 함
+
 router.put('/', async (req, res) => {
   try {
     const idx = uniqueId(8)
+    // Barix 릴레이 구동
+    for (let zone of req.body.devices) {
+      await fnBarixRelayOn(zone.barix)
+    }
+    // qsys page 시작
     io.bridge.emit(
       'qsys:page:live',
       await fnSetLive(idx, req.body, req.user.email)
@@ -24,6 +32,11 @@ router.put('/', async (req, res) => {
 router.put('/message', async (req, res) => {
   try {
     const idx = uniqueId(8)
+    // Barix 릴레이 구동
+    for (let zone of req.body.devices) {
+      await fnBarixRelayOn(zone.barix)
+    }
+    // qsys page 시작
     io.bridge.emit(
       'qsys:page:message',
       await fnSetLive(idx, req.body, req.user.email)

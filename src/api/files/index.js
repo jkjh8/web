@@ -50,6 +50,16 @@ const fnGFiles = (folder) => {
   return fileWith
 }
 
+const fnGFile = (fullpath) => {
+  const stat = fs.statSync(fullpath)
+  return {
+    fullpath,
+    path: fullpath.replace(gStatus.mediaFolder, ''),
+    type: 'file',
+    ...stat
+  }
+}
+
 const fnGFSize = (folder) => {
   let size = 0
   const files = fs.readdirSync(folder)
@@ -91,6 +101,7 @@ module.exports = {
   fnCMFolder,
   fnGFolders,
   fnGFiles,
+  fnGFile,
   fnGFSize,
   fnRTemp,
   fnRFAF
