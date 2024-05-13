@@ -62,6 +62,11 @@ const fnStartBarix = () => {
   }, gStatus.interval * 1000)
 }
 
+const fnRestartBarix = () => {
+  clearInterval(barixInterval)
+  fnStartBarix()
+}
+
 // rc.cgi?{c}={value}
 const fnBarixRelayOn = async (arr) => {
   let promises = arr.map(async (device) => {
@@ -93,11 +98,6 @@ const fnBarixRelayOff = async (arr) => {
     }
   })
   await Promise.all(promises)
-}
-
-const fnRestartBarix = () => {
-  clearInterval(barixInterval)
-  fnStartBarix()
 }
 
 module.exports = {

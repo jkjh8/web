@@ -1,15 +1,17 @@
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
 const { dbPageMake } = require('@db/page')
-const { dbQsysUpdate } = require('@db/qsys')
+const { dbQsysFind, dbQsysUpdate } = require('@db/qsys')
 
 const fnSetLive = async (idx, obj, email) => {
   try {
-    const { Mode, Priority, MaxPageTime, Station, file, devices } = obj
+    const { Mode, Priority, Preamble, MaxPageTime, Station, file, devices } =
+      obj
     await dbPageMake({
       user: email,
       idx,
       Mode,
       Priority,
+      Preamble,
       MaxPageTime,
       Station,
       file,
@@ -32,10 +34,29 @@ const fnSetLive = async (idx, obj, email) => {
     await Promise.all(promises)
     return arr
   } catch (error) {
-    console.error(error)
+    logError(`방송 송출 오류 ${error}`, req.user.email, 'broadcast')
+  }
+}
+
+const fnCheckActive = async (arr) => {
+  try {
+    const qsys = await dbQsysFind()
+    for (let item of arr) {
+      const idx = qsys.findIndex((e) => e.deviceId === item.deviceId)
+      const { ZoneStatus } = qsys[idx]
+      for (let zone of item.Zones) {
+        if (ZoneStatus[zone - 1].Active) {
+          return true
+        }
+      }
+    }
+    return false
+  } catch (error) {
+    logError(`방송구간 중복 확인 오류 ${error}`, req.user.email, 'broadcast')
   }
 }
 
 module.exports = {
-  fnSetLive
+  fnSetLive,
+  fnCheckActive
 }

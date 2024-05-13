@@ -4,6 +4,8 @@ const { dbQsysFindOne } = require('@db/qsys')
 const { fnBarixRelayOn } = require('@api/barix')
 const { fnSetLive } = require('@api/qsys/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
+const { fnGetSocketId } = require('@api/user/socket')
+const { fnSendPageMessage } = require('@io/client/api')
 const io = require('@io')
 const router = express.Router()
 
@@ -21,6 +23,10 @@ router.put('/', async (req, res) => {
       'qsys:page:live',
       await fnSetLive(idx, req.body, req.user.email)
     )
+    // 방송 메시지 송출
+    const socketId = await fnGetSocketId(req.user.email)
+    fnSendPageMessage(socketId, 'all', '라이브 방송 시작')
+    // 로그
     logInfo(`라이브 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
     res.status(200).json({ result: true, idx })
   } catch (error) {
@@ -49,6 +55,7 @@ router.put('/message', async (req, res) => {
   }
 })
 
+// 메시지 파일 삭제 만들어야함.
 router.delete('/message', async (req, res) => {
   try {
     console.log(req.body)
@@ -63,7 +70,6 @@ router.get('/stop', async (req, res) => {
   try {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
-    console.log(r)
     for (let item of r.pageId) {
       io.bridge.emit('qsys:page:sstop', {
         deviceId,
@@ -83,7 +89,6 @@ router.get('/cancel', async (req, res) => {
   try {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
-    console.log(r)
     for (let item of r.pageId) {
       io.bridge.emit('qsys:page:cancel', {
         deviceId,

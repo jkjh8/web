@@ -1,4 +1,5 @@
 const path = require('node:path')
+const fs = require('node:fs')
 const express = require('express')
 const axios = require('axios')
 
@@ -52,13 +53,23 @@ router.put('/', async (req, res) => {
     res.status(200).json({
       result: true,
       value: {
-        busy: r.data.busy,
         text: r.data.text,
-        file: await fnGFile(r.data.fullpath)
+        file: { ...path.parse(filePath), ...(await fnGFile(filePath)) }
       }
     })
   } catch (error) {
     logError(`TTS 생성 오류 ${error}`, req.user.email, 'tts')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.delete('/', (req, res) => {
+  try {
+    const { file } = req.body
+    fs.unlinkSync(file.fullpath)
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`TTS 파일 삭제 오류 ${error}`, req.user.email, 'tts')
     res.status(500).json({ result: false, error })
   }
 })
