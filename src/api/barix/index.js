@@ -1,16 +1,23 @@
 const path = require('path')
 const { Worker } = require('worker_threads')
-const { dbBarixFind, dbBarixUpdate } = require('@db/barix')
+const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
 const { logError, logDebug } = require('@logger')
 const axios = require('axios')
 let barixInterval = null
 
-const fnGetBarixInfo = (ipaddr) => {
+const fnGetBarixInfo = (ipaddress) => {
   const worker = new Worker(path.join(__dirname, 'barixWorker.js'), {
-    workerData: ipaddr
+    workerData: ipaddress
   })
   worker.on('message', async (data) => {
-    await dbBarixUpdate({ ipaddress: ipaddr }, { ...data })
+    if (data.status) {
+      await dbBarixUpdate({ ipaddress }, { ...data })
+    } else {
+      const r = await dbBarixUpdate({ ipaddress }, { status: false })
+      if (r.status) {
+        logError(`Barix 정보 수집 오류 ${ipaddress}`, 'server', 'barix')
+      }
+    }
     worker.terminate()
   })
   worker.on('error', async (err) => {
@@ -35,7 +42,7 @@ const fnGetBarixes = async () => {
       'barix'
     )
   }
-  devices.forEach((element) => {
+  devices.forEach(async (element) => {
     try {
       fnGetBarixInfo(element.ipaddress)
     } catch (error) {

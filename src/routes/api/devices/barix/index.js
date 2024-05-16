@@ -1,7 +1,12 @@
 const express = require('express')
 const { logInfo, logDebug, logError } = require('@logger')
 
-const { dbBarixFind, dbBarixMake, dbBarixExists } = require('@db/barix')
+const {
+  dbBarixFind,
+  dbBarixMake,
+  dbBarixExists,
+  dbBarixRemoveById
+} = require('@db/barix')
 
 const router = express.Router()
 
@@ -33,7 +38,7 @@ router.post('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
   try {
-    const r = await barixRemoveById(req.body._id)
+    const r = await dbBarixRemoveById(req.body._id)
     logInfo(
       `Barix 장치 삭제 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
@@ -42,7 +47,7 @@ router.delete('/', async (req, res) => {
     // await qsysDeviceSend('devices')
     res.status(200).json({ result: true, data: r })
   } catch (error) {
-    logger.error(`Barix 장치 삭제 오류 ${error}`, req.user.email, 'barix')
+    logError(`Barix 장치 삭제 오류 ${error}`, req.user.email, 'barix')
     res.status(500).json({ result: false, error })
   }
 })

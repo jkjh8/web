@@ -18,14 +18,14 @@ module.exports = {
   },
   dbBarixUpdate: async (filer, value) => {
     return await Barix.findOneAndUpdate(filer, value, {
-      new: true,
+      new: false,
       upsert: true
     })
   },
   dbBarixExists: async (obj) => {
     return await Barix.exists(obj)
   },
-  dbBarixRemove: async (id) => {
+  dbBarixRemoveById: async (id) => {
     return await Barix.findByIdAndDelete(id)
   }
 }

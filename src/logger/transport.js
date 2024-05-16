@@ -1,6 +1,6 @@
 const Transport = require('winston-transport')
 const util = require('util')
-const Logs = require('@db/models/logs')
+const Logs = require('../db/models/logs')
 //
 // Inherit from `winston-transport` so you can take advantage
 // of the base functionality and `.exceptions.handle()`.
