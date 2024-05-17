@@ -20,7 +20,9 @@ const fnGFolders = (email) => {
   const { globalFolder, mediaFolder } = gStatus
   const gFolders = fnGFolder(globalFolder)
   const userFolder = path.resolve(mediaFolder, email)
+  const scheduleFolder = path.resolve(userFolder, 'schedule')
   fnCMFolder(userFolder)
+  fnCMFolder(scheduleFolder)
   const uFolders = fnGFolder(userFolder)
   return {
     folders: [

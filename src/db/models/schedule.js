@@ -6,13 +6,14 @@ const scheduleSchema = new mongoose.Schema(
     idx: String,
     user: String,
     repeat: String,
+    mode: String,
     date: String,
     time: String,
     weekday: Array,
     file: Object,
-    active: Boolean,
-    zones: [{ deviceId, zones }],
-    zoneNames: Array
+    active: { type: Boolean, default: true },
+    devices: Array,
+    zones: Array
   },
   {
     timestamps: true

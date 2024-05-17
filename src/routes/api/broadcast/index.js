@@ -16,6 +16,7 @@ const router = express.Router()
 
 router.use('/live', require('./live'))
 router.use('/tts', require('./tts'))
+router.use('/schedule', require('./schedule'))
 
 router.get('/stop', async (req, res) => {
   const page = await dbPageFindOne({ idx: req.query.idx })
