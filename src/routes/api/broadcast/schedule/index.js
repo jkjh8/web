@@ -7,7 +7,8 @@ const {
   dbSchMake,
   dbSchFind,
   dbSchFindOne,
-  dbSchUpdate
+  dbSchUpdate,
+  dbSchRemoveById
 } = require('@db/schedule')
 const { logError, logWarn, logDebug, logInfo } = require('@logger')
 
@@ -24,8 +25,8 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { email } = req.user
-    const { schedule } = req.body
+    const { email, folder } = req.user
+    const schedule = req.body
     await dbSchMake({ ...schedule, user: email, idx: makeId(12) })
     res.status(200).json({ result: true })
   } catch (error) {
@@ -38,4 +39,15 @@ router.get('/exists', async (req, res) => {
   //
 })
 
+router.delete('/', async (req, res) => {
+  try {
+    const { schedule } = req.body
+    await dbSchRemoveById(schedule._id)
+    logWarn(`스케줄 삭제 ${schedule.name}`, req.user.email, 'schedule')
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`스케줄 삭제 오류 ${error}`, req.user.email, 'schedule')
+    res.status(500).json({ result: false, error })
+  }
+})
 module.exports = router

@@ -1,5 +1,7 @@
 const { fnSBData } = require('@api/qsys')
 const { dbQsysUpdate } = require('@db/qsys')
+const { fnGetBarixInfo } = require('@api/barix')
+
 const { logInfo, logDebug, logError } = require('@logger')
 module.exports = function (socket) {
   socket.on('qsys:volume', async (obj) => {
@@ -27,5 +29,9 @@ module.exports = function (socket) {
       socket.user.email,
       'qsys'
     )
+  })
+
+  socket.on('barix:get', async (ipaddress) => {
+    fnGetBarixInfo(ipaddress)
   })
 }

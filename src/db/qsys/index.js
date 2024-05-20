@@ -5,7 +5,10 @@ module.exports = {
     return await Qsys.create({ ...obj })
   },
   dbQsysFindAll: async () => {
-    return await Qsys.find().populate('ZoneStatus.destination')
+    return await Qsys.find().populate(
+      'ZoneStatus.destination',
+      'name idx deviceId ipaddress status'
+    )
   },
   dbQsysFind: async (args) => {
     return await Qsys.find({ ...args })
