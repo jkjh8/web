@@ -5,7 +5,7 @@ module.exports = {
     return await Sch.create({ ...obj })
   },
   dbSchFind: async (obj) => {
-    return await Sch.find({ ...obj })
+    return await Sch.find({ ...obj }).sort({ time: 1 })
   },
   dbSchFindOne: (obj) => {
     return new Promise((resolve, reject) => {

@@ -36,7 +36,18 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/exists', async (req, res) => {
-  //
+  try {
+    console.log(req.query)
+    res.status(200).json({
+      result: true,
+      schedules: await dbSchFind({
+        'time': req.query.time,
+        'devices.deviceId': { $in: req.query.devices }
+      })
+    })
+  } catch (error) {
+    logError(`스케줄 중복 확인 오류 ${error}`, req.user.email, 'schedule')
+  }
 })
 
 router.delete('/', async (req, res) => {
@@ -50,4 +61,5 @@ router.delete('/', async (req, res) => {
     res.status(500).json({ result: false, error })
   }
 })
+
 module.exports = router
