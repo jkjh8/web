@@ -16,7 +16,17 @@ const router = express.Router()
 
 router.get('/', async (req, res) => {
   try {
-    res.status(200).json({ result: true, schedules: await dbSchFind() })
+    const { isAdmin, zones } = req.user
+    if (isAdmin) {
+      res.status(200).json({ result: true, schedules: await dbSchFind() })
+    } else {
+      res
+        .status(200)
+        .json({
+          result: true,
+          schedules: await dbSchFind({ 'devices.deviceId': { $in: zones } })
+        })
+    }
   } catch (error) {
     logError(`스케줄 찾기 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })
