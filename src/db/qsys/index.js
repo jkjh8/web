@@ -7,7 +7,7 @@ module.exports = {
   dbQsysFindAll: async () => {
     return await Qsys.find().populate(
       'ZoneStatus.destination',
-      'name idx deviceId ipaddress status'
+      'name idx deviceId ipaddress status streamurl'
     )
   },
   dbQsysFind: async (args) => {

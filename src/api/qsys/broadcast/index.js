@@ -18,9 +18,7 @@ const fnSetLive = async (idx, obj, email) => {
       devices
     })
     let arr = []
-    let promises
-
-    promises = devices.map(async (item) => {
+    let promises = devices.map(async (item) => {
       await dbQsysUpdate(
         { deviceId: item.deviceId },
         { $push: { PageStatus: { idx } } }

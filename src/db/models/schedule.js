@@ -11,10 +11,13 @@ const scheduleSchema = new mongoose.Schema(
     color: String,
     time: String,
     weekDays: Array,
+    Preamble: String,
     file: Object,
     active: { type: Boolean, default: true },
+    sync: { type: Boolean, default: false },
     devices: Array,
-    zones: Array
+    zones: Array,
+    description: String
   },
   {
     timestamps: true

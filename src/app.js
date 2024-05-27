@@ -73,10 +73,10 @@ const io = new Server(httpServer, {
     origin: (origin, cb) => {
       cb(null, origin)
     },
-    // maxHttpBufferSize: 1e8, // file transfer limit 100MB
     credentials: true
-    // allowedHeaders: ['auth']
   }
+  // maxHttpBufferSize: 1e8, // file transfer limit 100MB
+  // allowedHeaders: ['auth']
 })
 
 require('@io').initIO(io)

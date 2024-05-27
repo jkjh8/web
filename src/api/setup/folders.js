@@ -20,9 +20,11 @@ module.exports = async (defaultFolder, app = null) => {
     gStatus.mediaFolder = path.join(gStatus.defaultFolder, 'media')
     gStatus.globalFolder = path.join(gStatus.mediaFolder, 'global')
     gStatus.tempFolder = path.join(gStatus.mediaFolder, 'temp')
+    gStatus.scheduleFolder = path.join(gStatus.mediaFolder, 'schdeule')
     fnCMFolder(gStatus.mediaFolder)
     fnCMFolder(gStatus.globalFolder)
     fnCMFolder(gStatus.tempFolder)
+    fnCMFolder(gStatus.scheduleFolder)
     if (app) {
       app.use('/media', express.static(gStatus.mediaFolder))
     }

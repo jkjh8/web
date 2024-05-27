@@ -40,14 +40,7 @@ const fnGFiles = (folder) => {
   const fileWith = []
   for (let file of files) {
     const fullpath = path.resolve(folder, file)
-    const stat = fs.statSync(fullpath)
-    fileWith.push({
-      fullpath,
-      path: fullpath.replace(gStatus.mediaFolder, ''),
-      type: stat.isDirectory() ? 'folder' : 'file',
-      ...stat,
-      ...path.parse(fullpath)
-    })
+    fileWith.push(fnGFile(fullpath))
   }
   return fileWith
 }
@@ -57,8 +50,9 @@ const fnGFile = (fullpath) => {
   return {
     fullpath,
     path: fullpath.replace(gStatus.mediaFolder, ''),
-    type: 'file',
-    ...stat
+    type: stat.isDirectory() ? 'folder' : 'file',
+    ...stat,
+    ...path.parse(fullpath)
   }
 }
 
