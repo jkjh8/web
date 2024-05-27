@@ -1,4 +1,4 @@
-const { fnSBData } = require('@api/qsys')
+const { fnSADs, fnSBData } = require('@api/qsys')
 const { dbQsysUpdate } = require('@db/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
 
@@ -36,4 +36,8 @@ module.exports = function (socket) {
   })
 
   socket.on('zone:set:channel', (obj) => fnSBData('zone:set:channel', obj))
+  socket.on('zone:set:device', (deviceId) => {
+    // fnSADs()
+    fnSBData('zone:set:device', deviceId)
+  })
 }

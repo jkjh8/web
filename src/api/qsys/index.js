@@ -27,6 +27,7 @@ const fnSCDs = async () => {
     logError(`QSYS 데이터 Client 송신 오류 ${error}`, 'server', 'qsys')
   }
 }
+
 const fnSBData = async (key, obj) => {
   try {
     io.bridge.emit(key, obj)
