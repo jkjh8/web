@@ -1,5 +1,5 @@
 const { logInfo, logDebug, logError, logEvent } = require('@logger')
-const { fnSSQD, fnSQD, fnSPM } = require('@api/qsys')
+const { fnSCDs, fnSQD, fnSPM } = require('@api/qsys')
 const { fnCheckMediaFolder } = require('@api/qsys/files')
 const { fnBarixRelayOff } = require('@api/barix')
 const { dbPageUpdate, dbPageFindOne } = require('@db/page')
@@ -28,16 +28,20 @@ module.exports = function (socket) {
 
   socket.on('qsys:rttr', async (obj) => {
     const { deviceId, zone, value } = obj
-    let id = ''
+    let id = null
 
     if (value) {
       const r = await dbBarixFindOne({ ipaddress: value })
-      id = r._id
+      console.log(r)
+      if (r) {
+        id = r._id
+      }
     }
     await dbQsysUpdate(
       { deviceId, 'ZoneStatus.Zone': zone },
-      { 'ZoneStatus.$.destination': id ? id : null }
+      { 'ZoneStatus.$.destination': id }
     )
+    await fnSCDs()
   })
 
   // page

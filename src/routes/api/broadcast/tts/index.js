@@ -3,6 +3,7 @@ const fs = require('node:fs')
 const express = require('express')
 const axios = require('axios')
 
+const { dbTtsMake } = require('@db/tts')
 const { logError, logWarn, logDebug, logInfo } = require('@logger')
 const { fnGFile } = require('@api/files')
 const makeId = require('@api/utils/uniqueId.js')
@@ -44,17 +45,22 @@ router.put('/', async (req, res) => {
     const { rate, text, voice } = req.body
     const name = `${makeId(12)}.mp3`
     const filePath = path.join(gStatus.tempFolder, name)
+    // TTS 파일 생성
     const r = await tts.post('/speak', {
       rate,
       text,
       voice: voice.id,
       filePath
     })
+    // 파일 정보 수집
+    const file = await fnGFile(filePath)
+    // 데이터 업데이트
+    await dbTtsMake({ rate, text, voice, user: req.user.email })
     res.status(200).json({
       result: true,
       value: {
         text: r.data.text,
-        file: { ...path.parse(filePath), ...(await fnGFile(filePath)) }
+        file
       }
     })
   } catch (error) {
@@ -63,6 +69,7 @@ router.put('/', async (req, res) => {
   }
 })
 
+// TTS 파일 삭제
 router.delete('/', (req, res) => {
   try {
     const { file } = req.body

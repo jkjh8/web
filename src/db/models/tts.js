@@ -2,9 +2,10 @@ const mongoose = require('mongoose')
 
 const ttsSchema = new mongoose.Schema(
   {
-    voice: String,
+    voice: Object,
     user: String,
-    text: String
+    text: String,
+    rate: Number
   },
   { timestamps: true }
 )

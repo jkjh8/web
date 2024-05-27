@@ -34,4 +34,6 @@ module.exports = function (socket) {
   socket.on('barix:get', async (ipaddress) => {
     fnGetBarixInfo(ipaddress)
   })
+
+  socket.on('zone:set:channel', (obj) => fnSBData('zone:set:channel', obj))
 }
