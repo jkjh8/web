@@ -24,6 +24,24 @@ module.exports = {
         })
     })
   },
+  dbQsysFindOnePop: async (args) => {
+    return new Promise((resolve, reject) => {
+      Qsys.findOne(args)
+        .populate(
+          'ZoneStatus.destination',
+          'name idx deviceId ipaddress status streamurl'
+        )
+        .then((doc) => {
+          resolve(doc)
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  },
+  dbQsysBulkWrite: async (arr) => {
+    return await Qsys.bulkWrite(arr)
+  },
   dbQsysUpdate: async (filer, value) => {
     return await Qsys.findOneAndUpdate(filer, value, {
       new: true,

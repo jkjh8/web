@@ -4,6 +4,7 @@ const { logInfo, logDebug, logError } = require('@logger')
 const {
   dbBarixFind,
   dbBarixMake,
+  dbBarixUpdate,
   dbBarixExists,
   dbBarixRemoveById
 } = require('@db/barix')
@@ -32,6 +33,17 @@ router.post('/', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`Barix 장치 추가 오류 ${error}`, req.user.email, 'barix')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.put('/', async (req, res) => {
+  try {
+    const { _id, name, ipaddress } = req.body
+    await dbBarixUpdate({ _id }, { $set: { name, ipaddress } })
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`Barix 장치 수정 오류 ${error}`, req.user.email, 'barix')
     res.status(500).json({ result: false, error })
   }
 })

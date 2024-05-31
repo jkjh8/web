@@ -6,6 +6,7 @@ const {
   dbQsysFind,
   dbQsysFindOne,
   dbQsysFindAll,
+  dbQsysBulkWrite,
   dbQsysUpdate,
   dbQsysExists,
   dbQsysRemove
@@ -34,6 +35,26 @@ router.post('/', async (req, res) => {
     // add event log
   } catch (error) {
     logError(`QSYS 장치 추가 오류: ${error}`, req.user.email, 'qsys')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.put('/edit', async (req, res) => {
+  try {
+    const { deviceId, ipaddress, name } = req.body
+    const r = await dbQsysUpdate(
+      { deviceId: deviceId },
+      { $set: { ipaddress, name } }
+    )
+    await fnSADs()
+    logDebug(
+      `QSYS 장치 수정 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
+      req.user.email,
+      'qsys'
+    )
+    res.status(200).json({ result: true, data: r })
+  } catch (error) {
+    logError(`QSYS 장치 수정 오류: ${error}`, req.user.email, 'qsys')
     res.status(500).json({ result: false, error })
   }
 })
@@ -166,9 +187,35 @@ router.get('/cancel', (req, res) => {
       )
       return res.status(200).json({ result: true })
     }
-    res.status(401).json({ result: false, message: 'invaild auth' })
+    res.status(401).json({ result: false, message: 'Invaild Auth' })
   } catch (error) {
     logError(`Qsys 방송 취소 오류`, req.user.email, 'qsys')
+    res.status(500).json(error)
+  }
+})
+
+router.put('/updatenames', async (req, res) => {
+  try {
+    const zones = []
+    const { deviceId, arr } = req.body
+    let promises = arr.map((item) => {
+      zones.push({
+        updateOne: {
+          filter: { 'deviceId': deviceId, 'ZoneStatus.Zone': item.Zone },
+          update: { $set: { 'ZoneStatus.$.name': item.name } }
+        }
+      })
+    })
+    await Promise.all(promises)
+    await dbQsysBulkWrite(zones)
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(
+      `QSYS 방송구간 이름 업데이트 오류 ${error}`,
+      req.user.email,
+      'qsys'
+    )
+    res.status(500).json(error)
   }
 })
 
