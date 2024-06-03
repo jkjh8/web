@@ -1,0 +1,1 @@
+const e=[{name:"name",label:"Name",align:"center",field:"name",sortable:!0},{name:"deviceId",label:"Device ID",align:"center",field:"deviceId",sortable:!0},{name:"ipaddress",label:"IP Address",align:"center",field:"ipaddress",sortable:!0},{name:"actions",label:"FN",align:"center"}];export{e as c};
