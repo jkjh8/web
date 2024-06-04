@@ -118,6 +118,23 @@ router.get('/existszone', async (req, res) => {
   }
 })
 
+router.get('/existszones', async (req, res) => {
+  try {
+    const { id, deviceId } = req.query
+    const r = await dbQsysFind({
+      ZoneStatus: { $elemMatch: { destination: id } },
+      deviceId: { $ne: deviceId }
+    })
+    res.status(200).json({
+      result: true,
+      value: r
+    })
+  } catch (error) {
+    logError(`QSYS 방송 지역 검색 ${error}`)
+    res.status(500).json({ status: false, error })
+  }
+})
+
 router.put('/modifiedzonename', async (req, res) => {
   try {
     const { deviceId, zone, name } = req.body
@@ -198,17 +215,38 @@ router.put('/updatenames', async (req, res) => {
   try {
     const zones = []
     const { deviceId, arr } = req.body
+    // 대량 데이터 베이스 업데이트 생성
     let promises = arr.map((item) => {
       zones.push({
         updateOne: {
           filter: { 'deviceId': deviceId, 'ZoneStatus.Zone': item.Zone },
-          update: { $set: { 'ZoneStatus.$.name': item.name } }
+          update: {
+            $set: {
+              'ZoneStatus.$.name': item.name,
+              'ZoneStatus.$.destination':
+                item.destination && item.destination !== ''
+                  ? item.destination
+                  : null
+            }
+          }
         }
       })
     })
     await Promise.all(promises)
+    // 대량 업데이트
     await dbQsysBulkWrite(zones)
+    // 리턴
     res.status(200).json({ result: true })
+    // 전체 데이터 송신
+    await fnSADs()
+    // 큐시스 미디어 스트림 업데이트
+    await fnSBData('qsys:device:strs', { deviceId })
+    // 로그 기록
+    logDebug(
+      `QSYS 장치ID: ${deviceId} 방송구간 이름 및 Barix 업데이트`,
+      req.user.email,
+      'qsys'
+    )
   } catch (error) {
     logError(
       `QSYS 방송구간 이름 업데이트 오류 ${error}`,

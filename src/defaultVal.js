@@ -5,6 +5,8 @@ module.exports = {
     defaultFolder: __dirname,
     mediaFolder: '',
     interval: 50,
-    gainStep: 2
+    gainStep: 2,
+    mode: 'Normal',
+    backupAddress: ''
   }
 }

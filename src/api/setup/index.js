@@ -17,6 +17,12 @@ module.exports = async function () {
         case 'gainStep':
           gStatus.gainStep = item.valueNum
           break
+        case 'mode':
+          gStatus.mode = item.value
+          break
+        case 'backupAddress':
+          gStatus.backupAddress = item.value
+          break
       }
     }
     logDebug(

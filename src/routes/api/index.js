@@ -11,5 +11,6 @@ router.use('/files', isLoggedIn, require('./files'))
 router.use('/logs', isLoggedIn, require('./logs'))
 router.use('/broadcast', isLoggedIn, require('./broadcast'))
 router.use('/amx', require('./amx'))
+router.use('/app', require('./app'))
 
 module.exports = router
