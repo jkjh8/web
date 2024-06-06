@@ -10,7 +10,6 @@ router.get('/', async (req, res) => {
     const date = moment()
     const weekday = date.day()
     const toDay = date.format('YYYY-MM-DD')
-    console.log(date, weekday, toDay)
     const schedule = await dbSchFind({
       $or: [{ date: toDay }, { repeat: 'everyDay' }, { weekDays: weekday }]
     })

@@ -1,4 +1,5 @@
 const Sch = require('@db/models/schedule')
+const moment = require('moment')
 
 module.exports = {
   dbSchMake: async (obj) => {
@@ -24,5 +25,13 @@ module.exports = {
   },
   dbSchRemoveById: async (id) => {
     return await Sch.findByIdAndDelete(id)
+  },
+  dbSchFindToday: async () => {
+    const date = moment()
+    const weekday = date.day()
+    const toDay = date.format('YYYY-MM-DD')
+    return await Sch.find({
+      $or: [{ date: toDay }, { repeat: 'everyDay' }, { weekDays: weekday }]
+    }).sort({ time: 1 })
   }
 }
