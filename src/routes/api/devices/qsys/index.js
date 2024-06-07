@@ -12,6 +12,8 @@ const {
   dbQsysRemove
 } = require('@db/qsys')
 
+const { fnGetBarixInfo } = require('@api/barix')
+
 const router = express.Router()
 
 router.get('/', async (req, res) => {
@@ -94,6 +96,8 @@ router.put('/zoneupdate', async (req, res) => {
 
     // set zone
     fnSBData('qsys:device:gtr', { deviceId, zone, destination, ipaddress })
+    // get barix data
+    fnGetBarixInfo(ipaddress)
     // share data all
     res.status(200).json({ result: true, value: r })
   } catch (error) {
@@ -241,6 +245,12 @@ router.put('/updatenames', async (req, res) => {
     await fnSADs()
     // 큐시스 미디어 스트림 업데이트
     await fnSBData('qsys:device:strs', { deviceId })
+    // barix get info
+    arr.forEach((item) => {
+      if (item.destination && item.destination.ipaddress) {
+        fnGetBarixInfo(item.destination.ipaddress)
+      }
+    })
     // 로그 기록
     logDebug(
       `QSYS 장치ID: ${deviceId} 방송구간 이름 및 Barix 업데이트`,
