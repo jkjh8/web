@@ -6,7 +6,6 @@ const router = require('express').Router()
 
 router.use('/barix', require('./barix'))
 router.use('/qsys', require('./qsys'))
-router.use('/tts', require('./tts'))
 
 router.get('/', async (req, res) => {
   try {
@@ -19,8 +18,9 @@ router.get('/', async (req, res) => {
 })
 
 // 서버 모드를 조회하는 라우트입니다.
-router.get('/servermode', (req, res) => {
+router.get('/servermode', async (req, res) => {
   try {
+    await initSetup()
     res.status(200).json({
       result: true,
       mode: gStatus.mode,

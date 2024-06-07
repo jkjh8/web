@@ -3,6 +3,7 @@ const fs = require('node:fs')
 const express = require('express')
 const axios = require('axios')
 
+const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { dbTtsMake } = require('@db/tts')
 const { logError, logWarn, logDebug, logInfo } = require('@logger')
 const { fnGFile } = require('@api/files')
@@ -49,7 +50,7 @@ router.put('/', async (req, res) => {
     const r = await tts.post('/speak', {
       rate,
       text,
-      voice: voice.id,
+      voice,
       filePath
     })
     // 파일 정보 수집
@@ -77,6 +78,41 @@ router.delete('/', (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`TTS 파일 삭제 오류 ${error}`, req.user.email, 'tts')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.get('/voice', async (req, res) => {
+  try {
+    let r = await dbSetupFindOne({ key: 'voice' })
+    if (r && r.value) {
+      gStatus.voice = r.value
+    }
+    res.status(200).json({ ...gStatus })
+  } catch (error) {
+    logError(`TTS음성 오류 ${error}`, 'server', 'setup')
+    res.status(500).json({ result: false, error })
+  }
+})
+
+router.put('/voice', async (req, res) => {
+  try {
+    // check admin
+    if (req.user.isAdmin !== true) {
+      return res.status(403).json({ result: false, error: '권한이 없습니다.' })
+    }
+    const { newVoice } = req.body
+    await dbSetupUpdate({ key: 'voice' }, { value: newVoice })
+    // update global tts voice
+    gStatus.voice = newVoice
+    logInfo(
+      `TTS 음성 변경 완료 ${newVoice} by ${req.user.email}`,
+      'server',
+      'setup'
+    )
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`edit tts voice error ${error}`, 'server', 'setup')
     res.status(500).json({ result: false, error })
   }
 })

@@ -23,6 +23,9 @@ module.exports = async function () {
         case 'backupAddress':
           gStatus.backupAddress = item.value
           break
+        case 'voice':
+          gStatus.voice = item.value
+          break
       }
     }
     logDebug(
