@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logDebug, logError, logData } = require('@logger')
+const { logInfo, logError, logEvent } = require('@logger')
 const { dbQsysFindOne } = require('@db/qsys')
 const { fnBarixRelayOn } = require('@api/barix')
 const { fnSetLive } = require('@api/qsys/broadcast')
@@ -27,7 +27,7 @@ router.put('/', async (req, res) => {
     const socketId = await fnGetSocketId(req.user.email)
     fnSendPageMessage(socketId, 'all', '라이브 방송 시작')
     // 로그
-    logInfo(`라이브 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
+    logEvent(`라이브 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
     res.status(200).json({ result: true, idx })
   } catch (error) {
     logError(`라이브 방송 오류 ${error}`, req.user.email, 'live')
@@ -47,7 +47,7 @@ router.put('/message', async (req, res) => {
       'qsys:page:message',
       await fnSetLive(idx, req.body, req.user.email)
     )
-    logInfo(`메시지 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
+    logEvent(`메시지 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
     res.status(200).json({ result: true, idx })
   } catch (error) {
     logError(`메시지 방송 오류 ${error}`, req.user.email, 'live')
@@ -58,7 +58,6 @@ router.put('/message', async (req, res) => {
 // 메시지 파일 삭제 만들어야함.
 router.delete('/message', async (req, res) => {
   try {
-    console.log(req.body)
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`메시지 삭제 오류  ${error}`, req.user.email, 'live')
@@ -77,7 +76,7 @@ router.get('/stop', async (req, res) => {
         idx: item.idx
       })
     }
-    logInfo(`방송 중지`, req.user.email, 'live', [r.name])
+    logEvent(`방송 중지`, req.user.email, 'live', [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`방송 중지 오류 ${error}`, req.user.email, 'live')
@@ -96,7 +95,7 @@ router.get('/cancel', async (req, res) => {
         idx: item.idx
       })
     }
-    logInfo(`방송 취소`, req.user.email, 'live', [r.name])
+    logEvent(`방송 취소`, req.user.email, 'live', [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`방송 취소 오류 ${error}`, req.user.email, 'live')

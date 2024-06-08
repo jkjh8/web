@@ -1,5 +1,5 @@
 const { dbSetupFind, dbSetupUpdate } = require('@db/setup')
-const { logInfo, logError, logDebug } = require('@logger')
+const { logInfo, logError } = require('@logger')
 const { fnStartBarix, fnRestartBarix } = require('@api/barix')
 const { gStatus } = require('../../defaultVal')
 
@@ -28,7 +28,7 @@ module.exports = async function () {
           break
       }
     }
-    logDebug(
+    logInfo(
       '서버 기본 세팅 데이터가 업데이트 되었습니다(from DB)',
       'server',
       'server'

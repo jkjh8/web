@@ -1,4 +1,4 @@
-const { logInfo, logDebug, logError, logEvent } = require('@logger')
+const { logInfo, logError, logEvent } = require('@logger')
 const { fnSCDs, fnSQD, fnSPM } = require('@api/qsys')
 const { fnCheckMediaFolder } = require('@api/qsys/files')
 const { fnBarixRelayOff } = require('@api/barix')

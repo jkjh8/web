@@ -1,4 +1,4 @@
-const { logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
 const { dbUserUpdate } = require('@db/user')
@@ -24,15 +24,15 @@ module.exports = async (socketio) => {
 
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
-      logDebug(`socket.io 연결 ${socket.id}`, 'server', 'socket.io')
+      logInfo(`socket.io 연결 ${socket.id}`, 'server', 'socket.io')
     } catch (error) {
       logError(`socket.io 계정 오류`, 'server', 'socket.io')
     }
     // const user = socket.request.user
-    logDebug(`Socket.IO clients 연결`, email, 'socket.io')
+    logInfo(`Socket.IO clients 연결`, email, 'socket.io')
 
     socket.on('disconnect', (reason) => {
-      logDebug(`Socket.IO clients 연결해제`, email, 'socket.io')
+      logInfo(`Socket.IO clients 연결해제`, email, 'socket.io')
     })
 
     fromClient(socket)
@@ -48,5 +48,5 @@ module.exports = async (socketio) => {
     })
   })
 
-  logDebug(`Socket.IO clients 시작`, 'server', 'socket.io')
+  logInfo(`Socket.IO clients 시작`, 'server', 'socket.io')
 }

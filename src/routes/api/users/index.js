@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logWarn, logDebug, logError } = require('@logger')
+const { logInfo, logWarn, logError } = require('@logger')
 const { dbUserFind, dbUserUpdate, dbUserRemove } = require('@db/user')
 const { isAdmin } = require('@api/user')
 
@@ -19,7 +19,7 @@ router.put('/', isAdmin, async (req, res) => {
   try {
     const { user, update } = req.body
     await dbUserUpdate({ _id: user._id }, update)
-    logDebug(
+    logInfo(
       `사용자 권한이 변경되었습니다. ${user.email} ${JSON.stringify(update)}`,
       req.user.email,
       'user'
@@ -35,7 +35,7 @@ router.put('/admin', isAdmin, async (req, res) => {
   try {
     const { _id, email, isAdmin } = req.body
     await dbUserUpdate({ _id }, { isAdmin: !isAdmin })
-    logDebug(
+    logInfo(
       `사용자의 관리자 권한이 변경되었습니다. ${email} - ${!isAdmin}`,
       req.user.email,
       'user'

@@ -1,5 +1,5 @@
 const multer = require('multer')
-const { logInfo, logError, logDebug } = require('@logger')
+const { logInfo, logError } = require('@logger')
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

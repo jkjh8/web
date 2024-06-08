@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 
 const {
   dbBarixFind,

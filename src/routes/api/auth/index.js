@@ -6,7 +6,7 @@ const { dbUserMake, dbUserFindOneNonePass, dbUserExists } = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
 const { isLoggedIn } = require('@api/user')
 
-const { logInfo, logWarn, logDebug, logError } = require('@logger')
+const { logInfo, logWarn, logError } = require('@logger')
 const { loggers } = require('winston')
 
 const router = express.Router()
@@ -52,7 +52,7 @@ router.post('/signup', async (req, res) => {
         isAdmin: true,
         folder: uniqueId(12)
       })
-      logDebug('슈퍼 사용자 생성', 'server', 'user')
+      logInfo('슈퍼 사용자 생성', 'server', 'user')
     } else {
       await dbUserMake({
         name: name,

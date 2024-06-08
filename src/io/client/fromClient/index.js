@@ -2,7 +2,7 @@ const { fnSADs, fnSBData } = require('@api/qsys')
 const { dbQsysUpdate } = require('@db/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
 
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 module.exports = function (socket) {
   socket.on('qsys:volume', async (obj) => {
     const { deviceId, zone, value } = obj

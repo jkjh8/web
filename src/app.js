@@ -17,7 +17,7 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const { Server } = require('socket.io')
 
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 // start codes
 const app = express()
 
@@ -58,7 +58,7 @@ const httpServer = http.createServer(app)
 httpServer.listen(3000)
 
 httpServer.on('listening', () => {
-  logDebug('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
+  logInfo('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
 })
 httpServer.on('error', (error) => {
   logError(`HTTP 서버 오류 ${error}`, 'server', 'boot')

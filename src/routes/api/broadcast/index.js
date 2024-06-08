@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logDebug, logError, logEvent } = require('@logger')
+const { logInfo, logError, logEvent } = require('@logger')
 // db
 const { dbUserFindOne } = require('@db/user')
 const { dbPageFindOne } = require('@db/page')

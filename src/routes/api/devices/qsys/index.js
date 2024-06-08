@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 const { fnSADs, fnSCDs, fnSQD, fnSSQD, fnSBData } = require('@api/qsys')
 const {
   dbQsysMake,
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
   try {
     await dbQsysMake({ ...req.body })
     await fnSADs()
-    logDebug(
+    logInfo(
       `QSYS 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
       'qsys'
@@ -49,7 +49,7 @@ router.put('/edit', async (req, res) => {
       { $set: { ipaddress, name } }
     )
     await fnSADs()
-    logDebug(
+    logInfo(
       `QSYS 장치 수정 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
       'qsys'
@@ -65,7 +65,7 @@ router.delete('/', async (req, res) => {
   try {
     const r = await dbQsysRemove(req.body._id)
     await fnSADs()
-    logDebug(
+    logInfo(
       `QSYS 장치 제거 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
       'qsys'
@@ -147,7 +147,7 @@ router.put('/modifiedzonename', async (req, res) => {
       { 'ZoneStatus.$.name': name }
     )
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
-    logDebug(
+    logInfo(
       `QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}, 사용자: ${req.user.email}`,
       'q-sys',
       'data'
@@ -179,7 +179,7 @@ router.put('/strs', (req, res) => {
     console.log(device)
 
     fnSBData('qsys:device:strs', { device })
-    logDebug(
+    logInfo(
       `Qsys 오디오 전송 채널 재설정 ${device.name}, ${device.ipaddress}`,
       req.user.email,
       'qsys'
@@ -252,7 +252,7 @@ router.put('/updatenames', async (req, res) => {
       }
     })
     // 로그 기록
-    logDebug(
+    logInfo(
       `QSYS 장치ID: ${deviceId} 방송구간 이름 및 Barix 업데이트`,
       req.user.email,
       'qsys'

@@ -3,7 +3,7 @@ const https = require('https')
 const { fnSendPageMessage } = require('@io/client/api')
 const fs = require('fs')
 const FormData = require('form-data')
-const { logInfo, logDebug, logError, logEvent } = require('@logger')
+const { logInfo, logError, logEvent } = require('@logger')
 const { dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('../../../db/schedule')
 

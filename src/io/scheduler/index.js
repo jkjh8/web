@@ -1,4 +1,4 @@
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 const { dbSchFindToday } = require('@db/schedule')
 const { fnSendTodaySchedule } = require('./api')
 

@@ -2,7 +2,7 @@ const path = require('path')
 const express = require('express')
 const { fnCMFolder } = require('@api/files')
 const { dbSetupFindOne } = require('@db/setup')
-const { logError, logDebug } = require('@logger')
+const { logError, logInfo } = require('@logger')
 const { gStatus } = require('../../defaultVal')
 
 module.exports = async (defaultFolder, app = null) => {
@@ -28,7 +28,7 @@ module.exports = async (defaultFolder, app = null) => {
     if (app) {
       app.use('/media', express.static(gStatus.mediaFolder))
     }
-    logDebug(`서버 미디어 폴더가 활성화 되었습니다.`, 'server', 'server')
+    logInfo(`서버 미디어 폴더가 활성화 되었습니다.`, 'server', 'server')
   } catch (error) {
     logError(
       `미디어 폴더 생성 오류 ${JSON.stringify(error)}`,

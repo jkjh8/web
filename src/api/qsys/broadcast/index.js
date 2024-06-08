@@ -1,4 +1,4 @@
-const { logInfo, logDebug, logError, logEvent } = require('@logger')
+const { logInfo, logError, logEvent } = require('@logger')
 const { dbPageMake } = require('@db/page')
 const { dbQsysFind, dbQsysUpdate } = require('@db/qsys')
 

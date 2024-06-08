@@ -1,5 +1,5 @@
 const io = require('@io')
-const { logInfo, logDebug, logError } = require('@logger')
+const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
 
 const fnSSQD = async (socket) => {

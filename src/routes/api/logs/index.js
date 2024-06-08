@@ -2,7 +2,7 @@ const express = require('express')
 const Hangul = require('hangul-js')
 const Logs = require('@db/models/logs')
 const { isLoggedIn } = require('@api/user')
-const { logInfo, logError, logDebug } = require('@logger')
+const { logError } = require('@logger')
 
 const router = express.Router()
 
@@ -15,7 +15,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
 
     const searchOptions = []
     if (level && level !== 0) {
-      searchOptions.push({ levelNum: { $gt: level } })
+      searchOptions.push({ levelNum: { $gte: level } })
     }
     if (filter) {
       searchOptions.push({

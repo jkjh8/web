@@ -5,7 +5,7 @@ const axios = require('axios')
 
 const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { dbTtsMake } = require('@db/tts')
-const { logError, logWarn, logDebug, logInfo } = require('@logger')
+const { logError, logWarn, logInfo } = require('@logger')
 const { fnGFile } = require('@api/files')
 const makeId = require('@api/utils/uniqueId.js')
 // const { tts, ttsProperty, fnResetInfo } = require('@api/tts')

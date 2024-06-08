@@ -11,7 +11,7 @@ const {
   dbSchUpdate,
   dbSchRemoveById
 } = require('@db/schedule')
-const { logError, logWarn, logDebug, logInfo } = require('@logger')
+const { logError, logWarn, logInfo } = require('@logger')
 const { fnSyncFileSchedule } = require('@api/qsys/files')
 const { api, fnFileDelete } = require('../../../../api/qsys/files')
 
