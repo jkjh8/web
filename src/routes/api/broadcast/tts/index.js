@@ -8,31 +8,18 @@ const { dbTtsMake } = require('@db/tts')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGFile } = require('@api/files')
 const makeId = require('@api/utils/uniqueId.js')
-// const { tts, ttsProperty, fnResetInfo } = require('@api/tts')
 
 const router = express.Router()
 
-const tts = axios.create({ baseURL: 'http://localhost:5000' })
+const { tts, fnGetTtsInfo, fnResetInfo } = require('@api/tts')
 let ttsProperty = {}
-
-const fnGetTtsInfo = async () => {
-  const r = await tts.get('/')
-  ttsProperty = r.data.values
-  return ttsProperty
-}
-
-const fnResetInfo = async () => {
-  const r = await tts.get('/reset')
-  ttsProperty = r.data.values
-  return ttsProperty
-}
 
 router.get('/', async (req, res) => {
   try {
     if (Object.keys(ttsProperty).length) {
       res.status(200).json({ result: true, value: ttsProperty })
     } else {
-      await fnResetInfo()
+      ttsProperty = await fnResetInfo()
       res.status(200).json({ result: true, value: ttsProperty })
     }
   } catch (error) {
@@ -47,7 +34,7 @@ router.put('/', async (req, res) => {
     const name = `${makeId(12)}.mp3`
     const filePath = path.join(gStatus.tempFolder, name)
     // TTS 파일 생성
-    const r = await tts.post('/speak', {
+    const { data } = await tts.post('/speak', {
       rate,
       text,
       voice,
@@ -60,7 +47,7 @@ router.put('/', async (req, res) => {
     res.status(200).json({
       result: true,
       value: {
-        text: r.data.text,
+        ...data,
         file
       }
     })

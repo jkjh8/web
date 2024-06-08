@@ -2,6 +2,7 @@ const express = require('express')
 const { logInfo, logWarn, logError } = require('@logger')
 const { dbUserFind, dbUserUpdate, dbUserRemove } = require('@db/user')
 const { isAdmin } = require('@api/user')
+const { backupServer, fnBackupUsers } = require('@api/backup')
 
 const router = express.Router()
 
@@ -57,7 +58,30 @@ router.delete('/', isAdmin, async (req, res) => {
     )
     res.status(200).json({ result: true, data: r })
   } catch (error) {
+    res.status(500).json({ result: false, error: error })
     logError(`사용자 삭제 오류 ${error}`, req.user.email, 'user')
+  }
+})
+
+router.get('/backup', isAdmin, async (req, res) => {
+  try {
+    console.log(gStatus)
+    if (
+      gStatus.mode === 'Normal' &&
+      gStatus.backupAddress &&
+      gStatus.backupActive
+    ) {
+      console.log(await fnBackupUsers(req.user.email))
+    } else {
+      logWarn(`사용자 백업 오류 - 백업 설정 안됨`, req.user.email, 'user')
+      return res
+        .status(403)
+        .json({ result: false, error: '백업 모드가 아닙니다.' })
+    }
+    return res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error: error })
+    logError(`사용자 백업 오류 ${error}`, req.user.email, 'user')
   }
 })
 

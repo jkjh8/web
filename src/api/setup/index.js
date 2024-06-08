@@ -26,6 +26,9 @@ module.exports = async function () {
         case 'voice':
           gStatus.voice = item.value
           break
+        case 'backupActive':
+          gStatus.backupActive = item.valueBoolean
+          break
       }
     }
     logInfo(
