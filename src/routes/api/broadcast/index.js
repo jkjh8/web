@@ -65,7 +65,7 @@ router.put('/active', async (req, res) => {
     const socketId = await fnGetSocketId(req.user.email)
     fnSendPageMessage(socketId, 'all', '방송구간 중복 확인')
     const r = await fnCheckActive(devices)
-    if (r) {
+    if (r && r.length) {
       fnSendPageMessage(socketId, 'all', '방송구간 중복')
     }
     res.status(200).json({ result: true, active: r })

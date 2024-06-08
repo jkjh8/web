@@ -38,17 +38,27 @@ const fnSetLive = async (idx, obj, email) => {
 
 const fnCheckActive = async (arr) => {
   try {
+    let active = []
     const qsys = await dbQsysFind()
     for (let item of arr) {
       const idx = qsys.findIndex((e) => e.deviceId === item.deviceId)
       const { ZoneStatus } = qsys[idx]
+      let Zones = []
       for (let zone of item.Zones) {
         if (ZoneStatus[zone - 1].Active) {
-          return true
+          Zones.push(zone)
         }
       }
+      if (Zones && Zones.length > 0) {
+        active.push({
+          deviceId: qsys[idx].deviceId,
+          ipaddress: qsys[idx].ipaddress,
+          name: qsys[idx].name,
+          Zones
+        })
+      }
     }
-    return false
+    return active
   } catch (error) {
     logError(`방송구간 중복 확인 오류 ${error}`, req.user.email, 'broadcast')
   }
