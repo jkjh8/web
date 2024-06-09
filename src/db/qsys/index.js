@@ -2,6 +2,9 @@ const Qsys = require('@db/models/qsys')
 
 module.exports = {
   dbQsysMake: async (obj) => {
+    // backup function
+
+    // make db
     return await Qsys.create({ ...obj })
   },
   dbQsysFindAll: async () => {
@@ -53,5 +56,15 @@ module.exports = {
   },
   dbQsysRemove: async (id) => {
     return await Qsys.findByIdAndDelete(id)
+  },
+  dbQsysPageUpdate: async (devices, idx) => {
+    await Promise.all(
+      devices.map(async (item) => {
+        await Qsys.findOneAndUpdate(
+          { deviceId: item.deviceId },
+          { $push: { PageStatus: { idx } } }
+        )
+      })
+    )
   }
 }

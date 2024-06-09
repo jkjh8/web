@@ -2,7 +2,7 @@ const express = require('express')
 const axios = require('axios')
 const path = require('node:path')
 const fs = require('node:fs')
-const makeId = require('@api/utils/uniqueId.js')
+const uniqueId = require('@api/utils/uniqueId.js')
 //io
 const io = require('@io')
 //db
@@ -14,9 +14,9 @@ const {
   dbSchRemoveById
 } = require('@db/schedule')
 const { dbPageMake } = require('@db/page')
-const { dbQsysUpdate } = require('@db/qsys')
+const { dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
-const { fnCMFolder, fnGFile } = require('@api/files')
+const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnSyncFileSchedule } = require('@api/qsys/files')
 const { fnFileDelete } = require('@api/qsys/files')
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 
 router.put('/', async (req, res) => {
   try {
-    const { idx, devices, name, file, Preamble, user, zones } = req.body
+    const { idx, devices, name, file } = req.body
     // page 명령 만들기
     const page = await fnMakePageFromSchedule(req.body)
     // 방송구간 중복 확인
@@ -56,25 +56,19 @@ router.put('/', async (req, res) => {
         exists.map((e) => `${e.name}-${e.Zones.join(',')}`)
       )
     }
-    // page db 업데이트
+    // Page db 업데이트
     await dbPageMake({
-      user,
-      idx,
+      ...req.body,
       Mode: 'message',
-      Priority,
-      Preamble,
       Station: 1,
-      file,
+      Priority: 3,
       devices: page
     })
-    let promises = devices.map(async (item) => {
-      await dbQsysUpdate(
-        { deviceId: item.deviceId },
-        { $push: { PageStatus: { idx } } }
-      )
-    })
-    await Promise.all(promises)
+    // Qsys db 업데이트
+    await dbQsysPageUpdate(devices, idx)
+    // 방송 송출
     io.bridge.emit('qsys:page:message', page)
+    // 로그기록
     logInfo(
       `스케줄 방송 시작 ${name} - ${idx} - ${file.base}`,
       req.user.email,
@@ -90,14 +84,14 @@ router.post('/', async (req, res) => {
   try {
     const user = req.user.email
     const { mode, file } = req.body
-    const idx = makeId(16)
-    fnCMFolder(path.join(gStatus.scheduleFolder, idx))
+    const idx = uniqueId(16)
+    fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
     mode === '파일'
       ? fs.copyFileSync(file.fullpath, currentFilePath)
       : fs.renameSync(file.fullpath, currentFilePath)
-    const newFile = fnGFile(currentFilePath)
+    const newFile = fnGetFile(currentFilePath)
 
     res.status(200).json({
       result: await dbSchMake({

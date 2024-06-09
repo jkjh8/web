@@ -7,13 +7,12 @@ const ziper = require('./ziper')
 
 const uploader = require('./uploader')
 const {
-  fnCMFolder,
-  fnGFolders,
-  fnGFiles,
-  fnGFSize,
+  fnMakeolder,
+  fnGetFolders,
+  fnGetFiles,
+  fnGetFileSize,
   fnRFAF
 } = require('@api/files')
-const { gStatus } = require('../../../defaultVal')
 
 const router = express.Router()
 
@@ -21,7 +20,7 @@ router.get('/', (req, res) => {
   try {
     const { folder } = req.query
     console.log(folder)
-    res.status(200).json({ files: fnGFiles(folder ?? gStatus.globalFolder) })
+    res.status(200).json({ files: fnGetFiles(folder ?? gStatus.globalFolder) })
   } catch (error) {
     logError(`파일 검색 오류: ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
@@ -42,7 +41,7 @@ router.post('/', uploader.any(), (req, res) => {
 router.get('/dir', (req, res) => {
   try {
     const { email } = req.user
-    res.status(200).json(fnGFolders(email))
+    res.status(200).json(fnGetFolders(email))
   } catch (error) {
     logError(`폴더 검색 오류 : ${error}`, req.user.email, 'files')
   }
@@ -52,7 +51,7 @@ router.post('/newfolder', (req, res) => {
   try {
     const { folder, name } = req.body
     const newFolder = path.join(folder, name)
-    fnCMFolder(newFolder)
+    fnMakeolder(newFolder)
     logInfo(
       `새폴더: ${newFolder.replace(gStatus.mediaFolder, '')}, ${
         req.user.email
@@ -125,7 +124,7 @@ router.get('/size', (req, res) => {
   try {
     const { fullpath } = req.query
     let size = 0
-    size = fnGFSize(fullpath)
+    size = ile(fullpath)
     res.status(200).json({ result: true, size })
   } catch (error) {
     logError(`파일(폴더) 크기 확인 오류 ${error}`, req.user.email, 'files')

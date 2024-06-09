@@ -1,5 +1,9 @@
 const { logInfo, logError, logEvent } = require('@logger')
-const { fnSCDs, fnSQD, fnSPM } = require('@api/qsys')
+const {
+  fnSendClientStatusAll,
+  fnSendClientQsysData,
+  fnSendClientPageMessage
+} = require('@api/qsys')
 const { fnCheckMediaFolder } = require('@api/qsys/files')
 const { fnBarixRelayOff } = require('@api/barix')
 const { dbPageUpdate, dbPageFindOne } = require('@db/page')
@@ -10,20 +14,20 @@ module.exports = function (socket) {
   socket.on('qsys:connect', async (device) => {
     const { deviceId } = device
     const r = await dbQsysUpdate({ deviceId }, { connected: true })
-    fnSQD(deviceId, { connected: true })
+    fnSendClientQsysData(deviceId, { connected: true })
     fnCheckMediaFolder(r)
   })
 
   socket.on('qsys:disconnect', async (device) => {
     const { deviceId } = device
     await dbQsysUpdate({ deviceId }, { connected: false })
-    fnSQD(deviceId, { connected: false })
+    fnSendClientQsysData(deviceId, { connected: false })
   })
 
   socket.on('qsys:device', async (obj) => {
     const { deviceId, data } = obj
     await dbQsysUpdate({ deviceId }, { ...data })
-    fnSQD(deviceId, { ...data })
+    fnSendClientQsysData(deviceId, { ...data })
   })
 
   socket.on('qsys:rttr', async (obj) => {
@@ -41,7 +45,7 @@ module.exports = function (socket) {
       { deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.destination': id }
     )
-    await fnSCDs()
+    await fnSendClientStatusAll()
   })
 
   // page
@@ -67,7 +71,7 @@ module.exports = function (socket) {
       // 종료시
       if (params.State === 'done') {
         // 종료 메시지
-        fnSPM({ deviceId, message: '방송 종료' })
+        fnSendClientPageMessage({ deviceId, message: '방송 종료' })
         // barix relay off
         const r = await dbPageFindOne({
           devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }

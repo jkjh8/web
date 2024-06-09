@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 module.exports = async (socketio) => {
   socketio.use((socket, next) => {
     try {
-      const token = socket.handshake.headers.cookie.substring(4)
+      const token = socket.handshake.auth.token
       if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
         socket.user = decoded.user

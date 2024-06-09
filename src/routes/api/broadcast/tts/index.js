@@ -6,8 +6,8 @@ const axios = require('axios')
 const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { dbTtsMake } = require('@db/tts')
 const { logError, logWarn, logInfo } = require('@logger')
-const { fnGFile } = require('@api/files')
-const makeId = require('@api/utils/uniqueId.js')
+const { fnGetFile } = require('@api/files')
+const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()
 
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const { rate, text, voice } = req.body
-    const name = `${makeId(12)}.mp3`
+    const name = `${uniqueId(16)}.mp3`
     const filePath = path.join(gStatus.tempFolder, name)
     // TTS 파일 생성
     const { data } = await tts.post('/speak', {
@@ -41,7 +41,7 @@ router.put('/', async (req, res) => {
       filePath
     })
     // 파일 정보 수집
-    const file = await fnGFile(filePath)
+    const file = await fnGetFile(filePath)
     // 데이터 업데이트
     await dbTtsMake({ rate, text, voice, user: req.user.email })
     res.status(200).json({

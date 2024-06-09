@@ -13,7 +13,7 @@ const router = express.Router()
 
 router.put('/', async (req, res) => {
   try {
-    const idx = uniqueId(8)
+    const idx = uniqueId(16)
     // Barix 릴레이 구동
     for (let zone of req.body.devices) {
       await fnBarixRelayOn(zone.barix)
@@ -37,7 +37,7 @@ router.put('/', async (req, res) => {
 
 router.put('/message', async (req, res) => {
   try {
-    const idx = uniqueId(8)
+    const idx = uniqueId(16)
     // Barix 릴레이 구동
     for (let zone of req.body.devices) {
       await fnBarixRelayOn(zone.barix)

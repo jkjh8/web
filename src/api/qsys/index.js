@@ -2,7 +2,7 @@ const io = require('@io')
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
 
-const fnSSQD = async (socket) => {
+const fnSendSocketStatusAll = async (socket) => {
   try {
     const qsys = await dbQsysFindAll()
     socket.emit('qsys:devices', qsys)
@@ -11,7 +11,7 @@ const fnSSQD = async (socket) => {
   }
 }
 
-const fnSQD = async (deviceId, obj) => {
+const fnSendClientQsysData = async (deviceId, obj) => {
   try {
     io.client.emit('qsys:device', { deviceId, data: obj })
   } catch (error) {
@@ -19,7 +19,7 @@ const fnSQD = async (deviceId, obj) => {
   }
 }
 
-const fnSCDs = async () => {
+const fnSendClientStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
     io.client.emit('qsys:devices', data)
@@ -28,14 +28,14 @@ const fnSCDs = async () => {
   }
 }
 
-const fnSBData = async (key, obj) => {
+const fnSendQsysData = async (key, obj) => {
   try {
     io.bridge.emit(key, obj)
   } catch (error) {
     logError(`Bridge 전송 오류 ${error}`, 'server', 'bridge')
   }
 }
-const fnSADs = async () => {
+const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
     io.bridge.emit('qsys:devices', data)
@@ -45,7 +45,7 @@ const fnSADs = async () => {
   }
 }
 
-const fnSPM = async (obj) => {
+const fnSendClientPageMessage = async (obj) => {
   try {
     io.client.emit('qsys:page:message', obj)
   } catch (error) {
@@ -53,4 +53,11 @@ const fnSPM = async (obj) => {
   }
 }
 
-module.exports = { fnSQD, fnSSQD, fnSCDs, fnSADs, fnSBData, fnSPM }
+module.exports = {
+  fnSendClientQsysData,
+  fnSendSocketStatusAll,
+  fnSendClientStatusAll,
+  fnSendAllStatusAll,
+  fnSendQsysData,
+  fnSendClientPageMessage
+}

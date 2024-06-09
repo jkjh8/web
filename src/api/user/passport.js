@@ -4,19 +4,11 @@ const { ExtractJwt, Strategy: JWTStrategy } = require('passport-jwt')
 const bcrypt = require('bcrypt')
 const { dbUserFindOne } = require('@db/user')
 
-const cookieExtrator = (req) => {
-  let token = null
-  if (req && req.cookies) {
-    token = req.cookies['jwt']
-  }
-  return token
-}
-
 module.exports = () => {
   passport.use(
     new JWTStrategy(
       {
-        jwtFromRequest: cookieExtrator,
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: process.env.JWT_SECRET_KEY
       },
       async (jwtPayload, done) => {

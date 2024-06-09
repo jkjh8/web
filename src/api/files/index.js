@@ -1,29 +1,30 @@
 const fs = require('fs')
 const path = require('path')
 
-const fnGFolder = (dir) =>
+const fnGetFolder = (dir) =>
   fs.readdirSync(dir).reduce((files, file) => {
     const name = path.resolve(dir, file)
     const isDirectory = fs.statSync(name).isDirectory()
     return isDirectory
-      ? [...files, { label: file, path: name, children: fnGFolder(name) }]
+      ? [...files, { label: file, path: name, children: fnGetFolder(name) }]
       : files
   }, [])
 
-const fnCMFolder = (folder) => {
+const fnMakeFolder = (folder) => {
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder, { recursive: true })
   }
 }
 
-const fnGFolders = (email) => {
+const fnGetFolders = (email) => {
   const { globalFolder, mediaFolder } = gStatus
-  const gFolders = fnGFolder(globalFolder)
+  // 공용폴더
+  const gFolders = fnGetFolder(globalFolder)
+  // 사용자폴더
   const userFolder = path.resolve(mediaFolder, email)
-  const scheduleFolder = path.resolve(userFolder, 'schedule')
-  fnCMFolder(userFolder)
-  fnCMFolder(scheduleFolder)
-  const uFolders = fnGFolder(userFolder)
+  // 폴더 없으면 만들기
+  fnMakeFolder(userFolder)
+  const uFolders = fnGetFolder(userFolder)
   return {
     folders: [
       { label: '공용폴더', path: globalFolder, children: gFolders },
@@ -34,18 +35,17 @@ const fnGFolders = (email) => {
   }
 }
 
-const fnGFiles = (folder) => {
-  console.log('folder', folder)
+const fnGetFiles = (folder) => {
   const files = fs.readdirSync(folder)
   const fileWith = []
   for (let file of files) {
     const fullpath = path.resolve(folder, file)
-    fileWith.push(fnGFile(fullpath))
+    fileWith.push(fnGetFile(fullpath))
   }
   return fileWith
 }
 
-const fnGFile = (fullpath) => {
+const fnGetFile = (fullpath) => {
   const stat = fs.statSync(fullpath)
   return {
     fullpath,
@@ -56,13 +56,13 @@ const fnGFile = (fullpath) => {
   }
 }
 
-const fnGFSize = (folder) => {
+const fnGetFileSize = (folder) => {
   let size = 0
   const files = fs.readdirSync(folder)
   for (let file of files) {
     const fullpath = path.join(folder, file)
     const stat = fs.statSync(fullpath)
-    size += stat.isDirectory() ? fnGFSize(fullpath) : stat.size
+    size += stat.isDirectory() ? fnGetFileSize(fullpath) : stat.size
   }
   return size
 }
@@ -93,12 +93,12 @@ const fnRFAF = (list) => {
 }
 
 module.exports = {
-  fnGFolder,
-  fnCMFolder,
-  fnGFolders,
-  fnGFiles,
-  fnGFile,
-  fnGFSize,
+  fnGetFolder,
+  fnMakeFolder,
+  fnGetFolders,
+  fnGetFiles,
+  fnGetFile,
+  fnGetFileSize,
   fnRTemp,
   fnRFAF
 }

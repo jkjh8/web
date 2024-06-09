@@ -1,6 +1,12 @@
 const express = require('express')
 const { logInfo, logError } = require('@logger')
-const { fnSADs, fnSCDs, fnSQD, fnSSQD, fnSBData } = require('@api/qsys')
+const {
+  fnSendAllStatusAll,
+  fnSendClientStatusAll,
+  fnSendClientQsysData,
+  fnSendSocketStatusAll,
+  fnSendQsysData
+} = require('@api/qsys')
 const {
   dbQsysMake,
   dbQsysFind,
@@ -27,7 +33,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     await dbQsysMake({ ...req.body })
-    await fnSADs()
+    await fnSendAllStatusAll()
     logInfo(
       `QSYS 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
@@ -48,7 +54,7 @@ router.put('/edit', async (req, res) => {
       { deviceId: deviceId },
       { $set: { ipaddress, name } }
     )
-    await fnSADs()
+    await fnSendAllStatusAll()
     logInfo(
       `QSYS 장치 수정 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
@@ -64,7 +70,7 @@ router.put('/edit', async (req, res) => {
 router.delete('/', async (req, res) => {
   try {
     const r = await dbQsysRemove(req.body._id)
-    await fnSADs()
+    await fnSendAllStatusAll()
     logInfo(
       `QSYS 장치 제거 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
       req.user.email,
@@ -95,7 +101,12 @@ router.put('/zoneupdate', async (req, res) => {
     )
 
     // set zone
-    fnSBData('qsys:device:gtr', { deviceId, zone, destination, ipaddress })
+    fnSendQsysData('qsys:device:gtr', {
+      deviceId,
+      zone,
+      destination,
+      ipaddress
+    })
     // get barix data
     fnGetBarixInfo(ipaddress)
     // share data all
@@ -161,7 +172,7 @@ router.put('/modifiedzonename', async (req, res) => {
 router.get('/gtrs', (req, res) => {
   try {
     const { deviceId } = req.query
-    fnSBData('qsys:device:gtrs', { deviceId })
+    fnSendQsysData('qsys:device:gtrs', { deviceId })
     res.status(200).json({ result: true })
   } catch (error) {
     logError(
@@ -178,7 +189,7 @@ router.put('/strs', (req, res) => {
     const device = req.body.device
     console.log(device)
 
-    fnSBData('qsys:device:strs', { device })
+    fnSendQsysData('qsys:device:strs', { device })
     logInfo(
       `Qsys 오디오 전송 채널 재설정 ${device.name}, ${device.ipaddress}`,
       req.user.email,
@@ -200,7 +211,7 @@ router.get('/cancel', (req, res) => {
     if (req.user.isAdmin) {
       const { name, ipaddress, deviceId, pageId } = req.query.device
 
-      fnSBData(`qsys:page:cancelAll`, deviceId)
+      fnSendQsysData(`qsys:page:cancelAll`, deviceId)
       logInfo(
         `Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`,
         req.user.email,
@@ -242,9 +253,9 @@ router.put('/updatenames', async (req, res) => {
     // 리턴
     res.status(200).json({ result: true })
     // 전체 데이터 송신
-    await fnSADs()
+    await fnSendAllStatusAll()
     // 큐시스 미디어 스트림 업데이트
-    await fnSBData('qsys:device:strs', { deviceId })
+    await fnSendQsysData('qsys:device:strs', { deviceId })
     // barix get info
     arr.forEach((item) => {
       if (item.destination && item.destination.ipaddress) {

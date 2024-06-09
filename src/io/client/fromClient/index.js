@@ -1,4 +1,4 @@
-const { fnSADs, fnSBData } = require('@api/qsys')
+const { fnSendAllStatusAll, fnSendQsysData } = require('@api/qsys')
 const { dbQsysUpdate } = require('@db/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
 
@@ -10,7 +10,7 @@ module.exports = function (socket) {
       { deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.gain': value }
     )
-    fnSBData('qsys:volume', obj)
+    fnSendQsysData('qsys:volume', obj)
     logInfo(
       `Volumr device: ${deviceId} Zone: ${zone} Value: ${value}`,
       socket.user.email,
@@ -23,7 +23,7 @@ module.exports = function (socket) {
       { deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.mute': value }
     )
-    fnSBData('qsys:mute', obj)
+    fnSendQsysData('qsys:mute', obj)
     logInfo(
       `Mute device: ${deviceId} Zone: ${zone} Value: ${value}`,
       socket.user.email,
@@ -35,9 +35,11 @@ module.exports = function (socket) {
     fnGetBarixInfo(ipaddress)
   })
 
-  socket.on('zone:set:channel', (obj) => fnSBData('zone:set:channel', obj))
+  socket.on('zone:set:channel', (obj) =>
+    fnSendQsysData('zone:set:channel', obj)
+  )
   socket.on('zone:set:device', (deviceId) => {
-    // fnSADs()
-    fnSBData('zone:set:device', deviceId)
+    // fnSendAllStatusAll()
+    fnSendQsysData('zone:set:device', deviceId)
   })
 }

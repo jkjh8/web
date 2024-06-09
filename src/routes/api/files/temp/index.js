@@ -2,7 +2,7 @@ const express = require('express')
 const { isAdmin } = require('@api/user')
 const { logInfo, logError } = require('@logger')
 
-const { fnGFSize, fnRTemp } = require('@api/files')
+const { fnGetFileSize, fnRTemp } = require('@api/files')
 
 const router = express.Router()
 
@@ -20,7 +20,7 @@ router.delete('/', isAdmin, (req, res) => {
 router.get('/size', (req, res) => {
   try {
     let size = 0
-    size = fnGFSize(gStatus.tempFolder)
+    size = fnGetFileSize(gStatus.tempFolder)
     res.status(200).json({ result: true, size })
   } catch (error) {
     logError(`임시 폴더 비우기 오류 ${error}`, req.user.email, 'files')

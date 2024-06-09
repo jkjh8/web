@@ -1,61 +1,37 @@
-const { logInfo, logError, logEvent } = require('@logger')
 const { dbPageMake } = require('@db/page')
 const { dbQsysFind, dbQsysUpdate } = require('@db/qsys')
+const { logInfo, logError, logEvent } = require('@logger')
+const Page = require('@db/models/page')
 
-const fnSetLive = async (idx, obj, email) => {
+// live 송출 명령 만들기
+const fnSetLive = async (idx, obj, user) => {
   try {
-    const { Mode, Priority, Preamble, MaxPageTime, Station, file, devices } =
-      obj
-    await dbPageMake({
-      user: email,
-      idx,
-      Mode,
-      Priority,
-      Preamble,
-      MaxPageTime,
-      Station,
-      file,
-      devices
-    })
-    let arr = []
-    let promises = devices.map(async (item) => {
-      await dbQsysUpdate(
-        { deviceId: item.deviceId },
-        { $push: { PageStatus: { idx } } }
-      )
-      arr.push({
-        deviceId: item.deviceId,
-        idx,
-        params: item.params
+    const { devices } = obj
+    await dbPageMake({ ...obj, user, idx })
+    const arr = await Promise.all(
+      devices.map(async (item) => {
+        const { deviceId, params } = item
+        await dbQsysUpdate({ deviceId }, { $push: { PageStatus: { idx } } })
+        return { idx, deviceId, params }
       })
-    })
-    await Promise.all(promises)
+    )
     return arr
   } catch (error) {
     logError(`방송 송출 오류 ${error}`, req.user.email, 'broadcast')
   }
 }
 
+// 중복된 방송구간 확인
 const fnCheckActive = async (arr) => {
   try {
-    let active = []
     const qsys = await dbQsysFind()
-    for (let item of arr) {
+    const active = []
+    for (const item of arr) {
       const idx = qsys.findIndex((e) => e.deviceId === item.deviceId)
-      const { ZoneStatus } = qsys[idx]
-      let Zones = []
-      for (let zone of item.Zones) {
-        if (ZoneStatus[zone - 1].Active) {
-          Zones.push(zone)
-        }
-      }
-      if (Zones && Zones.length > 0) {
-        active.push({
-          deviceId: qsys[idx].deviceId,
-          ipaddress: qsys[idx].ipaddress,
-          name: qsys[idx].name,
-          Zones
-        })
+      const { ZoneStatus, deviceId, name, ipaddress } = qsys[idx]
+      const Zones = item.Zones.filter((zone) => ZoneStatus[zone - 1].Active)
+      if (Zones.length > 0) {
+        active.push({ deviceId, ipaddress, name, Zones })
       }
     }
     return active
@@ -64,7 +40,49 @@ const fnCheckActive = async (arr) => {
   }
 }
 
+// 동작중이지 않은 Qsys PageID 삭제
+const fnClearQsysPageID = async () => {
+  try {
+    const qsys = await dbQsysFind()
+    for (const item of qsys) {
+      const { deviceId, ZoneStatus } = item
+      const hasActive = ZoneStatus.some((zone) => zone.Active)
+      if (!hasActive) {
+        await dbQsysUpdate({ deviceId }, { $pull: { PageStatus: {} } })
+      }
+    }
+    logInfo(
+      `방송 송출 페이지 삭제 완료`,
+      req.user?.email ?? 'server',
+      'broadcast'
+    )
+  } catch (error) {
+    logError(
+      `방송 송출 페이지 삭제 오류 ${error}`,
+      req.user?.email ?? 'server',
+      'broadcast'
+    )
+  }
+}
+
+// page에서 한시간이 지난 문서 삭제
+const fnDeleteOldPage = async () => {
+  try {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+    await Page.deleteMany({ updatedAt: { $lt: oneHourAgo } })
+    logInfo(
+      '마지막 업데이트가 한시간이 지난 문서 삭제 완료',
+      'server',
+      'broadcast'
+    )
+  } catch (error) {
+    logError(`문서 삭제 오류 ${error}`, 'server', 'broadcast')
+  }
+}
+
 module.exports = {
   fnSetLive,
-  fnCheckActive
+  fnCheckActive,
+  fnClearQsysPageID,
+  fnDeleteOldPage
 }

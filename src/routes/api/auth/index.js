@@ -14,29 +14,32 @@ const router = express.Router()
 router.get('/', isLoggedIn, async (req, res) => {
   try {
     const user = await dbUserFindOneNonePass({ email: req.user.email })
-    const token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '1h'
-    })
-    res
-      .cookie('jwt', token, { sameSite: 'none', secure: true })
-      .status(200)
-      .json({ result: true, user })
+    let token = null
+    const currentTime = Math.floor(Date.now() / 1000)
+    if (currentTime - req.user.iat < 6000) {
+      token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
+        expiresIn: '1d'
+      })
+    }
+    if (token) {
+      res.status(200).json({ result: true, user, token })
+    } else {
+      res.status(200).json({ result: true, user })
+    }
   } catch (error) {
     res.status(500).json({ result: false, user: null, error: error })
   }
 })
 
+// 로그인
 router.post('/', (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
     if (err) return res.status(500).json({ err, info })
     if (!user) return res.status(401).json({ err, info })
     const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '1h'
+      expiresIn: '1d'
     })
-    res
-      .cookie('jwt', token, { sameSite: 'none', secure: true })
-      .status(200)
-      .json({ result: true, user })
+    res.status(200).json({ result: true, user, token })
   })(req, res, next)
 })
 
@@ -50,7 +53,7 @@ router.post('/signup', async (req, res) => {
         email: 'superuser@superuser.com',
         userPassword: bcrypt.hashSync('superuser', salt),
         isAdmin: true,
-        folder: uniqueId(12)
+        folder: uniqueId(16)
       })
       logInfo('슈퍼 사용자 생성', 'server', 'user')
     } else {
@@ -58,13 +61,12 @@ router.post('/signup', async (req, res) => {
         name: name,
         email: email,
         userPassword: bcrypt.hashSync(userPassword, salt),
-        folder: uniqueId(12)
+        folder: uniqueId(16)
       })
       logInfo(`사용자 계정 생성: ${email}`, 'server', 'user')
     }
     res.status(200).json({ result: true })
   } catch (error) {
-    console.log(error)
     logError(`사용자 계정 생성 실패: ${error}`, 'server', 'user')
     res.status(500).json(error)
   }
