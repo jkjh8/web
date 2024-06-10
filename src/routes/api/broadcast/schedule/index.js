@@ -14,7 +14,7 @@ const {
   dbSchRemoveById
 } = require('@db/schedule')
 const { dbPageMake } = require('@db/page')
-const { dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
+const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { logError, logWarn, logInfo } = require('@logger')
