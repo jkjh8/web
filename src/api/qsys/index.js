@@ -19,10 +19,25 @@ const fnSendClientQsysData = async (deviceId, obj) => {
   }
 }
 
+let sendClientStatusAll = null
+const timeoutSendClientStatusAll = false
+
 const fnSendClientStatusAll = async () => {
   try {
-    const data = await dbQsysFindAll()
-    io.client.emit('qsys:devices', data)
+    // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
+    if (sendClientStatusAll) {
+      timeoutSendClientStatusAll = true
+      return
+    }
+
+    io.client.emit('qsys:devices', await dbQsysFindAll())
+    sendClientStatusAll = setTimeout(async () => {
+      if (timeoutSendClientStatusAll) {
+        timeoutSendClientStatusAll = false
+        io.client.emit('qsys:devices', await dbQsysFindAll())
+      }
+      sendClientStatusAll = null
+    }, 1000)
   } catch (error) {
     logError(`QSYS 데이터 Client 송신 오류 ${error}`, 'server', 'qsys')
   }

@@ -28,6 +28,7 @@ router.get('/stop', async (req, res) => {
   )
   try {
     res.status(200).json({ result: true })
+    logEvent(`방송 중지 ${req.query.idx}`, req.user.email, 'page', page.zones)
   } catch (error) {
     logError(`라이브 방송 중지 오류 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })
