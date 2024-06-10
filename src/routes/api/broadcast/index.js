@@ -8,7 +8,7 @@ const { dbQsysFind } = require('@db/qsys')
 const io = require('@io')
 const { fnSendPageMessage } = require('@io/client/api')
 //api
-const { fnFileUpload, fnFileDelete } = require('@api/qsys/files')
+const { fnQsysFileUpload, fnQsysFileDelete } = require('@api/qsys/files')
 const { fnGetSocketId } = require('@api/user/socket')
 const { fnCheckActive } = require('@api/qsys/broadcast')
 
@@ -43,7 +43,7 @@ router.post('/file', async (req, res) => {
 
     // 각 디바이스에 업로드
     const promises = devices.map(async (item) => {
-      await fnFileUpload(
+      await fnQsysFileUpload(
         item.file.fullpath,
         item.ipaddress,
         addr,
@@ -80,7 +80,12 @@ router.delete('/file', async (req, res) => {
   try {
     const { addr, devices } = req.body
     const promises = devices.map(async (item) => {
-      await fnFileDelete(item.file.base, item.ipaddress, addr, item.deviceId)
+      await fnQsysFileDelete(
+        item.file.base,
+        item.ipaddress,
+        addr,
+        item.deviceId
+      )
     })
     await Promise.all(promises)
     res.status(200).json({ result: true })

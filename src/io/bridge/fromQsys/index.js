@@ -4,7 +4,7 @@ const {
   fnSendClientQsysData,
   fnSendClientPageMessage
 } = require('@api/qsys')
-const { fnCheckMediaFolder } = require('@api/qsys/files')
+const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { fnBarixRelayOff } = require('@api/barix')
 const { dbPageUpdate, dbPageFindOne } = require('@db/page')
 const { dbQsysUpdate } = require('@db/qsys')
@@ -15,7 +15,7 @@ module.exports = function (socket) {
     const { deviceId } = device
     const r = await dbQsysUpdate({ deviceId }, { connected: true })
     fnSendClientQsysData(deviceId, { connected: true })
-    fnCheckMediaFolder(r)
+    fnQsysCheckMediaFolder(r)
   })
 
   socket.on('qsys:disconnect', async (device) => {

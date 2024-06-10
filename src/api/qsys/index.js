@@ -2,6 +2,7 @@ const io = require('@io')
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
 
+// Q-SYS 전체 데이터를 Socket으로 전송
 const fnSendSocketStatusAll = async (socket) => {
   try {
     const qsys = await dbQsysFindAll()
@@ -11,6 +12,7 @@ const fnSendSocketStatusAll = async (socket) => {
   }
 }
 
+// Q-SYS 단일 데이터를 Client로 전송
 const fnSendClientQsysData = async (deviceId, obj) => {
   try {
     io.client.emit('qsys:device', { deviceId, data: obj })
@@ -19,9 +21,9 @@ const fnSendClientQsysData = async (deviceId, obj) => {
   }
 }
 
+// Q-SYS 전체 데이터를 다수 호출시에도 1초에 1번만 전송
 let sendClientStatusAll = null
 const timeoutSendClientStatusAll = false
-
 const fnSendClientStatusAll = async () => {
   try {
     // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
@@ -30,7 +32,8 @@ const fnSendClientStatusAll = async () => {
       return
     }
 
-    io.client.emit('qsys:devices', await dbQsysFindAll())
+    const data = await dbQsysFindAll()
+    io.client.emit('qsys:devices', data)
     sendClientStatusAll = setTimeout(async () => {
       if (timeoutSendClientStatusAll) {
         timeoutSendClientStatusAll = false
@@ -43,6 +46,7 @@ const fnSendClientStatusAll = async () => {
   }
 }
 
+// Bridge로 전송
 const fnSendQsysData = async (key, obj) => {
   try {
     io.bridge.emit(key, obj)
@@ -50,6 +54,8 @@ const fnSendQsysData = async (key, obj) => {
     logError(`Bridge 전송 오류 ${error}`, 'server', 'bridge')
   }
 }
+
+// 전체 데이터 송신
 const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
@@ -60,6 +66,7 @@ const fnSendAllStatusAll = async () => {
   }
 }
 
+// Page Message 전송
 const fnSendClientPageMessage = async (obj) => {
   try {
     io.client.emit('qsys:page:message', obj)

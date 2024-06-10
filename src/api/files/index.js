@@ -37,12 +37,10 @@ const fnGetFolders = (email) => {
 
 const fnGetFiles = (folder) => {
   const files = fs.readdirSync(folder)
-  const fileWith = []
-  for (let file of files) {
+  return files.map((file) => {
     const fullpath = path.resolve(folder, file)
-    fileWith.push(fnGetFile(fullpath))
-  }
-  return fileWith
+    return fnGetFile(fullpath)
+  })
 }
 
 const fnGetFile = (fullpath) => {
@@ -69,7 +67,7 @@ const fnGetFileSize = (folder) => {
 
 const fnRTemp = () => {
   const files = fs.readdirSync(gStatus.tempFolder)
-  for (let file of files) {
+  files.forEach((file) => {
     const filepath = path.join(gStatus.tempFolder, file)
     const stat = fs.statSync(filepath)
     if (stat.isDirectory()) {
@@ -77,14 +75,16 @@ const fnRTemp = () => {
     } else {
       fs.unlinkSync(filepath)
     }
-  }
+  })
 }
 
 const fnRFAF = (list) => {
   for (let file of list) {
     if (fs.existsSync(file.fullpath)) {
-      if (file.type === 'folder') {
-        fs.rmdirSync(file.fullpath, { recursive: true })
+      const stat = fs.statSync(file.fullpath)
+      if (stat.isDirectory()) {
+        fnRFAF(fnGetFiles(file.fullpath))
+        fs.rmdirSync(file.fullpath)
       } else {
         fs.unlinkSync(file.fullpath)
       }

@@ -7,6 +7,7 @@ const qsysSchema = new mongoose.Schema(
     deviceId: { type: String, unique: true, required: true },
     ipaddress: { type: String, unique: true },
     connected: { type: Boolean, default: false },
+    reconnect: { type: Number, default: 0 },
     active: { type: Boolean, default: true },
     backupDevice: String,
     header: { type: String, default: 'root' },

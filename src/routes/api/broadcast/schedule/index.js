@@ -18,8 +18,12 @@ const { dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { logError, logWarn, logInfo } = require('@logger')
-const { fnSyncFileSchedule } = require('@api/qsys/files')
-const { fnFileDelete } = require('@api/qsys/files')
+
+const {
+  fnQsysFileDelete,
+  fnQsysSyncFileSchedule,
+  fnQsysCheckScheduleFolder
+} = require('@api/qsys/files')
 const { fnMakePageFromSchedule } = require('@api/schedule')
 
 const router = express.Router()
@@ -132,7 +136,7 @@ router.delete('/', async (req, res) => {
     const { idx } = schedule
     schedule.devices.forEach(async (device) => {
       const { deviceId, ipaddress } = device
-      await fnFileDelete(idx, ipaddress, 'schedule', deviceId)
+      await fnQsysFileDelete(idx, ipaddress, 'schedule', deviceId)
     })
   } catch (error) {
     //
@@ -149,10 +153,34 @@ router.delete('/', async (req, res) => {
 
 router.get('/sync', async (req, res) => {
   try {
-    await fnSyncFileSchedule(req.query.idx)
+    await fnQsysSyncFileSchedule(req.query.idx)
+    res.status(200).json({ result: true })
+    logInfo(
+      `스케줄 파일 동기화 완료 ${req.query.idx}`,
+      req.user.email,
+      'schedule'
+    )
   } catch (error) {
-    logError(`스케줄 동기화 오류 ${error}`, req.user.email, 'schedule')
+    logError(`스케줄 파일 동기화 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })
+  }
+})
+
+// 스케줄 폴더 정리
+router.get('/clean', async (req, res) => {
+  try {
+    const schedules = await dbSchFind({})
+    const devices = await dbQsysFind({})
+    await Promise.all(
+      devices.map(async (device) => {
+        await fnQsysCheckScheduleFolder(device, schedules)
+      })
+    )
+    res.status(200).json({ result: true })
+    logInfo(`스케줄 폴더 정리`, req.user.email, 'schedule')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`스케줄 폴더 정리 오류 ${error}`, req.user.email, 'schedule')
   }
 })
 

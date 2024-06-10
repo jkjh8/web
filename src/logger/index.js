@@ -40,7 +40,7 @@ module.exports = {
       console.log(
         `\x1b[31m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} error ${message}, ${source}, ${zones}, ${category} \x1b[0m`
+        )} error ${message}, ${source}, ${category} ${zones}\x1b[0m`
       )
   },
   logWarn: async (message, source = '', category = '', zones = []) => {
@@ -56,7 +56,7 @@ module.exports = {
       console.log(
         `\x1b[33m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} warn ${message}, ${source}, ${zones}, ${category} \x1b[0m`
+        )} warn ${message}, ${source}, ${category} ${zones}\x1b[0m`
       )
   },
   logInfo: async (message, source = '', category = '', zones = []) => {
@@ -72,7 +72,7 @@ module.exports = {
       console.log(
         `\x1b[32m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} info ${message}, ${source}, ${zones}, ${category} \x1b[0m`
+        )} info ${message}, ${source}, ${category}  ${zones}\x1b[0m`
       )
   },
   logDebug: async (message, source = '', category = '', zones = []) => {
@@ -88,7 +88,7 @@ module.exports = {
       console.log(
         `\x1b[35m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} debug ${message}, ${source}, ${zones}, ${category} \x1b[0m`
+        )} debug ${message}, ${source}, ${category} ${zones}\x1b[0m`
       )
   },
   logEvent: async (message, source = '', category = '', zones = []) => {
@@ -104,7 +104,7 @@ module.exports = {
       console.log(
         `\x1b[36m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} event ${message}, ${source}, ${zones}, ${category} \x1b[0m`
+        )} event ${message}, ${source}, ${category} ${zones}\x1b[0m`
       )
   }
 }

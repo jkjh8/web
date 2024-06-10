@@ -6,6 +6,8 @@ const barixSchema = new mongoose.Schema(
     idx: Number,
     deviceId: { type: String, unique: true },
     ipaddress: { type: String, unique: true },
+    active: { type: Boolean, default: true },
+    reconnect: { type: Number, default: 0 },
     netmask: String,
     gateway: String,
     status: Boolean,
