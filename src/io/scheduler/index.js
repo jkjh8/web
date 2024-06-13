@@ -1,6 +1,5 @@
 const { logInfo, logError } = require('@logger')
 const { dbSchFindToday } = require('@db/schedule')
-const { fnSendTodaySchedule } = require('./api')
 
 module.exports = (socketio) => {
   socketio.on('connection', async (socket) => {
@@ -9,7 +8,7 @@ module.exports = (socketio) => {
 
     // 1분마다 오늘 스케줄 전송
     const interval = setInterval(async () => {
-      await fnSendTodaySchedule()
+      socket.emit('today', await dbSchFindToday())
     }, 60000)
 
     // 연결 해제
@@ -21,6 +20,10 @@ module.exports = (socketio) => {
         'server',
         'socket.io'
       )
+    })
+    //
+    socket.on('schedule:refresh', async () => {
+      socket.emit('today', await dbSchFindToday())
     })
     // 접속시 오늘 스케줄 전송
     socket.emit('today', await dbSchFindToday())

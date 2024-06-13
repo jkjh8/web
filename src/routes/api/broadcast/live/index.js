@@ -25,12 +25,12 @@ router.put('/', async (req, res) => {
     )
     // 방송 메시지 송출
     const socketId = await fnGetSocketId(req.user.email)
-    fnSendPageMessage(socketId, 'all', '라이브 방송 시작')
+    fnSendPageMessage(socketId, 'all', '실시간 방송 시작')
     // 로그
-    logEvent(`라이브 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
+    logEvent(`실시간 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
     res.status(200).json({ result: true, idx })
   } catch (error) {
-    logError(`라이브 방송 오류 ${error}`, req.user.email, 'live')
+    logError(`실시간 방송 오류 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })
   }
 })
@@ -47,7 +47,12 @@ router.put('/message', async (req, res) => {
       'qsys:page:message',
       await fnSetLive(idx, req.body, req.user.email)
     )
-    logEvent(`메시지 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
+    logEvent(
+      `메시지 방송 시작 ${req.body.file.base} ${idx}`,
+      req.user.email,
+      'page',
+      req.body.zones
+    )
     res.status(200).json({ result: true, idx })
   } catch (error) {
     logError(`메시지 방송 오류 ${error}`, req.user.email, 'live')

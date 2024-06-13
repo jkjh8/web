@@ -1,3 +1,5 @@
+const { scheduler } = require('@io')
+
 const fnMakePageFromSchedule = async (args) => {
   const { idx, name, devices, file, Preamble } = args
   const arr = []
@@ -26,4 +28,9 @@ const fnMakePageFromSchedule = async (args) => {
   return arr
 }
 
-module.exports = { fnMakePageFromSchedule }
+const fnSendScheduleToAPP = async () => {
+  const schedules = await dbSchFindToday()
+  return scheduler.emit('today', schedules)
+}
+
+module.exports = { fnMakePageFromSchedule, fnSendScheduleToAPP }

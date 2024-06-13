@@ -27,16 +27,26 @@ router.get('/', (req, res) => {
   }
 })
 
-router.post('/', uploader.any(), (req, res) => {
-  try {
+router.post('/', (req, res) => {
+  uploader.any()(req, res, (error) => {
+    if (error) {
+      logError(`파일 업로드 오류: ${error}`, req.user.email, 'files')
+      return res.status(500).json({ result: false, error })
+    }
+    logInfo(
+      `파일 업로드 완료 폴더 ${decodeURIComponent(req.headers.folder).replace(
+        gStatus.mediaFolder,
+        ''
+      )}`,
+      req.user.email,
+      'files'
+    )
     res.status(200).json({
-      result: 'OK'
+      result: true
     })
-  } catch (error) {
-    logError(`파일 업로드 오류: ${error}`, req.user.email, 'files')
-    res.status(500).json({ result: false, error })
-  }
+  })
 })
+
 // folders
 router.get('/dir', (req, res) => {
   try {
