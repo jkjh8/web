@@ -95,8 +95,17 @@ const fnBarixRelayOff = async (arr) => {
     await Promise.all(
       arr.map(async (device) => {
         if (!device) return
+        let ipaddress
+        // ipaddress 찾기
+        if (device.ipaddress) {
+          ipaddress = device.ipaddress
+        } else {
+          const barix = await dbBarixFindOne({ _id: device })
+          ipaddress = barix.ipaddress
+        }
+        // 릴레이 끄기
         try {
-          await axios.get(`http://${device.ipaddress}/rc.cgi?R=0`)
+          await axios.get(`http://${ipaddress}/rc.cgi?R=0`)
         } catch (error) {
           logError(
             `Barix Relay Off 오류 ${error.cause ?? error.cause}`,
@@ -120,8 +129,16 @@ const fnBarixRelayOn = async (arr) => {
     await Promise.all(
       arr.map(async (device) => {
         if (!device) return
+        let ipaddress
+        // ipaddress 찾기
+        if (device.ipaddress) {
+          ipaddress = device.ipaddress
+        } else {
+          const barix = await dbBarixFindOne({ _id: device })
+          ipaddress = barix.ipaddress
+        }
         try {
-          await axios.get(`http://${device.ipaddress}/rc.cgi?R=1`)
+          await axios.get(`http://${ipaddress}/rc.cgi?R=1`)
         } catch (error) {
           logError(
             `Barix Relay On 오류 ${error.cause ?? error.cause}`,

@@ -83,47 +83,45 @@ const fnQsysFileDelete = async (file, ipaddress, addr, deviceId) => {
 
 const fnQsysSyncFileSchedule = async (idx) => {
   const schedule = await dbSchFindOne({ idx })
-  const { devices, file, sync } = schedule
+  const { devices, file } = schedule
   try {
-    if (sync) {
-      const promises = devices.map(async (device) => {
-        const { deviceId, ipaddress } = device
-        try {
-          await api.post(`${fnQsysMakeMessageAddr(ipaddress)}/schedule`, {
-            name: idx
-          })
-        } catch (error) {
-          if (
-            error.response.data &&
-            error.response.data.error.message === 'Directory already exists'
-          ) {
-            //
-          } else {
-            logError(
-              `Q-SYS 개별 디바이스 스케줄 폴더 생성 오류 ${deviceId} ${idx}`,
-              'server',
-              'schedule'
-            )
-          }
-        }
-        try {
-          await fnQsysFileUpload(
-            file.fullpath,
-            ipaddress,
-            `schedule/${idx}`,
-            deviceId
-          )
-        } catch (error) {
+    const promises = devices.map(async (device) => {
+      const { deviceId, ipaddress } = device
+      try {
+        await api.post(`${fnQsysMakeMessageAddr(ipaddress)}/schedule`, {
+          name: idx
+        })
+      } catch (error) {
+        if (
+          error.response.data &&
+          error.response.data.error.message === 'Directory already exists'
+        ) {
+          //
+        } else {
           logError(
-            `Q-SYS 개별 디바이스 스케줄 파일 업로드 오류 ${deviceId} ${idx} ${file.base}`,
+            `Q-SYS 개별 디바이스 스케줄 폴더 생성 오류 ${deviceId} ${idx}`,
             'server',
             'schedule'
           )
         }
-      })
-      await Promise.all(promises)
-      await dbSchUpdate({ idx }, { $set: { sync: true } })
-    }
+      }
+      try {
+        await fnQsysFileUpload(
+          file.fullpath,
+          ipaddress,
+          `schedule/${idx}`,
+          deviceId
+        )
+      } catch (error) {
+        logError(
+          `Q-SYS 개별 디바이스 스케줄 파일 업로드 오류 ${deviceId} ${idx} ${file.base}`,
+          'server',
+          'schedule'
+        )
+      }
+    })
+    await Promise.all(promises)
+    await dbSchUpdate({ idx }, { $set: { sync: true } })
     return
   } catch (error) {
     logError(`Q-SYS 개별 디바이스 파일 업로드 오류`, 'server', 'schedule')

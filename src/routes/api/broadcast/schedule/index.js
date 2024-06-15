@@ -91,23 +91,29 @@ router.put('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const user = req.user.email
-    const { pageMode, file } = req.body
+    const { pageMode, file, devices } = req.body
+    // schedule idx 생성
     const idx = uniqueId(16)
+    // 스케줄 폴더 생성
     fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
+    // 스케줄 파일 경로
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
     pageMode === 'file'
       ? fs.copyFileSync(file.fullpath, currentFilePath)
       : fs.renameSync(file.fullpath, currentFilePath)
+    // 스케줄 파일 정보
     const newFile = fnGetFile(currentFilePath)
+    // 스케줄 db 추가
+    const schedule = await dbSchMake({
+      ...req.body,
+      idx,
+      user,
+      file: newFile
+    })
 
     res.status(200).json({
-      result: await dbSchMake({
-        ...req.body,
-        idx,
-        user,
-        file: newFile
-      }),
+      result: schedule,
       idx,
       file: newFile
     })
@@ -150,12 +156,14 @@ router.delete('/', async (req, res) => {
     await dbSchRemoveById(schedule._id)
     logWarn(`스케줄 삭제 ${schedule.name}`, req.user.email, 'schedule')
     res.status(200).json({ result: true })
+    await fnSendScheduleToAPP()
   } catch (error) {
     logError(`스케줄 삭제 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })
   }
 })
 
+// 스케줄 및 파일 동기화
 router.get('/sync', async (req, res) => {
   try {
     await fnQsysSyncFileSchedule(req.query.idx)

@@ -54,7 +54,7 @@ module.exports = function (socket) {
       const { deviceId, idx, PageID } = obj
       await dbQsysUpdate(
         { deviceId, 'PageStatus.idx': idx },
-        { $set: { 'PageStatus.$.PageID': PageID, 'PageStatus.$.idx': idx } }
+        { $set: { 'PageStatus.$.PageID': PageID } }
       )
       await dbPageUpdate(
         { idx, 'devices.deviceId': deviceId },

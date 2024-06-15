@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const pageSchema = new mongoose.Schema(
   {
     idx: String,
+    schedule: String,
     user: String,
     Mode: String,
     MaxPageTime: Number,

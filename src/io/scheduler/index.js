@@ -1,10 +1,13 @@
-const { logInfo, logError } = require('@logger')
 const { dbSchFindToday } = require('@db/schedule')
 const { fnSendScheduleToAPP } = require('@api/schedule')
 const {
+  fnMakePageFromSchedule,
   fnCleanQsysScheduleFolder,
   fnCleanScheduleFolder
 } = require('@api/schedule')
+const io = require('@io')
+const { logEvent, logInfo, logError } = require('@logger')
+const { fnInTimeScheduleRun } = require('@api/schedule')
 
 module.exports = (socketio) => {
   socketio.on('connection', async (socket) => {
@@ -28,11 +31,24 @@ module.exports = (socketio) => {
     })
     //
     socket.on('schedule:refresh', async () => {
-      await fnSendScheduleToAPP()
+      try {
+        await fnSendScheduleToAPP()
+      } catch (error) {
+        logError(`스케줄 전송 오류 ${error}`, 'server', 'schedule')
+      }
     })
 
     socket.on('inTime', async (data) => {
-      console.log('schedule time', data)
+      try {
+        await fnInTimeScheduleRun(data)
+        logEvent(
+          `스케줄 방송 시작 ${data.name} - ${data.idx} - ${data.file.base}`,
+          data.user,
+          'schedule'
+        )
+      } catch (error) {
+        logError(`스케줄 방송 시작 오류 ${error}`, 'server', 'schedule')
+      }
     })
 
     socket.on('clean', async () => {

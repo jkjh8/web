@@ -7,7 +7,9 @@ const Page = require('@db/models/page')
 const fnSetLive = async (idx, obj, user) => {
   try {
     const { devices } = obj
+    // page 생성
     await dbPageMake({ ...obj, user, idx })
+    // qsys에 pageStatus 추가
     const arr = await Promise.all(
       devices.map(async (item) => {
         const { deviceId, params } = item
@@ -17,7 +19,7 @@ const fnSetLive = async (idx, obj, user) => {
     )
     return arr
   } catch (error) {
-    logError(`방송 송출 오류 ${error}`, req.user.email, 'broadcast')
+    logError(`방송 송출 오류 ${error}`, user, 'broadcast')
   }
 }
 
@@ -36,7 +38,7 @@ const fnCheckActive = async (arr) => {
     }
     return active
   } catch (error) {
-    logError(`방송구간 중복 확인 오류 ${error}`, req.user.email, 'broadcast')
+    logError(`방송구간 중복 확인 오류 ${error}`, 'server', 'broadcast')
   }
 }
 
