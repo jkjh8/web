@@ -44,6 +44,7 @@ router.put('/', async (req, res) => {
     const file = await fnGetFile(filePath)
     // 데이터 업데이트
     await dbTtsMake({ rate, text, voice, user: req.user.email })
+    await dbUserUpdate(req.user.email, { $inc: { tts: 1 } })
     res.status(200).json({
       result: true,
       value: {

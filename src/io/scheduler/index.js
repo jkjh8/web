@@ -1,5 +1,10 @@
 const { logInfo, logError } = require('@logger')
 const { dbSchFindToday } = require('@db/schedule')
+const { fnSendScheduleToAPP } = require('@api/schedule')
+const {
+  fnCleanQsysScheduleFolder,
+  fnCleanScheduleFolder
+} = require('@api/schedule')
 
 module.exports = (socketio) => {
   socketio.on('connection', async (socket) => {
@@ -23,7 +28,20 @@ module.exports = (socketio) => {
     })
     //
     socket.on('schedule:refresh', async () => {
-      socket.emit('today', await dbSchFindToday())
+      await fnSendScheduleToAPP()
+    })
+
+    socket.on('inTime', async (data) => {
+      console.log('schedule time', data)
+    })
+
+    socket.on('clean', async () => {
+      try {
+        fnCleanQsysScheduleFolder()
+        fnCleanScheduleFolder()
+      } catch (error) {
+        logError(`스케줄 폴더 정리 오류 ${error}`, 'server', 'schedule')
+      }
     })
     // 접속시 오늘 스케줄 전송
     socket.emit('today', await dbSchFindToday())

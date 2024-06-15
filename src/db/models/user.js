@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     level: { type: Number, default: 0 },
     zones: Array,
+    tts: { type: Number, default: 0 },
     numberOfLogins: { type: Number, default: 0 },
     numberOfTtsCalls: { type: Number, default: 0 },
     numberOfPaging: { type: Number, default: 0 },

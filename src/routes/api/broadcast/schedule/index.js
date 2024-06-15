@@ -17,6 +17,7 @@ const { dbPageMake } = require('@db/page')
 const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
+const { fnCleanQsysScheduleFolder } = require('@api/schedule')
 const { logError, logWarn, logInfo } = require('@logger')
 
 const {
@@ -25,6 +26,7 @@ const {
   fnQsysCheckScheduleFolder
 } = require('@api/qsys/files')
 const { fnMakePageFromSchedule } = require('@api/schedule')
+const { fnSendScheduleToAPP } = require('@api/schedule')
 
 const router = express.Router()
 
@@ -84,15 +86,17 @@ router.put('/', async (req, res) => {
   }
 })
 
+// 스케줄 수정 추가 해야함. 수정 추가시 스케줄 파일 확인해서 변경 혹은 재업로드 로직 필요.
+
 router.post('/', async (req, res) => {
   try {
     const user = req.user.email
-    const { mode, file } = req.body
+    const { pageMode, file } = req.body
     const idx = uniqueId(16)
     fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
-    mode === '파일'
+    pageMode === 'file'
       ? fs.copyFileSync(file.fullpath, currentFilePath)
       : fs.renameSync(file.fullpath, currentFilePath)
     const newFile = fnGetFile(currentFilePath)
@@ -107,6 +111,7 @@ router.post('/', async (req, res) => {
       idx,
       file: newFile
     })
+    await fnSendScheduleToAPP()
   } catch (error) {
     logError(`스케줄 추가 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })
@@ -169,13 +174,7 @@ router.get('/sync', async (req, res) => {
 // 스케줄 폴더 정리
 router.get('/clean', async (req, res) => {
   try {
-    const schedules = await dbSchFind({})
-    const devices = await dbQsysFind({})
-    await Promise.all(
-      devices.map(async (device) => {
-        await fnQsysCheckScheduleFolder(device, schedules)
-      })
-    )
+    await fnCleanQsysScheduleFolder()
     res.status(200).json({ result: true })
     logInfo(`스케줄 폴더 정리`, req.user.email, 'schedule')
   } catch (error) {
