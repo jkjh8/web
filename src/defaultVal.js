@@ -1,7 +1,13 @@
 module.exports = {
   gStatus: {
     ttsAddress: 'http://127.0.0.1:9998',
-    qsysConnect: false,
+    bridge: { connected: false, id: '', lastupdate: '' },
+    scheduler: {
+      main: { connected: false, id: '', lastupdate: '' },
+      backup: { connected: false, id: '', lastupdate: '' },
+      active: 'main',
+      auto: false
+    },
     defaultFolder: __dirname,
     mediaFolder: '',
     interval: 50,

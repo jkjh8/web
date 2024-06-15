@@ -65,6 +65,7 @@ module.exports = function (socket) {
     }
   })
 
+  // page 상태 리턴
   socket.on('qsys:page:status', async (obj) => {
     try {
       const { deviceId, params } = obj

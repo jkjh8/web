@@ -1,6 +1,8 @@
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll } = require('@db/qsys')
+const { dbSetupUpdate } = require('@db/setup')
 const fromQsys = require('./fromQsys')
+const { fnSendGlobalStatus } = require('../client/api')
 
 module.exports = (socketio) => {
   // socketio.use((socket, next) => {
@@ -12,9 +14,25 @@ module.exports = (socketio) => {
   // })
 
   socketio.on('connection', async (socket) => {
+    await dbSetupUpdate({ key: 'bridge' }, { connected: true, id: socket.id })
+    // gStatus 업데이트
+    gStatus.bridge.connected = true
+    gStatus.bridge.id = socket.id
+    gStatus.bridge.lastupdate = new Date()
+    // 전체 상태 전송
+    fnSendGlobalStatus()
+
     logInfo(`Socket.IO Bridge 연결 ${socket.id}`, 'server', 'socket.io')
 
-    socket.on('disconnect', (reason) => {
+    socket.on('disconnect', async (reason) => {
+      await dbSetupUpdate({ key: 'bridge' }, { connected: false })
+
+      // gStatus 업데이트
+      gStatus.bridge.connected = false
+      gStatus.bridge.lastupdate = new Date()
+      // 전체 상태 전송
+      fnSendGlobalStatus()
+
       logInfo(`Socket.IO Bridge 연결해제 ${socket.id}`, 'server', 'socket.io')
     })
     // functions

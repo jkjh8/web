@@ -61,6 +61,16 @@ const fnSendScheduleToAPP = async () => {
   return io.scheduler.emit('today', schedules)
 }
 
+// 스케줄러 동작 변경
+const fnSendActiveScheduleToAPP = (active) => {
+  return io.scheduler.emit('active', active)
+}
+// 스케줄러 자동 전환 변경
+const fnSendAutoScheduleToAPP = (auto) => {
+  return io.scheduler.emit('auto', auto)
+}
+
+// Qsys 스케줄 폴더를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
 const fnCleanQsysScheduleFolder = async () => {
   const schedules = await dbSchFind({})
   const devices = await dbQsysFind({})
@@ -94,5 +104,7 @@ module.exports = {
   fnSendScheduleToAPP,
   fnCleanQsysScheduleFolder,
   fnCleanScheduleFolder,
-  fnInTimeScheduleRun
+  fnInTimeScheduleRun,
+  fnSendActiveScheduleToAPP,
+  fnSendAutoScheduleToAPP
 }

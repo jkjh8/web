@@ -46,6 +46,9 @@ module.exports = async (socketio) => {
     socketio.on('connection_error', (error) => {
       console.log(`socket.io connection error - ${error}`)
     })
+
+    // 전체 상태 전송
+    socket.emit('setup:status', gStatus)
   })
 
   logInfo(`Socket.IO clients 시작`, 'server', 'socket.io')

@@ -1,6 +1,5 @@
-const { dbSetupFind, dbSetupUpdate } = require('@db/setup')
+const { dbSetupFind } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
-const { fnStartBarix, fnRestartBarix } = require('@api/barix')
 const { gStatus } = require('../../defaultVal')
 
 module.exports = async function () {
@@ -28,6 +27,23 @@ module.exports = async function () {
           break
         case 'backupActive':
           gStatus.backupActive = item.valueBoolean
+          break
+        case 'bridge':
+          gStatus.bridge.lastupdate = item.updatedAt
+          break
+        case 'scheduler':
+          if (item.auto) {
+            gStatus.scheduler.auto = item.auto
+          }
+          if (item.active) {
+            gStatus.scheduler.active = item.active
+          }
+          if (item.main && item.main.lastupdate) {
+            gStatus.scheduler.main.lastupdate = item.lastupdate
+          }
+          if (item.backup && item.backup.lastupdate) {
+            gStatus.scheduler.backup.lastupdate = item.lastupdate
+          }
           break
       }
     }

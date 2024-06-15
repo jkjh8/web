@@ -28,8 +28,9 @@ const {
 const { fnMakePageFromSchedule } = require('@api/schedule')
 const { fnSendScheduleToAPP } = require('@api/schedule')
 
+// router
 const router = express.Router()
-
+router.use('/app', require('./app'))
 router.get('/', async (req, res) => {
   try {
     const { isAdmin, zones } = req.user
