@@ -2,7 +2,12 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
-const { dbUserMake, dbUserFindOneNonePass, dbUserExists } = require('@db/user')
+const {
+  dbUserMake,
+  dbUserFindOneNonePass,
+  dbUserExists,
+  dbUserUpdate
+} = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
 const { isLoggedIn } = require('@api/user')
 

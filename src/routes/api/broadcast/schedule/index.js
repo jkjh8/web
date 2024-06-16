@@ -14,6 +14,8 @@ const {
   dbSchRemoveById
 } = require('@db/schedule')
 const { dbPageMake } = require('@db/page')
+const { fnCheckActive } = require('@api/schedule')
+const { dbUserUpdate } = require('@db/user')
 const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
@@ -30,7 +32,9 @@ const { fnSendScheduleToAPP } = require('@api/schedule')
 
 // router
 const router = express.Router()
+
 router.use('/app', require('./app'))
+
 router.get('/', async (req, res) => {
   try {
     const { isAdmin, zones } = req.user
@@ -82,6 +86,11 @@ router.put('/', async (req, res) => {
       'schedule',
       zones
     )
+    // 사용횟수 증가
+    await dbUserUpdate(
+      { _id: req.user._id },
+      { $inc: { numberOfScheduleCall: 1 } }
+    )
   } catch (error) {
     logError(`스케줄 동작 오류 ${error}`, req.user.email, 'schedule')
   }
@@ -119,6 +128,8 @@ router.post('/', async (req, res) => {
       file: newFile
     })
     await fnSendScheduleToAPP()
+    // 사용자 사용회수 증가
+    await dbUserUpdate({ _id: req.user._id }, { $inc: { numberOfSchedule: 1 } })
   } catch (error) {
     logError(`스케줄 추가 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })

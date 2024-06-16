@@ -2,6 +2,7 @@
 // logger
 const { logEvent, logInfo, logError } = require('@logger')
 // db
+const { dbUserUpdate } = require('@db/user')
 // api
 const {
   fnSendScheduleToAPP,
@@ -31,6 +32,11 @@ const schedulerParser = (socket) => {
   socket.on('inTime', async (data) => {
     try {
       await fnInTimeScheduleRun(data)
+      // 사용자 방송 횟수 추가
+      await dbUserUpdate(
+        { email: data.user },
+        { $inc: { numberOfScheduleCall: 1 } }
+      )
       logEvent(
         `스케줄 방송 시작 ${data.name} - ${data.idx} - ${data.file.base}`,
         data.user,
