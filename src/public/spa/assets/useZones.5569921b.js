@@ -1,0 +1,1 @@
+import{bU as o}from"./index.306154ca.js";const d=i=>{let n=[];for(let e of i){let l=o.value.findIndex(t=>t.deviceId===e.deviceId);if(l!==-1){const{ZoneStatus:t,name:a}=o.value[l];if(e.value&&e.value.length)if(e.value.length===t.length)n.push(`${a} - ALL`);else{let u=e.value.map(s=>s.name||s.Zone);n.push(`${a} - ${u.join(", ")}`)}}}return n};export{d as f};
