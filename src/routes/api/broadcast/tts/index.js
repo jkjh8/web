@@ -5,6 +5,7 @@ const axios = require('axios')
 
 const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { dbTtsMake } = require('@db/tts')
+const { dbUserUpdate } = require('@db/user')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGetFile } = require('@api/files')
 const uniqueId = require('@api/utils/uniqueId.js')
@@ -44,7 +45,7 @@ router.put('/', async (req, res) => {
     const file = await fnGetFile(filePath)
     // 데이터 업데이트
     await dbTtsMake({ rate, text, voice, user: req.user.email })
-    await dbUserUpdate(req.user.email, { $inc: { tts: 1 } })
+    await dbUserUpdate({ _id: req.user._id }, { $inc: { tts: 1 } })
     res.status(200).json({
       result: true,
       value: {
