@@ -1,10 +1,8 @@
 const User = require('@db/models/user')
-const { fnMake, fnDelete } = require('@api/backup/users')
 
 module.exports = {
   dbUserMake: async (obj) => {
-    await User.create({ ...obj })
-    await fnMake({ ...obj })
+    return await User.create({ ...obj })
   },
   dbUserFind: async (obj) => {
     return await User.find({ ...obj }, { userPassword: 0 })
@@ -35,8 +33,7 @@ module.exports = {
     await User.findOneAndUpdate(filter, value, { new: true })
   },
   dbUserRemove: async (id) => {
-    await User.findByIdAndDelete(id)
-    await fnDelete(id)
+    return await User.findByIdAndDelete(id)
   },
   dbUserExists: async (obj) => {
     return await User.exists(obj)

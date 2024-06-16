@@ -17,7 +17,6 @@ const {
   dbQsysExists,
   dbQsysRemove
 } = require('@db/qsys')
-const { fnQsysBulkWrite, fnQsysUpdate } = require('@api/backup/devices/qsys')
 
 const { fnGetBarixInfo } = require('@api/barix')
 
@@ -55,8 +54,6 @@ router.put('/edit', async (req, res) => {
     const { deviceId, ipaddress, name } = req.body
     // 데이터베이스 업데이트
     const r = await dbQsysUpdate({ deviceId }, { ipaddress, name })
-    // 백업
-    await fnQsysUpdate({ deviceId }, { ipaddress, name })
     // 전체 데이터 송신
     await fnSendAllStatusAll()
     logInfo(
@@ -105,11 +102,7 @@ router.put('/zoneupdate', async (req, res) => {
       { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.destination': destination }
     )
-    // 백업
-    await fnQsysUpdate(
-      { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
-      { 'ZoneStatus.$.destination': destination }
-    )
+
     // set zone
     fnSendQsysData('qsys:device:gtr', {
       deviceId,
@@ -168,11 +161,7 @@ router.put('/modifiedzonename', async (req, res) => {
       { deviceId, 'ZoneStatus.Zone': zone },
       { 'ZoneStatus.$.name': name }
     )
-    // 백업
-    await fnQsysUpdate(
-      { deviceId, 'ZoneStatus.Zone': zone },
-      { 'ZoneStatus.$.name': name }
-    )
+
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
     logInfo(
       `QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}, 사용자: ${req.user.email}`,
@@ -266,8 +255,6 @@ router.put('/updatenames', async (req, res) => {
     await Promise.all(promises)
     // 대량 업데이트
     await dbQsysBulkWrite(zones)
-    // 백업 대량 업데이트
-    await fnQsysBulkWrite(zones)
     // 리턴
     res.status(200).json({ result: true })
     // 전체 데이터 송신
