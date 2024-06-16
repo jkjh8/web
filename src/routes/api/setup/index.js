@@ -1,7 +1,6 @@
 const initSetup = require('@api/setup')
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
-const { fnBackupUsers } = require('@api/backup/users')
 const {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP
@@ -86,9 +85,6 @@ router.put('/backupactive', async (req, res) => {
     // 로그 기록
     logInfo(`백업 활성화 변경 완료`, req.user.email, 'setup')
     // 백업 활성화가 true일 경우 사용자 정보를 백업합니다.
-    if (gStatus.backupActive) {
-      fnBackupUsers(req.user.email)
-    }
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
     logError(`백업 활성화 변경 오류 ${error}`, req.user.email, 'setup')

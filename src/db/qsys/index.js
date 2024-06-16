@@ -1,12 +1,10 @@
 const Qsys = require('@db/models/qsys')
-const { fnMake, fnDelete } = require('@api/backup/devices/qsys')
 module.exports = {
   dbQsysMake: async (obj) => {
     // backup function
 
     // make db
-    await Qsys.create({ ...obj })
-    await fnMake({ ...obj })
+    return await Qsys.create({ ...obj })
   },
   dbQsysFindAll: async () => {
     return await Qsys.find().populate(
@@ -56,8 +54,7 @@ module.exports = {
     return await Qsys.exists(obj)
   },
   dbQsysRemove: async (id) => {
-    await Qsys.findByIdAndDelete(id)
-    await fnDelete(id)
+    return await Qsys.findByIdAndDelete(id)
   },
   dbQsysPageUpdate: async (devices, idx) => {
     await Promise.all(

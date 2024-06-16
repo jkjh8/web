@@ -1,9 +1,7 @@
 const Barix = require('@db/models/barix')
-const { fnMake, fnDelete } = require('@api/backup/devices/barix')
 module.exports = {
   dbBarixMake: async (obj) => {
-    await Barix.create({ ...obj })
-    await fnMake({ ...obj })
+    return await Barix.create({ ...obj })
   },
   dbBarixFind: async (obj) => {
     return await Barix.find({ ...obj })
@@ -27,7 +25,6 @@ module.exports = {
     return await Barix.exists(obj)
   },
   dbBarixRemoveById: async (id) => {
-    await Barix.findByIdAndDelete(id)
-    await fnDelete(id)
+    return await Barix.findByIdAndDelete(id)
   }
 }
