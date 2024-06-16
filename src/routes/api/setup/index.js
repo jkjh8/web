@@ -1,7 +1,7 @@
 const initSetup = require('@api/setup')
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
-const { fnBackupUsers } = require('@api/backup')
+const { fnBackupUsers } = require('@api/backup/users')
 const {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP

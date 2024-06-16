@@ -8,7 +8,7 @@ const {
   dbBarixExists,
   dbBarixRemoveById
 } = require('@db/barix')
-
+const { fnBarixUpdate } = require('@api/backup/devices/barix')
 const router = express.Router()
 
 router.get('/', async (req, res) => {
@@ -22,6 +22,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    // 데이터베이스 추가
     await dbBarixMake({ ...req.body })
     // add event log
     logInfo(
@@ -40,7 +41,10 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const { _id, name, ipaddress } = req.body
-    await dbBarixUpdate({ _id }, { $set: { name, ipaddress } })
+    // 데이터베이스 업데이트
+    await dbBarixUpdate({ _id }, { name, ipaddress })
+    // 백업
+    await fnBarixUpdate({ _id }, { name, ipaddress })
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`Barix 장치 수정 오류 ${error}`, req.user.email, 'barix')

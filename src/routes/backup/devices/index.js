@@ -1,7 +1,8 @@
 const express = require('express')
+
 const router = express.Router()
 
-router.use('/users', require('./users'))
-router.use('/devices', require('./devices'))
+router.use('/qsys', require('./qsys'))
+router.use('/barix', require('./barix'))
 
 module.exports = router

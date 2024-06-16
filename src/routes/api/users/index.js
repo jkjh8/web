@@ -2,7 +2,8 @@ const express = require('express')
 const { logInfo, logWarn, logError } = require('@logger')
 const { dbUserFind, dbUserUpdate, dbUserRemove } = require('@db/user')
 const { isAdmin } = require('@api/user')
-const { backupServer, fnBackupUsers } = require('@api/backup')
+const { fnBackupUsers } = require('@api/backup/users')
+const { fnUserUpdate } = require('@api/backup/users')
 
 const router = express.Router()
 
@@ -20,6 +21,8 @@ router.put('/', isAdmin, async (req, res) => {
   try {
     const { user, update } = req.body
     await dbUserUpdate({ _id: user._id }, update)
+    // 백업 서버 전송
+    await fnUserUpdate({ _id: user._id }, update)
     logInfo(
       `사용자 권한이 변경되었습니다. ${user.email} ${JSON.stringify(update)}`,
       req.user.email,
@@ -36,6 +39,8 @@ router.put('/admin', isAdmin, async (req, res) => {
   try {
     const { _id, email, isAdmin } = req.body
     await dbUserUpdate({ _id }, { isAdmin: !isAdmin })
+    // 백업 서버 전송
+    await fnUserUpdate({ _id }, { isAdmin: !isAdmin })
     logInfo(
       `사용자의 관리자 권한이 변경되었습니다. ${email} - ${!isAdmin}`,
       req.user.email,
