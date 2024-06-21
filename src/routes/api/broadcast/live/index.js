@@ -29,7 +29,7 @@ router.put('/', async (req, res) => {
     logEvent(`실시간 방송 시작 ${idx}`, req.user.email, 'page', req.body.zones)
     res.status(200).json({ result: true, idx })
     // 사용자 사용회수 증가
-    await dbUserUpdate({ _id: req.user._id }, { $inc: { numberOfPaging: 1 } })
+    await dbUserUpdate({ email: req.user.email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(`실시간 방송 오류 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })
@@ -56,7 +56,7 @@ router.put('/message', async (req, res) => {
     )
     res.status(200).json({ result: true, idx })
     // 사용자 사용회수 증가
-    await dbUserUpdate({ _id: user._id }, { $inc: { numberOfPaging: 1 } })
+    await dbUserUpdate({ email: req.user.email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(`메시지 방송 오류 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })

@@ -132,7 +132,7 @@ router.post('/', async (req, res) => {
     })
     await fnSendScheduleToAPP()
     // 사용자 사용회수 증가
-    await dbUserUpdate({ _id: req.user._id }, { $inc: { numberOfSchedule: 1 } })
+    await dbUserUpdate({ email: req.user.email }, { $inc: { numberOfSchedule: 1 } })
   } catch (error) {
     logError(`스케줄 추가 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })
