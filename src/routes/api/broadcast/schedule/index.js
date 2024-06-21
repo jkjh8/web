@@ -20,6 +20,7 @@ const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnCleanQsysScheduleFolder } = require('@api/schedule')
+const { fnBarixRelayOn } = require('@api/barix')
 const { logError, logWarn, logInfo } = require('@logger')
 
 const {
@@ -77,6 +78,8 @@ router.put('/', async (req, res) => {
     })
     // Qsys db 업데이트
     await dbQsysPageUpdate(devices, idx)
+    // relay on
+    await Promise.all(devices.map((zone) => fnBarixRelayOn(zone.barix)))
     // 방송 송출
     io.bridge.emit('qsys:page:message', page)
     // 로그기록

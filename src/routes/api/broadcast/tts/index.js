@@ -12,7 +12,7 @@ const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()
 
-const { tts, fnGetTtsInfo, fnResetInfo } = require('@api/tts')
+const { tts, fnGetTtsInfo, fnResetInfo, fnMakeTtsFile } = require('@api/tts')
 let ttsProperty = {}
 
 router.get('/', async (req, res) => {
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     if (Object.keys(ttsProperty).length) {
       res.status(200).json({ result: true, value: ttsProperty })
     } else {
-      ttsProperty = await fnResetInfo()
+      ttsProperty = await fnGetTtsInfo()
       res.status(200).json({ result: true, value: ttsProperty })
     }
   } catch (error) {
@@ -35,12 +35,8 @@ router.put('/', async (req, res) => {
     const name = `${uniqueId(16)}.mp3`
     const filePath = path.join(gStatus.tempFolder, name)
     // TTS 파일 생성
-    const { data } = await tts.post('/speak', {
-      rate,
-      text,
-      voice,
-      filePath
-    })
+    const data = await fnMakeTtsFile(rate, text, voice, filePath)
+
     // 파일 정보 수집
     const file = await fnGetFile(filePath)
     // 데이터 업데이트
@@ -87,9 +83,9 @@ router.get('/voice', async (req, res) => {
 router.put('/voice', async (req, res) => {
   try {
     // check admin
-    if (req.user.isAdmin !== true) {
-      return res.status(403).json({ result: false, error: '권한이 없습니다.' })
-    }
+    // if (req.user.isAdmin !== true) {
+    //   return res.status(403).json({ result: false, error: '권한이 없습니다.' })
+    // }
     const { newVoice } = req.body
     await dbSetupUpdate({ key: 'voice' }, { value: newVoice })
     // update global tts voice

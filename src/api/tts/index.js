@@ -1,19 +1,46 @@
 const axios = require('axios')
+const { spawn } = require('child_process')
+const { logInfo } = require('@logger')
+const { clear } = require('console')
 
 const tts = axios.create({ baseURL: 'http://localhost:5000' })
 
 const fnGetTtsInfo = async () => {
-  const r = await tts.get('/')
-  return r.data.values
+  return new Promise((resolve, reject) => {
+    const python = spawn('python', ['src/api/tts/getTtsInfo.py'])
+    python.stdout.on('data', (data) => {
+      resolve(JSON.parse(data.toString()))
+    })
+    python.stderr.on('data', (data) => {
+      reject(new Error(data))
+    })
+  })
 }
 
 const fnResetInfo = async () => {
-  const r = await tts.get('/reset')
-  return r.data.values
+  return new Promise((resolve, reject) => {
+    const python = spawn('python', ['src/api/tts/getTtsInfo.py'])
+    python.stdout.on('data', (data) => {
+      resolve(JSON.parse(data.toString()))
+    })
+  })
+}
+
+const fnMakeTtsFile = async (rate, text, voice, filePath) => {
+  return new Promise((resolve, reject) => {
+    const python = spawn('python', ['src/api/tts/makeTtsFile.py', rate, text, voice, filePath])
+    python.stdout.on('data', (data) => {
+      resolve(JSON.parse(data.toString()))
+    })
+    python.stderr.on('data', (data) => {
+      reject(new Error(data))
+    })
+  })
 }
 
 module.exports = {
   tts,
   fnGetTtsInfo,
-  fnResetInfo
+  fnResetInfo,
+  fnMakeTtsFile
 }

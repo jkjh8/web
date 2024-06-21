@@ -21,7 +21,7 @@ const app = express()
 // global settings
 global.gStatus = require('./defaultVal').gStatus
 require('@api/setup')()
-require('@api/setup/folders')(__dirname)
+require('@api/setup/folders')(__dirname, app)
 
 app.use(require('morgan')('dev'))
 app.use(express.json())
@@ -71,9 +71,9 @@ const io = new Server(httpServer, {
       cb(null, origin)
     },
     credentials: true
-  }
-  // maxHttpBufferSize: 1e8, // file transfer limit 100MB
-  // allowedHeaders: ['auth']
+  },
+  maxHttpBufferSize: 1e8, // file transfer limit 100MB
+  allowedHeaders: ['auth']
 })
 
 require('@io').initIO(io)

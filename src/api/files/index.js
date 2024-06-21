@@ -47,7 +47,7 @@ const fnGetFile = (fullpath) => {
   const stat = fs.statSync(fullpath)
   return {
     fullpath,
-    path: fullpath.replace(gStatus.mediaFolder, ''),
+    path: fullpath.replace(`${gStatus.mediaFolder}\\`, ''),
     type: stat.isDirectory() ? 'folder' : 'file',
     ...stat,
     ...path.parse(fullpath)

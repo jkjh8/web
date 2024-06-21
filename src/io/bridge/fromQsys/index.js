@@ -52,10 +52,12 @@ module.exports = function (socket) {
   socket.on('qsys:page:id', async (obj) => {
     try {
       const { deviceId, idx, PageID } = obj
+      // qsys에 pageID 갱신
       await dbQsysUpdate(
         { deviceId, 'PageStatus.idx': idx },
         { $set: { 'PageStatus.$.PageID': PageID } }
       )
+      // page에 pageID 갱신
       await dbPageUpdate(
         { idx, 'devices.deviceId': deviceId },
         { $set: { 'devices.$.PageID': PageID } }
@@ -74,11 +76,11 @@ module.exports = function (socket) {
         // 종료 메시지
         fnSendClientPageMessage({ deviceId, message: '방송 종료' })
         // barix relay off
-        const r = await dbPageFindOne({
+        const page = await dbPageFindOne({
           devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }
         })
-        const index = r.devices.findIndex((e) => e.PageID === params.PageID)
-        await fnBarixRelayOff(r.devices[index].barix)
+        const index = page.devices.findIndex((e) => e.PageID === params.PageID)
+        await fnBarixRelayOff(page.devices[index].barix)
         // delete PageID
         return await dbQsysUpdate(
           { deviceId },

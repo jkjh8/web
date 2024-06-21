@@ -16,9 +16,7 @@ router.put('/', async (req, res) => {
   try {
     const idx = uniqueId(16)
     // Barix 릴레이 구동
-    for (let zone of req.body.devices) {
-      await fnBarixRelayOn(zone.barix)
-    }
+    await Promise.all(req.body.devices.map(zone => fnBarixRelayOn(zone.barix)))
     // qsys page 시작
     io.bridge.emit(
       'qsys:page:live',
@@ -40,25 +38,25 @@ router.put('/', async (req, res) => {
 
 router.put('/message', async (req, res) => {
   try {
+    const { Mode, devices, file, zones } = req.body
+    const { user } = req
     const idx = uniqueId(16)
     // Barix 릴레이 구동
-    for (let zone of req.body.devices) {
-      await fnBarixRelayOn(zone.barix)
-    }
+    await Promise.all(devices.map(zone => fnBarixRelayOn(zone.barix)))
     // qsys page 시작
     io.bridge.emit(
       'qsys:page:message',
-      await fnSetLive(idx, req.body, req.user.email)
+      await fnSetLive(idx, req.body, user.email)
     )
     logEvent(
-      `메시지 방송 시작 ${req.body.file.base} ${idx}`,
+      `메시지 방송 시작 모드:${Mode} 파일:${file.base} ID:${idx}`,
       req.user.email,
       'page',
-      req.body.zones
+      zones
     )
     res.status(200).json({ result: true, idx })
     // 사용자 사용회수 증가
-    await dbUserUpdate({ _id: req.user._id }, { $inc: { numberOfPaging: 1 } })
+    await dbUserUpdate({ _id: user._id }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(`메시지 방송 오류 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })
