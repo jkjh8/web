@@ -36,7 +36,7 @@ router.post('/', (req, res, next) => {
     if (err) return res.status(500).json({ err, info })
     if (!user) return res.status(401).json({ err, info })
     const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '1d'
+      expiresIn: '1h'
     })
     res.status(200).json({ result: true, user, token })
   })(req, res, next)
