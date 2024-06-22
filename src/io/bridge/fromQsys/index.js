@@ -99,7 +99,7 @@ module.exports = function (socket) {
         await fnBarixRelayOff(currentDevice.barix)
         // 방송 종료 로고
         logEvent(
-          `방송 종료 ${currentDevice.name} - ${currentDevice.deviceId} - PAGEID:${params.PageID}`,
+          `방송 종료 ${currentDevice.name} ID:${page.idx} - PAGEID:${params.PageID}`,
           page.user,
           'page',
           [currentDevice.name]
