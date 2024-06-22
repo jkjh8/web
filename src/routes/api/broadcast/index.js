@@ -19,14 +19,14 @@ router.use('/tts', require('./tts'))
 router.use('/schedule', require('./schedule'))
 
 router.get('/stop', async (req, res) => {
-  const page = await dbPageFindOne({ idx: req.query.idx })
-  io.bridge.emit(
-    'qsys:page:stop',
-    page.devices.map((e) => {
-      return { deviceId: e.deviceId, PageID: e.PageID, idx: e.idx }
-    })
-  )
   try {
+    const page = await dbPageFindOne({ idx: req.query.idx })
+    io.bridge.emit(
+      'qsys:page:stop',
+      page.devices.map((e) => {
+        return { deviceId: e.deviceId, PageID: e.PageID, idx: e.idx }
+      })
+    )
     res.status(200).json({ result: true })
     logEvent(`방송 중지 ${req.query.idx}`, req.user.email, 'page', page.zones)
   } catch (error) {
