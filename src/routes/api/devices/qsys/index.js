@@ -51,9 +51,9 @@ router.post('/', async (req, res) => {
 
 router.put('/edit', async (req, res) => {
   try {
-    const { deviceId, ipaddress, name } = req.body
+    const { deviceId, ipaddress, name, amx } = req.body
     // 데이터베이스 업데이트
-    const r = await dbQsysUpdate({ deviceId }, { ipaddress, name })
+    const r = await dbQsysUpdate({ deviceId }, { ipaddress, name, amx })
     // 전체 데이터 송신
     await fnSendAllStatusAll()
     logInfo(

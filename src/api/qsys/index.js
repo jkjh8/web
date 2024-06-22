@@ -1,6 +1,31 @@
+const axios = require('axios')
 const io = require('@io')
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
+const { dbQsysUpdate } = require('../../db/qsys')
+
+// qsys 저장소 정보 수집
+const fnGetStrage = async (ipaddress) => {
+  try {
+    const {data} = await axios.get(`http://${ipaddress}/api/v0/cores/self/media?meta=storage`)
+    await dbQsysUpdate({ ipaddress }, { storage: data.meta.storage })
+  } catch(error) {
+    logError(`QSYS 저장소 정보 수집 오류 ${error}`, 'server', 'qsys')
+  
+  }
+}
+
+// 전체 QSYS 저장소 정보 수집
+const getAllDeviceStorage = async () => {
+  try {
+    const qsys = await dbQsysFind()
+    qsys.forEach(async (device) => {
+      await fnGetStrage(device.ipaddress)
+    })
+  } catch (error) {
+    logError(`전체 QSYS 저장소 정보 수집 오류 ${error}`, 'server', 'qsys')
+  }
+}
 
 // Q-SYS 전체 데이터를 Socket으로 전송
 const fnSendSocketStatusAll = async (socket) => {
@@ -75,7 +100,11 @@ const fnSendClientPageMessage = async (obj) => {
   }
 }
 
+
+
 module.exports = {
+  fnGetStrage,
+  getAllDeviceStorage,
   fnSendClientQsysData,
   fnSendSocketStatusAll,
   fnSendClientStatusAll,

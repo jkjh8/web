@@ -12,6 +12,11 @@ const qsysSchema = new mongoose.Schema(
     backupDevice: String,
     header: { type: String, default: 'root' },
     EngineStatus: Object,
+    amx: String,
+    storage: {
+      free: { type: Number, default: 0 },
+      total: { type: Number, default: 0 }
+    },
     ZoneStatus: [
       {
         Active: { type: Boolean, default: false },

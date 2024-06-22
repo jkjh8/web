@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     userPassword: { type: String, bcrypt: true },
     isAdmin: { type: Boolean, default: false },
+    em: { type: Boolean, default: false },
     level: { type: Number, default: 0 },
     zones: Array,
     numberOfLogins: { type: Number, default: 0 },

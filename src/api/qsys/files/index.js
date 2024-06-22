@@ -5,7 +5,8 @@ const fs = require('fs')
 const FormData = require('form-data')
 const { logInfo, logError, logEvent } = require('@logger')
 const { dbSchFind, dbSchFindOne } = require('@db/schedule')
-const { dbSchUpdate } = require('../../../db/schedule')
+const { dbSchUpdate } = require('@db/schedule')
+const { fnGetStrage } = require('..')
 
 // https 자체 인증서 우회
 const api = axios.create({
@@ -48,6 +49,7 @@ const fnQsysFileUpload = async (file, ipaddress, addr, deviceId, socket) => {
         headers: { ...form.getHeaders() }
       }
     )
+    await fnGetStrage(ipaddress)
     if (socket) {
       fnSendPageMessage(socket, deviceId, `파일 업로드 완료`)
     }
@@ -76,6 +78,7 @@ const fnQsysFileUpload = async (file, ipaddress, addr, deviceId, socket) => {
 const fnQsysFileDelete = async (file, ipaddress, addr, deviceId) => {
   try {
     await api.delete(`${fnQsysMakeMessageAddr(ipaddress)}/${addr}/${file}`)
+    await fnGetStrage(ipaddress)
   } catch (error) {
     //
   }
@@ -119,6 +122,8 @@ const fnQsysSyncFileSchedule = async (idx) => {
           'schedule'
         )
       }
+
+      await fnGetStrage(ipaddress)
     })
     await Promise.all(promises)
     await dbSchUpdate({ idx }, { $set: { sync: true } })

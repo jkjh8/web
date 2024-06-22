@@ -53,6 +53,22 @@ router.get('/', async (req, res) => {
   }
 })
 
+router.put('/active', async (req, res) => {
+  try {
+    const { _id, name, idx, active } = req.body
+    await dbSchUpdate({ _id }, { active })
+    res.status(200).json({ result: true })
+    if (active) {
+      logInfo(`스케줄 활성화 ${name} - ${idx}`, req.user.email, 'schedule')
+    } else {
+      logWarn(`스케줄 비활성화 ${name} - ${idx}`, req.user.email, 'schedule')
+    }
+  } catch (error) {
+    logError(`스케줄 활성화 오류 ${error}`, req.user.email, 'schedule')
+    res.status(500).json({ result: false, error })
+  }
+})
+
 router.put('/', async (req, res) => {
   try {
     const { idx, devices, name, file } = req.body
@@ -132,7 +148,10 @@ router.post('/', async (req, res) => {
     })
     await fnSendScheduleToAPP()
     // 사용자 사용회수 증가
-    await dbUserUpdate({ email: req.user.email }, { $inc: { numberOfSchedule: 1 } })
+    await dbUserUpdate(
+      { email: req.user.email },
+      { $inc: { numberOfSchedule: 1 } }
+    )
   } catch (error) {
     logError(`스케줄 추가 오류 ${error}`, req.user.email, 'schedule')
     res.status(500).json({ result: false, error })

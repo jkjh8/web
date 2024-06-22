@@ -6,9 +6,10 @@ const Page = require('@db/models/page')
 // live 송출 명령 만들기
 const fnSetLive = async (idx, obj, user) => {
   try {
-    const { devices } = obj
+    const { _id, ...rest } = obj;
+    const { devices } = rest
     // page 생성
-    await dbPageMake({ ...obj, user, idx })
+    await dbPageMake({ ...rest, user, idx });
     // qsys에 pageStatus 추가
     const arr = await Promise.all(
       devices.map(async (item) => {

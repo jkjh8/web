@@ -77,3 +77,7 @@ const io = new Server(httpServer, {
 })
 
 require('@io').initIO(io)
+
+
+const {getAllDeviceStorage} = require('@api/qsys')
+getAllDeviceStorage()
