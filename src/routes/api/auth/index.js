@@ -15,9 +15,10 @@ router.get('/', isLoggedIn, async (req, res) => {
     const user = await dbUserFindOneNonePass({ email: req.user.email })
     let token = null
     const currentTime = Math.floor(Date.now() / 1000)
-    if (currentTime - req.user.iat < 6000) {
+    // 토큰 만료 1시간 전에 갱신
+    if (currentTime - req.user.iat < 3000) {
       token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '1d'
+        expiresIn: '1h'
       })
     }
     if (token) {

@@ -12,16 +12,22 @@ const { dbBarixFindOne } = require('@db/barix')
 
 module.exports = function (socket) {
   socket.on('qsys:connect', async (device) => {
-    const { deviceId } = device
+    const { deviceId, name, ipaddress } = device
     const r = await dbQsysUpdate({ deviceId }, { connected: true })
     fnSendClientQsysData(deviceId, { connected: true })
     fnQsysCheckMediaFolder(r)
+    logInfo(`QSYS 연결 ${name} - ${ipaddress} - ${deviceId}`, 'qsys', 'connect')
   })
 
   socket.on('qsys:disconnect', async (device) => {
-    const { deviceId } = device
+    const { deviceId, name, ipaddress } = device
     await dbQsysUpdate({ deviceId }, { connected: false })
     fnSendClientQsysData(deviceId, { connected: false })
+    logInfo(
+      `QSYS 연결 해제 ${name} - ${ipaddress} - ${deviceId}`,
+      'qsys',
+      'disconnect'
+    )
   })
 
   socket.on('qsys:device', async (obj) => {
@@ -79,8 +85,12 @@ module.exports = function (socket) {
         const page = await dbPageFindOne({
           devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }
         })
-        const index = page.devices.findIndex((e) => e.PageID === params.PageID)
-        await fnBarixRelayOff(page.devices[index].barix)
+        console.log(page.devices)
+        await fnBarixRelayOff(
+          page.devices[
+            page.devices.findIndex((e) => e.PageID === params.PageID)
+          ].barix
+        )
         // delete PageID
         return await dbQsysUpdate(
           { deviceId },

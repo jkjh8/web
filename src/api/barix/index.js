@@ -157,11 +157,29 @@ const fnBarixRelayOn = async (arr) => {
   }
 }
 
+const fnBarixesRelayOn = async (devices) => {
+  try {
+    return await Promise.all(devices.map((zone) => fnBarixRelayOn(zone.barix)))
+  } catch (error) {
+    logError(`Barixes Relay On 오류 ${error}`, 'server', 'barix')
+  }
+}
+
+const fnBarixesRelayOff = async (devices) => {
+  try {
+    return await Promise.all(devices.map((zone) => fnBarixRelayOff(zone.barix)))
+  } catch (error) {
+    logError(`Barixes Relay Off 오류 ${error}`, 'server', 'barix')
+  }
+}
+
 module.exports = {
   fnGetBarixInfo,
   fnGetBarixes,
   fnStartBarix,
   fnRestartBarix,
   fnBarixRelayOn,
-  fnBarixRelayOff
+  fnBarixRelayOff,
+  fnBarixesRelayOn,
+  fnBarixesRelayOff
 }

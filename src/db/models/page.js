@@ -20,7 +20,8 @@ const pageSchema = new mongoose.Schema(
         PageID: Number,
         State: String,
         SubState: String,
-        Message: String
+        Message: String,
+        amx: String
       }
     ]
   },
