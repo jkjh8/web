@@ -20,7 +20,8 @@ const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
 //api
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnCleanQsysScheduleFolder } = require('@api/schedule')
-const { fnBarixRelayOn } = require('@api/barix')
+const { fnBarixesRelayOn } = require('@api/barix')
+const { fnAmxesRelayOn } = require('@api/amx')
 const { logError, logWarn, logInfo } = require('@logger')
 
 const {
@@ -94,13 +95,24 @@ router.put('/', async (req, res) => {
     })
     // Qsys db 업데이트
     await dbQsysPageUpdate(devices, idx)
-    // relay on
-    await Promise.all(devices.map((zone) => fnBarixRelayOn(zone.barix)))
+
+    //////////////// 릴레이 구동 ////////////////
+    // amx 릴레이 구동
+    await fnAmxesRelayOn(devices)
+    // Barix 릴레이 구동
+    await fnBarixesRelayOn(devices)
+    // 로그
+    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, 'live', zones)
+
+    //////////////// 1초 대기 ////////////////
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    //////////////// 방송 시작 ////////////////
     // 방송 송출
     io.bridge.emit('qsys:page:message', page)
     // 로그기록
     logInfo(
-      `스케줄 방송 시작 ${name} - ${idx} - ${file.base}`,
+      `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.base}`,
       req.user.email,
       'schedule',
       zones

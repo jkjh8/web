@@ -1,27 +1,49 @@
 const fs = require('fs')
 const path = require('path')
+// io
 const io = require('@io')
+// logger
 const { logInfo } = require('@logger')
+// db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne, dbQsysUpdate } = require('@db/qsys')
+// api
 const uniqueId = require('@api/utils/uniqueId')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
 const { fnSetLive } = require('@api/qsys/broadcast')
-const { fnBarixRelayOn } = require('../barix')
+const { fnBarixesRelayOn } = require('@api/barix')
+const { fnAmxesRelayOn } = require('@api/amx')
 
 // 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
+  const { user, name, zones, file } = data
   try {
-    const page = await fnMakePageFromSchedule(data)
-    // Barix 릴레이 구동
-    for (let zone of page) {
-      await fnBarixRelayOn(zone.barix)
-    }
     // Page를 위한 uniqueId 생성
     const idx = uniqueId(16)
-    // Page 생성 및 송출
-    const commands = await fnSetLive(idx, { ...data, devices: page }, data.user)
+    // page 생성
+    const page = await fnMakePageFromSchedule(data)
+
+    //////////////// 릴레이 구동 ////////////////
+    // amx 릴레이 구동
+    await fnAmxesRelayOn(page)
+    // Barix 릴레이 구동
+    await fnBarixesRelayOn(page)
+    // 로그
+    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, user, 'live', zones)
+
+    //////////////// 1초 대기 ////////////////
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    //////////////// 방송 시작 ////////////////
+    const commands = await fnSetLive(idx, { ...data, devices: page }, user)
     io.bridge.emit('qsys:page:message', commands)
+    // 로그
+    logEvent(
+      `스케줄 방송 송출 시작 ${name} - ${file.base}`,
+      user,
+      'schedule',
+      zones
+    )
   } catch (error) {
     throw error
   }

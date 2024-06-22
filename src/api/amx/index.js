@@ -37,8 +37,30 @@ const fnAmxRelayOn = (device) => {
 }
 
 // 릴레이 끄기
-const fnAmxRelayOff = (devices) => {
-  console.log(devices)
+const fnAmxRelayOff = (device) => {
+  return new Promise((resolve, reject) => {
+    if (device.amx) {
+      const udp = dgram.createSocket('udp4')
+      udp.send(
+        `#off,${device.params.Zones.join(',')}!`,
+        12032,
+        device.amx,
+        (error) => {
+          if (error) {
+            logError(
+              `AMX Relay Off 오류 ${device.name} - ${error}`,
+              'server',
+              'amx'
+            )
+            reject(error)
+          }
+          udp.close()
+          resolve()
+        }
+      )
+    }
+    resolve()
+  })
 }
 
 module.exports = {

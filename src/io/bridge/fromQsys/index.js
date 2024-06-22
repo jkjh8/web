@@ -1,14 +1,18 @@
+// logger
 const { logInfo, logError, logEvent } = require('@logger')
+// db
+const { dbPageUpdate, dbPageFindOne } = require('@db/page')
+const { dbQsysUpdate } = require('@db/qsys')
+const { dbBarixFindOne } = require('@db/barix')
+// api
+const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
+const { fnBarixRelayOff } = require('@api/barix')
 const {
   fnSendClientStatusAll,
   fnSendClientQsysData,
   fnSendClientPageMessage
 } = require('@api/qsys')
-const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
-const { fnBarixRelayOff } = require('@api/barix')
-const { dbPageUpdate, dbPageFindOne } = require('@db/page')
-const { dbQsysUpdate } = require('@db/qsys')
-const { dbBarixFindOne } = require('@db/barix')
+const { fnAmxRelayOff } = require('@api/amx')
 
 module.exports = function (socket) {
   socket.on('qsys:connect', async (device) => {
@@ -79,17 +83,26 @@ module.exports = function (socket) {
       const { deviceId, params } = obj
       // 종료시
       if (params.State === 'done') {
-        // 종료 메시지
+        // 종료 메시지(연결된 사용자에게 전송)
         fnSendClientPageMessage({ deviceId, message: '방송 종료' })
-        // barix relay off
+
+        // PAGE 찾기
         const page = await dbPageFindOne({
           devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }
         })
-        console.log(page.devices)
-        await fnBarixRelayOff(
-          page.devices[
-            page.devices.findIndex((e) => e.PageID === params.PageID)
-          ].barix
+        // Page에서 device 찾기
+        const currentDevice =
+          page.devices[page.devices.findIndex((e) => e.deviceId === deviceId)]
+        // amx relay off
+        await fnAmxRelayOff(currentDevice)
+        // barix relay off
+        await fnBarixRelayOff(currentDevice.barix)
+        // 방송 종료 로고
+        logEvent(
+          `방송 종료 ${currentDevice.name} - ${currentDevice.deviceId} - PAGEID:${params.PageID}`,
+          page.user,
+          'page',
+          [currentDevice.name]
         )
         // delete PageID
         return await dbQsysUpdate(
