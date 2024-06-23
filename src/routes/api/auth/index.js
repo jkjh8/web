@@ -10,22 +10,20 @@ const { logInfo, logError } = require('@logger')
 
 const router = express.Router()
 
+// 사용자 정보 조회 및 토큰 갱신
 router.get('/', isLoggedIn, async (req, res) => {
   try {
     const user = await dbUserFindOneNonePass({ email: req.user.email })
     let token = null
     const currentTime = Math.floor(Date.now() / 1000)
     // 토큰 만료 1시간 전에 갱신
-    if (currentTime - req.user.iat < 3000) {
+    if (currentTime - req.user.iat < 6000) {
       token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '1h'
+        expiresIn: '3h'
       })
     }
-    if (token) {
-      res.status(200).json({ result: true, user, token })
-    } else {
-      res.status(200).json({ result: true, user })
-    }
+    // 토큰이 있을 경우 토큰을 포함하여 응답
+    res.status(200).json({ result: true, user, token })
   } catch (error) {
     res.status(500).json({ result: false, user: null, error: error })
   }
@@ -34,19 +32,25 @@ router.get('/', isLoggedIn, async (req, res) => {
 // 로그인
 router.post('/', (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
+    // 에러 발생 시 500 상태 코드와 에러 정보를 응답
     if (err) return res.status(500).json({ err, info })
+    // 사용자가 없을 경우 401 상태 코드와 에러 정보를 응답
     if (!user) return res.status(401).json({ err, info })
+    // 사용자 정보를 기반으로 JWT 토큰 생성
     const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
-      expiresIn: '1h'
+      expiresIn: '3h'
     })
+    // 성공적으로 로그인한 경우 200 상태 코드와 사용자 정보 및 토큰을 응답
     res.status(200).json({ result: true, user, token })
   })(req, res, next)
 })
 
+// 회원가입
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, userPassword } = req.body
     const salt = bcrypt.genSaltSync(10)
+    // 슈퍼 사용자 생성
     if (email === 'superuser@superuser.com') {
       await dbUserMake({
         name: 'superuser',
@@ -57,6 +61,7 @@ router.post('/signup', async (req, res) => {
       })
       logInfo('슈퍼 사용자 생성', 'server', 'user')
     } else {
+      // 일반 사용자 생성
       await dbUserMake({
         name: name,
         email: email,
@@ -65,6 +70,7 @@ router.post('/signup', async (req, res) => {
       })
       logInfo(`사용자 계정 생성: ${email}`, 'server', 'user')
     }
+    // 사용자 생성 성공 시 200 상태 코드와 결과를 응답
     res.status(200).json({ result: true })
   } catch (error) {
     logError(`사용자 계정 생성 실패: ${error}`, 'server', 'user')
@@ -72,6 +78,7 @@ router.post('/signup', async (req, res) => {
   }
 })
 
+// 이메일 중복 체크
 router.get('/exists_email', async (req, res) => {
   try {
     const { email } = req.query
@@ -82,6 +89,7 @@ router.get('/exists_email', async (req, res) => {
   }
 })
 
+// 로그아웃
 router.get('/signout', isLoggedIn, async (req, res) => {
   try {
     // console.log(req.user)

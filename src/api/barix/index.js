@@ -31,8 +31,8 @@ const fnGetBarixInfo = async (ipaddress) => {
       worker.terminate()
     })
 
-    worker.on('error', async (err) => {
-      logError(`Barix 정보 수집 오류 ${JSON.stringify(err)}`, 'server', 'barix')
+    worker.on('error', async (error) => {
+      logError(`Barix 정보 수집 오류 ${error}`, 'server', 'barix')
       worker.terminate()
     })
 
@@ -42,7 +42,7 @@ const fnGetBarixInfo = async (ipaddress) => {
       }
     })
   } catch (error) {
-    logError(`Barix 정보 수집 오류 ${JSON.stringify(error)}`, 'server', 'barix')
+    logError(`Barix 정보 수집 오류 ${error}`, 'server', 'barix')
   }
 }
 
@@ -51,21 +51,13 @@ const fnGetBarixes = async () => {
   try {
     devices = await dbBarixFind()
   } catch (error) {
-    logError(
-      `Barix DB 정보 조회 오류 ${JSON.stringify(error)}`,
-      'server',
-      'barix'
-    )
+    logError(`Barix DB 정보 조회 오류 ${error}`, 'server', 'barix')
   }
   devices.forEach(async (element) => {
     try {
       fnGetBarixInfo(element.ipaddress)
     } catch (error) {
-      logError(
-        `Barixes 정보 수집 오류 ${JSON.stringify(error)}`,
-        'server',
-        'barix'
-      )
+      logError(`Barixes 정보 수집 오류 ${error}`, 'server', 'barix')
     }
   })
 }
@@ -75,11 +67,7 @@ const fnStartBarix = () => {
     try {
       await fnGetBarixes()
     } catch (error) {
-      logError(
-        `Barix 정보 시작 오류 ${JSON.stringify(error)}`,
-        'server',
-        'barix'
-      )
+      logError(`Barix 정보 시작 오류 ${error}`, 'server', 'barix')
     }
   }, gStatus.interval * 1000)
 }
@@ -107,20 +95,12 @@ const fnBarixRelayOff = async (arr) => {
         try {
           await axios.get(`http://${ipaddress}/rc.cgi?R=0`)
         } catch (error) {
-          logError(
-            `Barix Relay Off 오류 ${error.cause ?? error.cause}`,
-            'server',
-            'barix'
-          )
+          logError(`Barix Relay Off 오류 ${error}`, 'server', 'barix')
         }
       })
     )
   } catch (error) {
-    logError(
-      `Barix Relay Off 오류 ${error.cause ?? error.cause}`,
-      'server',
-      'barix'
-    )
+    logError(`Barix Relay Off 오류 ${error}`, 'server', 'barix')
   }
 }
 
@@ -140,20 +120,12 @@ const fnBarixRelayOn = async (arr) => {
         try {
           await axios.get(`http://${ipaddress}/rc.cgi?R=1`)
         } catch (error) {
-          logError(
-            `Barix Relay On 오류 ${error.cause ?? error.cause}`,
-            'server',
-            'barix'
-          )
+          logError(`Barix Relay On 오류 ${error}`, 'server', 'barix')
         }
       })
     )
   } catch (error) {
-    logError(
-      `Barix Relay On 오류 ${error.cause ?? error.cause}`,
-      'server',
-      'barix'
-    )
+    logError(`Barix Relay On 오류 ${error}`, 'server', 'barix')
   }
 }
 

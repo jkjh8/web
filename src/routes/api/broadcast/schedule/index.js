@@ -170,6 +170,7 @@ router.post('/', async (req, res) => {
   }
 })
 
+// 스케줄 중복 확인
 router.get('/exists', async (req, res) => {
   try {
     res.status(200).json({
@@ -184,12 +185,16 @@ router.get('/exists', async (req, res) => {
   }
 })
 
+// 스케줄 삭제
 router.delete('/', async (req, res) => {
   const { schedule } = req.body
+  // 파일 삭제
   try {
+    // 서버에서 삭제
     fs.rmSync(path.join(gStatus.scheduleFolder, schedule.idx), {
       recursive: true
     })
+    // qsys에서 삭제
     const { idx } = schedule
     schedule.devices.forEach(async (device) => {
       const { deviceId, ipaddress } = device
@@ -198,10 +203,12 @@ router.delete('/', async (req, res) => {
   } catch (error) {
     //
   }
+  // db 삭제
   try {
     await dbSchRemoveById(schedule._id)
     logWarn(`스케줄 삭제 ${schedule.name}`, req.user.email, 'schedule')
     res.status(200).json({ result: true })
+    // 스케줄 APP으로 전송
     await fnSendScheduleToAPP()
   } catch (error) {
     logError(`스케줄 삭제 오류 ${error}`, req.user.email, 'schedule')

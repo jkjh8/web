@@ -15,6 +15,7 @@ const fnSetLive = async (idx, obj, user) => {
       devices.map(async (item) => {
         const { deviceId, params } = item
         await dbQsysUpdate({ deviceId }, { $push: { PageStatus: { idx } } })
+        console.log(params)
         return { idx, deviceId, params }
       })
     )

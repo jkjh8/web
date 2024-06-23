@@ -2,16 +2,17 @@ const axios = require('axios')
 const io = require('@io')
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
-const { dbQsysUpdate } = require('../../db/qsys')
+const { dbQsysUpdate, dbQsysFindOne } = require('../../db/qsys')
 
 // qsys 저장소 정보 수집
 const fnGetStrage = async (ipaddress) => {
   try {
-    const {data} = await axios.get(`http://${ipaddress}/api/v0/cores/self/media?meta=storage`)
+    const { data } = await axios.get(
+      `http://${ipaddress}/api/v0/cores/self/media?meta=storage`
+    )
     await dbQsysUpdate({ ipaddress }, { storage: data.meta.storage })
-  } catch(error) {
+  } catch (error) {
     logError(`QSYS 저장소 정보 수집 오류 ${error}`, 'server', 'qsys')
-  
   }
 }
 
@@ -100,7 +101,30 @@ const fnSendClientPageMessage = async (obj) => {
   }
 }
 
+// Qsys db에서 ZoneStatus에 active가 활성화 된 채널이 하나도 없을 경우 PageStatus를 모두 삭제
+const fnCheckPageStatus = async (deviceId) => {
+  try {
+    const device = await dbQsysFindOne({ deviceId })
+    const active = device.ZoneStatus.filter((e) => e.active === true)
+    if (active.length === 0) {
+      await dbQsysUpdate({ deviceId }, { PageStatus: [] })
+    }
+  } catch (error) {
+    logError(`QSYS Page Status 삭제 오류 ${error}`, 'server', 'qsys')
+  }
+}
 
+// Qsys전체를 가져와서 fnCheckPageStatus를 호출
+const fnCheckPageStatusAll = async () => {
+  try {
+    const qsys = await dbQsysFind()
+    qsys.forEach(async (device) => {
+      await fnCheckPageStatus(device.deviceId)
+    })
+  } catch (error) {
+    logError(`QSYS 전체 Page Status 삭제 오류 ${error}`, 'server', 'qsys')
+  }
+}
 
 module.exports = {
   fnGetStrage,
@@ -110,5 +134,6 @@ module.exports = {
   fnSendClientStatusAll,
   fnSendAllStatusAll,
   fnSendQsysData,
-  fnSendClientPageMessage
+  fnSendClientPageMessage,
+  fnCheckPageStatus
 }

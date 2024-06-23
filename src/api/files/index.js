@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
+// 폴더내 파일 확인
 const fnGetFolder = (dir) =>
   fs.readdirSync(dir).reduce((files, file) => {
     const name = path.resolve(dir, file)
@@ -16,6 +17,7 @@ const fnMakeFolder = (folder) => {
   }
 }
 
+// 폴더 정보 구하기
 const fnGetFolders = (email) => {
   const { globalFolder, mediaFolder } = gStatus
   // 공용폴더
@@ -35,6 +37,7 @@ const fnGetFolders = (email) => {
   }
 }
 
+// 여러 파일 정보 구하기
 const fnGetFiles = (folder) => {
   const files = fs.readdirSync(folder)
   return files.map((file) => {
@@ -43,6 +46,7 @@ const fnGetFiles = (folder) => {
   })
 }
 
+// 파일 정보 구하기
 const fnGetFile = (fullpath) => {
   const stat = fs.statSync(fullpath)
   return {
@@ -54,6 +58,7 @@ const fnGetFile = (fullpath) => {
   }
 }
 
+// 파일 사이즈 구하기
 const fnGetFileSize = (folder) => {
   let size = 0
   const files = fs.readdirSync(folder)
@@ -65,6 +70,7 @@ const fnGetFileSize = (folder) => {
   return size
 }
 
+// 임시폴더 삭제
 const fnRTemp = () => {
   const files = fs.readdirSync(gStatus.tempFolder)
   files.forEach((file) => {
@@ -78,6 +84,7 @@ const fnRTemp = () => {
   })
 }
 
+// 폴더 및 파일 삭제
 const fnRFAF = (list) => {
   for (let file of list) {
     if (fs.existsSync(file.fullpath)) {

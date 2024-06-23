@@ -3,7 +3,7 @@ const path = require('path')
 // io
 const io = require('@io')
 // logger
-const { logInfo } = require('@logger')
+const { logInfo, logEvent, logError } = require('@logger')
 // db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne, dbQsysUpdate } = require('@db/qsys')
