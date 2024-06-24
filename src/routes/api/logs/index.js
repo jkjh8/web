@@ -9,8 +9,8 @@ const router = express.Router()
 router.get('/', isLoggedIn, async (req, res, next) => {
   try {
     let sort = {}
-    const { pagination, filter, level } = JSON.parse(req.query.options)
-    const { rowsPerPage, page, sortBy, descending } = pagination
+    let { pagination, filter, level, options } = JSON.parse(req.query.options)
+    let { rowsPerPage, page, sortBy, descending } = pagination
     sort[sortBy] = descending ? -1 : 1
 
     const searchOptions = []
@@ -18,8 +18,10 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       searchOptions.push({ levelNum: { $gte: level } })
     }
     if (filter) {
+      // filter에서 글자에서 \가 있으면 삭제
+      filter = filter.replace(/\\/g, '')
       searchOptions.push({
-        search: new RegExp(Hangul.disassembleToString(filter), 'i')
+        search: new RegExp(Hangul.disassembleToString(filter), 'i', 'g')
       })
     }
     // get count
