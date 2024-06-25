@@ -15,6 +15,7 @@ const router = express.Router()
 const { tts, fnGetTtsInfo, fnResetInfo, fnMakeTtsFile } = require('@api/tts')
 let ttsProperty = {}
 
+// TT01
 router.get('/', async (req, res) => {
   try {
     if (Object.keys(ttsProperty).length) {
@@ -24,11 +25,12 @@ router.get('/', async (req, res) => {
       res.status(200).json({ result: true, value: ttsProperty })
     }
   } catch (error) {
-    logError(`TTS 정보 확인 오류 ${error}`, req.user.email, 'tts')
+    logError(`TT01 TTS 정보 확인 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// TT02
 router.put('/', async (req, res) => {
   try {
     const { rate, text, voice } = req.body
@@ -50,23 +52,24 @@ router.put('/', async (req, res) => {
       }
     })
   } catch (error) {
-    logError(`TTS 생성 오류 ${error}`, req.user.email, 'tts')
+    logError(`TT02 TTS 생성 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
-// TTS 파일 삭제
+// TT03 TTS 파일 삭제
 router.delete('/', (req, res) => {
   try {
     const { file } = req.body
     fs.unlinkSync(file.fullpath)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`TTS 파일 삭제 오류 ${error}`, req.user.email, 'tts')
+    logError(`TT03 TTS 파일 삭제 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// TT04 TTS 음성 확인
 router.get('/voice', async (req, res) => {
   try {
     let r = await dbSetupFindOne({ key: 'voice' })
@@ -75,12 +78,14 @@ router.get('/voice', async (req, res) => {
     }
     res.status(200).json({ ...gStatus })
   } catch (error) {
-    logError(`TTS음성 오류 ${error}`, 'server', 'setup')
+    logError(`TT04 TTS음성 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// TT05 TTS 음성 변경
 router.put('/voice', async (req, res) => {
+  const { email } = req.user
   try {
     // check admin
     // if (req.user.isAdmin !== true) {
@@ -90,14 +95,10 @@ router.put('/voice', async (req, res) => {
     await dbSetupUpdate({ key: 'voice' }, { value: newVoice })
     // update global tts voice
     gStatus.voice = newVoice
-    logInfo(
-      `TTS 음성 변경 완료 ${newVoice} by ${req.user.email}`,
-      'server',
-      'setup'
-    )
+    logInfo(`TT05 TTS 음성 변경 완료 ${newVoice}`, email)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`edit tts voice error ${error}`, 'server', 'setup')
+    logError(`TT05 TTS음성 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

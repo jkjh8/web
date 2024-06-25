@@ -26,17 +26,7 @@ module.exports = () => {
       }
     )
   )
-  // passport.serializeUser((user, done) => {
-  //   console.log(user)
-  //   done(null, user)
-  // })
-  // passport.deserializeUser(async (user, done) => {
-  //   try {
-  //     return done(null, await dbUserFindOne({ email: user.email }))
-  //   } catch (error) {
-  //     return done(error, null)
-  //   }
-  // })
+
   passport.use(
     new LocalStrategy(
       { usernameField: 'email', passwordField: 'userPassword' },

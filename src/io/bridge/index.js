@@ -4,15 +4,9 @@ const { dbSetupUpdate } = require('@db/setup')
 const fromQsys = require('./fromQsys')
 const { fnSendGlobalStatus } = require('../client/api')
 
+//IB01
 module.exports = (socketio) => {
-  // socketio.use((socket, next) => {
-  //   const header = socket.handshake.headers
-  //   if (header.host === 'localhost' && header.auth === 'qsys') {
-  //     return next()
-  //   }
-  //   next(new Error('UnAuthorized'))
-  // })
-
+  // socketio 연결
   socketio.on('connection', async (socket) => {
     await dbSetupUpdate({ key: 'bridge' }, { connected: true, id: socket.id })
     // gStatus 업데이트
@@ -22,26 +16,29 @@ module.exports = (socketio) => {
     // 전체 상태 전송
     fnSendGlobalStatus()
 
-    logInfo(`Socket.IO Bridge 연결 ${socket.id}`, 'server', 'socket.io')
+    logInfo(`IB01 Socket Bridge 연결 ${socket.id}`, 'server')
 
+    // 연결 해제
     socket.on('disconnect', async (reason) => {
       await dbSetupUpdate({ key: 'bridge' }, { connected: false })
-
       // gStatus 업데이트
       gStatus.bridge.connected = false
       gStatus.bridge.lastupdate = new Date()
       // 전체 상태 전송
       fnSendGlobalStatus()
 
-      logInfo(`Socket.IO Bridge 연결해제 ${socket.id}`, 'server', 'socket.io')
+      logInfo(`IB01 Socket Bridge 연결해제 ${socket.id}`, 'server')
     })
+
     // functions
     fromQsys(socket)
+
+    // 초기값 전송
     try {
       socket.emit('qsys:devices', await dbQsysFindAll())
     } catch (error) {
-      logError(`Bridge 초기값 전송 오류 ${error}`, 'server', 'socket.io')
+      logError(`IB01 Bridge 초기값 전송 ${error}`, 'server')
     }
   })
-  logInfo(`Socket.IO Bridge 시작`, 'server', 'socket.io')
+  logInfo(`IB01 Socket Bridge 시작`, 'server')
 }

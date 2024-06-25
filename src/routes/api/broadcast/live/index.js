@@ -16,8 +16,7 @@ const io = require('@io')
 
 const router = express.Router()
 
-// barix 구동 만들어야 함
-
+// BL01 실시간 방송 시작
 router.put('/', async (req, res) => {
   const { email } = req.user
   try {
@@ -53,11 +52,12 @@ router.put('/', async (req, res) => {
     // 사용자 사용회수 증가
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
-    logError(`실시간 방송 오류 ${error}`, email, 'live')
+    logError(`BL01 실시간 방송 ${error}`, email, zones)
     res.status(500).json({ result: false, error })
   }
 })
 
+// BL02 메세지 방송 시작
 router.put('/message', async (req, res) => {
   const { email } = req.user
   try {
@@ -91,21 +91,22 @@ router.put('/message', async (req, res) => {
     // 사용자 사용회수 증가
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
-    logError(`메시지 방송 오류 ${error}`, email, 'live')
+    logError(`BL02 메시지 방송 ${error}`, email, zones)
     res.status(500).json({ result: false, error })
   }
 })
 
-// 메시지 파일 삭제 만들어야함.
+// BL03 메시지 파일 삭제 만들어야함.
 router.delete('/message', async (req, res) => {
   try {
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`메시지 삭제 오류  ${error}`, req.user.email, 'live')
+    logError(`BL04 메시지 삭제 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// BL04 방송 중지
 router.get('/stop', async (req, res) => {
   try {
     const { deviceId } = req.params
@@ -117,14 +118,15 @@ router.get('/stop', async (req, res) => {
         idx: item.idx
       })
     }
-    logEvent(`방송 중지`, req.user.email, 'live', [r.name])
+    logEvent(`방송 중지`, req.user.email, [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`방송 중지 오류 ${error}`, req.user.email, 'live')
+    logError(`BL04 방송 중지 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// BL05 방송 취소
 router.get('/cancel', async (req, res) => {
   try {
     const { deviceId } = req.params
@@ -136,10 +138,10 @@ router.get('/cancel', async (req, res) => {
         idx: item.idx
       })
     }
-    logEvent(`방송 취소`, req.user.email, 'live', [r.name])
+    logEvent(`방송 취소`, req.user.email, [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`방송 취소 오류 ${error}`, req.user.email, 'live')
+    logError(`BL05 방송 취소 오류 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })

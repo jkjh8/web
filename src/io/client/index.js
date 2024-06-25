@@ -18,38 +18,37 @@ module.exports = async (socketio) => {
       next(new Error('invaild token'))
     }
   })
-
+  // IC01 클라이언트 소켓 연결
   socketio.on('connection', async (socket) => {
     const { email } = socket.user
-
+    // 사용자 소켓 아이디 갱신
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
-      logInfo(`socket.io 연결 ${socket.id}`, 'server', 'socket.io')
     } catch (error) {
-      logError(`socket.io 계정 오류`, 'server', 'socket.io')
+      logError(`IC01 Socket Client 사용자 갱신`, 'server')
     }
     // const user = socket.request.user
-    logInfo(`Socket.IO clients 연결`, email, 'socket.io')
-
+    logInfo(`IC01 Socket client 연결`, email)
+    // 연결 해제
     socket.on('disconnect', (reason) => {
-      logInfo(`Socket.IO clients 연결해제`, email, 'socket.io')
+      logInfo(`IC01 Socket client 연결해제`, email)
     })
-
+    // 클라이언트 함수
     fromClient(socket)
-
+    // 초기값 전송
     try {
       socket.emit('qsys:devices', await dbQsysFindAll())
     } catch (error) {
-      logError(`clients 초기값 전송 오류 ${error}`, 'server', 'socket.io')
+      logError(`IC01 client 초기값 전송 오류 ${error}`, 'server')
     }
 
     socketio.on('connection_error', (error) => {
-      console.log(`socket.io connection error - ${error}`)
+      console.log(`IC01 Socket Client 연결 - ${error}`)
     })
 
     // 전체 상태 전송
     socket.emit('setup:status', gStatus)
   })
 
-  logInfo(`Socket.IO clients 시작`, 'server', 'socket.io')
+  logInfo(`IC01 Socket client 시작`, 'server')
 }

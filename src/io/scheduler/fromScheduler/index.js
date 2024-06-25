@@ -12,25 +12,27 @@ const {
 } = require('@api/schedule')
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
+const { log } = require('winston')
 
 const schedulerParser = (socket) => {
+  // IS02 스케줄러 갱신
   socket.on('schedule:refresh', async () => {
     try {
       await fnSendScheduleToAPP()
     } catch (error) {
-      logError(`스케줄 전송 오류 ${error}`, 'server')
+      logError(`IS02 스케줄 전송 ${error}`, 'server')
     }
   })
-
+  // IS03 스케줄러 설정
   socket.on('schedule:setup', () => {
     socket.emit('schedule:setup', { ...gStatus.scheduler })
   })
-
+  //  IS04 스케줄러 상태
   socket.on('schedule:status', (args) => {
     //
   })
 
-  // 스케줄 방송 시작
+  // IS05 스케줄 방송 시작
   socket.on('inTime', async (data) => {
     const { name, user, zones, file, idx, active } = data
     try {
@@ -42,13 +44,13 @@ const schedulerParser = (socket) => {
       await fnInTimeScheduleRun(data)
       // 사용자 방송 횟수 추가
       await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
-      logEvent(`스케줄 방송 시작 ${name} - ${file.base} - ${idx}`, user, zones)
+      logEvent(`스케줄 방송 시작 ${name}-${file.base}-${idx}`, user, zones)
     } catch (error) {
-      logError(`스케줄 방송 시작 오류 ${error}`, user, zones)
+      logError(`IS05 스케줄 방송 시작 ${error}`, user, zones)
     }
   })
 
-  // 00:00:00 스케줄 폴더 정리
+  // IS06 00:00:00 스케줄 폴더 정리
   socket.on('clean', async () => {
     try {
       //qsys 스케줄 폴더 비우기
@@ -60,13 +62,13 @@ const schedulerParser = (socket) => {
       // qsys page 초기화
       fnCheckPageStatusAll()
     } catch (error) {
-      logError(`스케줄 폴더 정리 오류 ${error}`, 'server')
+      logError(`IS06 스케줄 폴더 정리 ${error}`, 'server')
     }
   })
 
-  // 매시간 전달
+  // IS07 매시간 전달
   socket.on('hour', (time) => {
-    //
+    logInfo(`IS07 매시간 전달 ${time}`, 'server')
   })
 }
 

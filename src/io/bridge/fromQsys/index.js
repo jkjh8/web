@@ -15,31 +15,29 @@ const {
 const { fnAmxRelayOff } = require('@api/amx')
 
 module.exports = function (socket) {
+  // IB02
   socket.on('qsys:connect', async (device) => {
     const { deviceId, name, ipaddress } = device
     const r = await dbQsysUpdate({ deviceId }, { connected: true })
     fnSendClientQsysData(deviceId, { connected: true })
     fnQsysCheckMediaFolder(r)
-    logInfo(`QSYS 연결 ${name} - ${ipaddress} - ${deviceId}`, 'qsys', 'connect')
+    logInfo(`IB02 QSYS 연결 ${name} - ${ipaddress} - ${deviceId}`, 'qsys')
   })
 
+  // IB03
   socket.on('qsys:disconnect', async (device) => {
     const { deviceId, name, ipaddress } = device
     await dbQsysUpdate({ deviceId }, { connected: false })
     fnSendClientQsysData(deviceId, { connected: false })
-    logInfo(
-      `QSYS 연결 해제 ${name} - ${ipaddress} - ${deviceId}`,
-      'qsys',
-      'disconnect'
-    )
+    logInfo(`IB03 QSYS 연결 해제 ${name} - ${ipaddress} - ${deviceId}`, 'qsys')
   })
-
+  //IB04
   socket.on('qsys:device', async (obj) => {
     const { deviceId, data } = obj
     await dbQsysUpdate({ deviceId }, { ...data })
     fnSendClientQsysData(deviceId, { ...data })
   })
-
+  //IB05
   socket.on('qsys:rttr', async (obj) => {
     const { deviceId, zone, value } = obj
     let id = null
@@ -58,7 +56,7 @@ module.exports = function (socket) {
     await fnSendClientStatusAll()
   })
 
-  // page
+  // IB06 page
   socket.on('qsys:page:id', async (obj) => {
     try {
       const { deviceId, idx, PageID } = obj
@@ -73,22 +71,24 @@ module.exports = function (socket) {
         { $set: { 'devices.$.PageID': PageID } }
       )
     } catch (error) {
-      logError(`QSYS 방송 idx 갱신 오류 ${error}`, 'qsys', 'page')
+      logError(`IB06 QSYS 방송 idx 갱신 오류 ${error}`, 'qsys')
     }
   })
 
-  // page 상태 리턴
+  // IB07 page 상태 리턴
   socket.on('qsys:page:status', async (obj) => {
     try {
       const { deviceId, params } = obj
+      const { State, PageID } = params
+
       // 종료시
-      if (params.State === 'done') {
+      if (State === 'done') {
         // 종료 메시지(연결된 사용자에게 전송)
         fnSendClientPageMessage({ deviceId, message: '방송 종료' })
 
         // PAGE 찾기
         const page = await dbPageFindOne({
-          devices: { $elemMatch: { deviceId: deviceId, PageID: params.PageID } }
+          devices: { $elemMatch: { deviceId, PageID } }
         })
         // Page에서 device 찾기
         const currentDevice =
@@ -99,27 +99,23 @@ module.exports = function (socket) {
         await fnBarixRelayOff(currentDevice.barix)
         // 방송 종료 로고
         logEvent(
-          `방송 종료 ${currentDevice.name} ID:${page.idx} - PAGEID:${params.PageID}`,
+          `IB07 방송 종료 ${currentDevice.name} ID:${page.idx} - PAGEID:${PageID}`,
           page.user,
-          'page',
           [currentDevice.name]
         )
         // delete PageID
         return await dbQsysUpdate(
           { deviceId },
-          { $pull: { PageStatus: { PageID: params.PageID } } }
+          { $pull: { PageStatus: { PageID } } }
         )
       }
       // Status update
       await dbQsysUpdate(
-        {
-          deviceId,
-          'PageStatus.PageID': params.PageID
-        },
-        { $set: { 'PageStatus.$': { ...params } } }
+        { deviceId, 'PageStatus.PageID': PageID },
+        { 'PageStatus.$': { ...params } }
       )
     } catch (error) {
-      logError(`QSYS PAGE 상태 갱신오류 ${error}`, 'qsys', 'page')
+      logError(`IB01 QSYS 브릿지 ${error}`, 'qsys')
     }
   })
 }

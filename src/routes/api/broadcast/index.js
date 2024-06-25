@@ -18,6 +18,7 @@ router.use('/live', require('./live'))
 router.use('/tts', require('./tts'))
 router.use('/schedule', require('./schedule'))
 
+//BR01 방송 중지
 router.get('/stop', async (req, res) => {
   try {
     const page = await dbPageFindOne({ idx: req.query.idx })
@@ -28,13 +29,15 @@ router.get('/stop', async (req, res) => {
       })
     )
     res.status(200).json({ result: true })
+    // 로그
     logEvent(`방송 중지 ${req.query.idx}`, req.user.email, 'page', page.zones)
   } catch (error) {
-    logError(`라이브 방송 중지 오류 ${error}`, req.user.email, 'live')
+    logError(`BR01 라이브 방송 중지 ${error}`, req.user.email, 'live')
     res.status(500).json({ result: false, error })
   }
 })
 
+// BR02 파일 업로드
 router.post('/file', async (req, res) => {
   try {
     const { addr, devices } = req.body
@@ -56,11 +59,12 @@ router.post('/file', async (req, res) => {
     // 완료 리턴
     res.status(200).json({ result: true })
   } catch (error) {
-    console.log(error)
     res.status(500).json({ result: false, error })
+    logError(`BR02 파일 업로드 ${error}`, req.user.email)
   }
 })
 
+// BR03 방송구간 중복확인
 router.put('/active', async (req, res) => {
   try {
     const { devices } = req.body
@@ -72,11 +76,12 @@ router.put('/active', async (req, res) => {
     }
     res.status(200).json({ result: true, active: r })
   } catch (error) {
-    logError(`방송구간 중복확인 오류 ${error}`, req.user.email, 'broadcast')
+    logError(`BR03 방송구간 중복확인 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// BR04 파일 삭제
 router.delete('/file', async (req, res) => {
   try {
     const { addr, devices } = req.body
@@ -92,7 +97,7 @@ router.delete('/file', async (req, res) => {
     await Promise.all(promises)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`QSYS 방송 파일 삭제 오류 ${error}`, req.user.email, 'broadcast')
+    logError(`BR04 QSYS 방송 파일 삭제 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })

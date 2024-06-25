@@ -55,10 +55,10 @@ const httpServer = http.createServer(app)
 httpServer.listen(3000)
 
 httpServer.on('listening', () => {
-  logInfo('3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server', 'boot')
+  logInfo('WEB 3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server')
 })
 httpServer.on('error', (error) => {
-  logError(`HTTP 서버 오류 ${error}`, 'server', 'boot')
+  logError(`WEB HTTP 서버 오류 ${error}`, 'server')
 })
 
 // functions
@@ -78,6 +78,5 @@ const io = new Server(httpServer, {
 
 require('@io').initIO(io)
 
-
-const {getAllDeviceStorage} = require('@api/qsys')
+const { getAllDeviceStorage } = require('@api/qsys')
 getAllDeviceStorage()

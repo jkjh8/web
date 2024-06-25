@@ -37,6 +37,7 @@ const router = express.Router()
 
 router.use('/app', require('./app'))
 
+// SH01
 router.get('/', async (req, res) => {
   try {
     const { isAdmin, zones } = req.user
@@ -49,27 +50,29 @@ router.get('/', async (req, res) => {
       })
     }
   } catch (error) {
-    logError(`스케줄 찾기 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH01 스케줄 찾기 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// SH02
 router.put('/active', async (req, res) => {
   try {
     const { _id, name, idx, active } = req.body
     await dbSchUpdate({ _id }, { active })
     res.status(200).json({ result: true })
     if (active) {
-      logInfo(`스케줄 활성화 ${name} - ${idx}`, req.user.email, 'schedule')
+      logInfo(`SH02 스케줄 활성화 ${name} - ${idx}`, req.user.email)
     } else {
-      logWarn(`스케줄 비활성화 ${name} - ${idx}`, req.user.email, 'schedule')
+      logWarn(`SH02스케줄 비활성화 ${name} - ${idx}`, req.user.email)
     }
   } catch (error) {
-    logError(`스케줄 활성화 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH02 스케줄 활성화 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// SH03
 router.put('/', async (req, res) => {
   try {
     const { idx, devices, name, file } = req.body
@@ -79,9 +82,8 @@ router.put('/', async (req, res) => {
     const exists = await fnCheckActive(devices)
     if (exists && exists.length) {
       logWarn(
-        `스케줄 방송 구간 중복`,
+        `SH03 스케줄 방송 구간 중복`,
         req.user.email,
-        'schedule',
         exists.map((e) => `${e.name}-${e.Zones.join(',')}`)
       )
     }
@@ -102,7 +104,7 @@ router.put('/', async (req, res) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
     // 로그
-    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, 'live', zones)
+    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
     //////////////// 1초 대기 ////////////////
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -114,7 +116,6 @@ router.put('/', async (req, res) => {
     logInfo(
       `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.base}`,
       req.user.email,
-      'schedule',
       zones
     )
     // 사용횟수 증가
@@ -123,12 +124,11 @@ router.put('/', async (req, res) => {
       { $inc: { numberOfScheduleCall: 1 } }
     )
   } catch (error) {
-    logError(`스케줄 동작 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH03 스케줄 동작 ${error}`, req.user.email)
   }
 })
 
-// 스케줄 수정 추가 해야함. 수정 추가시 스케줄 파일 확인해서 변경 혹은 재업로드 로직 필요.
-
+// SH04
 router.post('/', async (req, res) => {
   try {
     const user = req.user.email
@@ -165,12 +165,12 @@ router.post('/', async (req, res) => {
       { $inc: { numberOfSchedule: 1 } }
     )
   } catch (error) {
-    logError(`스케줄 추가 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH04 스케줄 추가 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
-// 스케줄 중복 확인
+// SH05 스케줄 중복 확인
 router.get('/exists', async (req, res) => {
   try {
     res.status(200).json({
@@ -181,11 +181,11 @@ router.get('/exists', async (req, res) => {
       })
     })
   } catch (error) {
-    logError(`스케줄 중복 확인 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH05 스케줄 중복 확인 ${error}`, req.user.email)
   }
 })
 
-// 스케줄 삭제
+// SH06 스케줄 삭제
 router.delete('/', async (req, res) => {
   const { schedule } = req.body
   // 파일 삭제
@@ -209,44 +209,40 @@ router.delete('/', async (req, res) => {
   } catch (error) {
     //
   }
-  // db 삭제
+  // SH07 db 삭제
   try {
     await dbSchRemoveById(schedule._id)
-    logWarn(`스케줄 삭제 ${schedule.name}`, req.user.email, 'schedule')
+    logWarn(`SH07 스케줄 삭제 ${schedule.name}`, req.user.email)
     res.status(200).json({ result: true })
     // 스케줄 APP으로 전송
     await fnSendScheduleToAPP()
   } catch (error) {
-    logError(`스케줄 삭제 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH07 스케줄 삭제 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
-// 스케줄 및 파일 동기화
+// SH08 스케줄 및 파일 동기화
 router.get('/sync', async (req, res) => {
   try {
     await fnQsysSyncFileSchedule(req.query.idx, req.user.email)
     res.status(200).json({ result: true })
-    logInfo(
-      `스케줄 파일 동기화 완료 ${req.query.idx}`,
-      req.user.email,
-      'schedule'
-    )
+    logInfo(`SH08 스케줄 파일 동기화 ${req.query.idx}`, req.user.email)
   } catch (error) {
-    logError(`스케줄 파일 동기화 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH08 스케줄 파일 동기화 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
 
-// 스케줄 폴더 정리
+// SH09 스케줄 폴더 정리
 router.get('/clean', async (req, res) => {
   try {
     await fnCleanQsysScheduleFolder()
     res.status(200).json({ result: true })
-    logInfo(`스케줄 폴더 정리`, req.user.email, 'schedule')
+    logInfo(`SH09 스케줄 폴더 정리`, req.user.email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`스케줄 폴더 정리 오류 ${error}`, req.user.email, 'schedule')
+    logError(`SH09 스케줄 폴더 정리 ${error}`, req.user.email)
   }
 })
 

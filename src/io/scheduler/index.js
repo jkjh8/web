@@ -8,6 +8,7 @@ const { gStatus } = require('../../defaultVal')
 const { fnSendGlobalStatus } = require('../client/api')
 
 module.exports = (socketio) => {
+  // IS01 소켓 연결
   socketio.on('connection', async (socket) => {
     const type = socket.handshake.headers.type
     const connected = { connected: true, id: socket.id, lastupdate: new Date() }
@@ -20,7 +21,7 @@ module.exports = (socketio) => {
     // 전체 상태 전송
     fnSendGlobalStatus()
 
-    logInfo(`Socekt.IO Scheduler 연결 ${socket.id}`, 'server', 'socket.io')
+    logInfo(`IS01 Socekt 스케줄러 연결 ${socket.id}`, 'server')
 
     // 1분마다 오늘 스케줄 전송
     const interval = setInterval(async () => {
@@ -43,11 +44,7 @@ module.exports = (socketio) => {
       // 전체 상태 전송
       fnSendGlobalStatus()
 
-      logInfo(
-        `Socket.IO Scheduler 연결해제 ${socket.id}`,
-        'server',
-        'socket.io'
-      )
+      logInfo(`IS01 Socket 스케줄러 연결 해제 ${socket.id}`, 'server')
     })
     //
     require('./fromScheduler')(socket)

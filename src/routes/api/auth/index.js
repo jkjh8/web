@@ -10,7 +10,7 @@ const { logInfo, logError } = require('@logger')
 
 const router = express.Router()
 
-// 사용자 정보 조회 및 토큰 갱신
+// AH01 사용자 정보 조회 및 토큰 갱신
 router.get('/', isLoggedIn, async (req, res) => {
   try {
     const user = await dbUserFindOneNonePass({ email: req.user.email })
@@ -29,7 +29,7 @@ router.get('/', isLoggedIn, async (req, res) => {
   }
 })
 
-// 로그인
+// AH02 로그인
 router.post('/', (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
     // 에러 발생 시 500 상태 코드와 에러 정보를 응답
@@ -45,7 +45,7 @@ router.post('/', (req, res, next) => {
   })(req, res, next)
 })
 
-// 회원가입
+// AH03 회원가입
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, userPassword } = req.body
@@ -59,7 +59,7 @@ router.post('/signup', async (req, res) => {
         isAdmin: true,
         folder: uniqueId(16)
       })
-      logInfo('슈퍼 사용자 생성', 'server', 'user')
+      logInfo('슈퍼 사용자 생성', 'server')
     } else {
       // 일반 사용자 생성
       await dbUserMake({
@@ -68,28 +68,28 @@ router.post('/signup', async (req, res) => {
         userPassword: bcrypt.hashSync(userPassword, salt),
         folder: uniqueId(16)
       })
-      logInfo(`사용자 계정 생성: ${email}`, 'server', 'user')
+      logInfo(`사용자 계정 생성: ${email}`, 'server')
     }
     // 사용자 생성 성공 시 200 상태 코드와 결과를 응답
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`사용자 계정 생성 실패: ${error}`, 'server', 'user')
+    logError(`AH03 사용자 계정 생성 ${error}`, 'server')
     res.status(500).json(error)
   }
 })
 
-// 이메일 중복 체크
+// AH04 이메일 중복 체크
 router.get('/exists_email', async (req, res) => {
   try {
     const { email } = req.query
     res.status(200).json({ result: true, user: await dbUserExists({ email }) })
   } catch (err) {
-    logError(`이메일 중복 체크 오류: ${err}`, 'server', 'user')
+    logError(`AH04 이메일 중복 체크 ${err}`, 'server')
     res.status(500).json(err)
   }
 })
 
-// 로그아웃
+// AH05 로그아웃
 router.get('/signout', isLoggedIn, async (req, res) => {
   try {
     // console.log(req.user)
@@ -103,7 +103,7 @@ router.get('/signout', isLoggedIn, async (req, res) => {
       res.status(401).json({ error: '잘못된 토큰' })
     }
   } catch (error) {
-    logError(`사용자 로그아웃 오류: ${req.user.email} ${err}`, 'server', 'user')
+    logError(`AH05 사용자 로그아웃 ${req.user.email} ${err}`, 'server')
   }
 })
 
