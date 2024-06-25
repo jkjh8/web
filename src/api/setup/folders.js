@@ -1,10 +1,10 @@
 const path = require('path')
 const express = require('express')
 const { fnMakeFolder } = require('@api/files')
-const { dbSetupFindOne } = require('@db/setup')
 const { logError, logInfo } = require('@logger')
 const { gStatus } = require('../../defaultVal')
 
+// su01
 module.exports = async (defaultFolder, app = null) => {
   try {
     // media 폴더 생성
@@ -22,16 +22,12 @@ module.exports = async (defaultFolder, app = null) => {
     fnMakeFolder(gStatus.globalFolder)
     fnMakeFolder(gStatus.tempFolder)
     fnMakeFolder(gStatus.scheduleFolder)
-    
+
     if (app) {
       app.use('/media', express.static(gStatus.mediaFolder))
     }
-    logInfo(`서버 미디어 폴더가 활성화 되었습니다. Path = ${gStatus.mediaFolder}`, 'server', 'server')
+    logInfo(`SU01 서버 미디어 폴더가 활성화 ${gStatus.mediaFolder}`, 'server')
   } catch (error) {
-    logError(
-      `미디어 폴더 생성 오류 ${JSON.stringify(error)}`,
-      'server',
-      'server'
-    )
+    logError(`SU01 미디어 폴더 활성화 ${error}`, 'server')
   }
 }

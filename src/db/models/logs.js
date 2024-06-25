@@ -7,7 +7,7 @@ const logsSchema = new mongoose.Schema(
     levelNum: Number,
     message: String,
     search: String,
-    category: String,
+    idx: String,
     source: String,
     zones: Array
   },

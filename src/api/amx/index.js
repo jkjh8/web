@@ -1,7 +1,7 @@
 const dgram = require('dgram')
 const { logError } = require('@logger')
 
-// 릴레이 여러개 구동
+//A01 릴레이 여러개 구동
 const fnAmxesRelayOn = async (devices) => {
   return Promise.all(
     devices.map(async (device) => {
@@ -9,7 +9,7 @@ const fnAmxesRelayOn = async (devices) => {
     })
   )
 }
-// 단일 릴레이 구동
+//A02 단일 릴레이 구동
 const fnAmxRelayOn = (device) => {
   return new Promise((resolve, reject) => {
     if (device.amx) {
@@ -20,11 +20,7 @@ const fnAmxRelayOn = (device) => {
         device.amx,
         (error) => {
           if (error) {
-            logError(
-              `AMX Relay On 오류 ${device.name} - ${error}`,
-              'server',
-              'amx'
-            )
+            logError(`A02 AMX 릴레이 켜기 ${device.name} - ${error}`, 'server')
             reject(error)
           }
           udp.close()
@@ -36,7 +32,7 @@ const fnAmxRelayOn = (device) => {
   })
 }
 
-// 릴레이 끄기
+//A03 릴레이 끄기
 const fnAmxRelayOff = (device) => {
   return new Promise((resolve, reject) => {
     if (device.amx) {
@@ -47,11 +43,7 @@ const fnAmxRelayOff = (device) => {
         device.amx,
         (error) => {
           if (error) {
-            logError(
-              `AMX Relay Off 오류 ${device.name} - ${error}`,
-              'server',
-              'amx'
-            )
+            logError(`A03 AMX 릴레이 끄기 ${device.name} - ${error}`, 'server')
             reject(error)
           }
           udp.close()

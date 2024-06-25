@@ -3,7 +3,7 @@ const { dbQsysFind, dbQsysUpdate } = require('@db/qsys')
 const { logInfo, logError, logEvent } = require('@logger')
 const Page = require('@db/models/page')
 
-// live 송출 명령 만들기
+// QB01 live 송출 명령 만들기
 const fnSetLive = async (idx, obj, user) => {
   try {
     const { _id, ...rest } = obj
@@ -21,12 +21,12 @@ const fnSetLive = async (idx, obj, user) => {
     )
     return arr
   } catch (error) {
-    logError(`방송 송출 오류 ${error}`, user, 'broadcast')
+    logError(`QB01 방송 송출 ${error}`, user ?? 'server')
   }
 }
 
-// 중복된 방송구간 확인
-const fnCheckActive = async (arr) => {
+// QB02 중복된 방송구간 확인
+const fnCheckActive = async (arr, user) => {
   try {
     const qsys = await dbQsysFind()
     const active = []
@@ -40,12 +40,12 @@ const fnCheckActive = async (arr) => {
     }
     return active
   } catch (error) {
-    logError(`방송구간 중복 확인 오류 ${error}`, 'server', 'broadcast')
+    logError(`QB02 방송구간 중복 확인 오류 ${error}`, user ?? 'server')
   }
 }
 
-// 동작중이지 않은 Qsys PageID 삭제
-const fnClearQsysPageID = async () => {
+// QB03 동작중이지 않은 Qsys PageID 삭제
+const fnClearQsysPageID = async (user) => {
   try {
     const qsys = await dbQsysFind()
     for (const item of qsys) {
@@ -55,32 +55,20 @@ const fnClearQsysPageID = async () => {
         await dbQsysUpdate({ deviceId }, { $pull: { PageStatus: {} } })
       }
     }
-    logInfo(
-      `방송 송출 페이지 삭제 완료`,
-      req.user?.email ?? 'server',
-      'broadcast'
-    )
+    logInfo(`QB03 방송 송출 페이지 삭제 완료`, req.user?.email ?? 'server')
   } catch (error) {
-    logError(
-      `방송 송출 페이지 삭제 오류 ${error}`,
-      req.user?.email ?? 'server',
-      'broadcast'
-    )
+    logError(`QB03 방송 송출 페이지 삭제 오류 ${error}`, user ?? 'server')
   }
 }
 
-// page에서 한시간이 지난 문서 삭제
+// QB04 page에서 한시간이 지난 문서 삭제
 const fnDeleteOldPage = async () => {
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
     await Page.deleteMany({ updatedAt: { $lt: oneHourAgo } })
-    logInfo(
-      '마지막 업데이트가 한시간이 지난 문서 삭제 완료',
-      'server',
-      'broadcast'
-    )
+    logInfo('QB04 마지막 업데이트가 한시간이 지난 문서 삭제 완료', 'server')
   } catch (error) {
-    logError(`문서 삭제 오류 ${error}`, 'server', 'broadcast')
+    logError(`QB04 페이지 완료 문서 삭제 ${error}`, 'server', 'broadcast')
   }
 }
 

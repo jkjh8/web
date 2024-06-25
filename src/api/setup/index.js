@@ -2,6 +2,7 @@ const { dbSetupFind } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
 const { gStatus } = require('../../defaultVal')
 
+// su02
 module.exports = async function () {
   try {
     const docs = await dbSetupFind()
@@ -47,16 +48,11 @@ module.exports = async function () {
           break
       }
     }
-    logInfo(
-      '서버 기본 세팅 데이터가 업데이트 되었습니다(from DB)',
-      'server',
-      'server'
-    )
+    logInfo('SU02 서버 기본 세팅 데이터가 업데이트(from DB)', 'server')
   } catch (error) {
     logError(
-      `서버 초기값 갱신 오류(from DB) ${JSON.stringify(error)}`,
-      'server',
-      'sever'
+      `SU02 서버 기본 세팅 데이터가 업데이트(from DB) ${JSON.stringify(error)}`,
+      'server'
     )
   }
 }

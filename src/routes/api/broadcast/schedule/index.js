@@ -198,7 +198,13 @@ router.delete('/', async (req, res) => {
     const { idx } = schedule
     schedule.devices.forEach(async (device) => {
       const { deviceId, ipaddress } = device
-      await fnQsysFileDelete(idx, ipaddress, 'schedule', deviceId)
+      await fnQsysFileDelete({
+        idx,
+        ipaddress,
+        addr: 'schedule',
+        deviceId,
+        user: req.user.email
+      })
     })
   } catch (error) {
     //
@@ -219,7 +225,7 @@ router.delete('/', async (req, res) => {
 // 스케줄 및 파일 동기화
 router.get('/sync', async (req, res) => {
   try {
-    await fnQsysSyncFileSchedule(req.query.idx)
+    await fnQsysSyncFileSchedule(req.query.idx, req.user.email)
     res.status(200).json({ result: true })
     logInfo(
       `스케줄 파일 동기화 완료 ${req.query.idx}`,

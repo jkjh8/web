@@ -14,7 +14,7 @@ const { fnSetLive } = require('@api/qsys/broadcast')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 
-// 스케줄 방송 시작 로직
+// S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
   const { user, name, zones, file } = data
   try {
@@ -29,7 +29,7 @@ const fnInTimeScheduleRun = async (data) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
     // 로그
-    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, user, 'live', zones)
+    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, user, zones)
 
     //////////////// 1초 대기 ////////////////
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -38,18 +38,13 @@ const fnInTimeScheduleRun = async (data) => {
     const commands = await fnSetLive(idx, { ...data, devices: page }, user)
     io.bridge.emit('qsys:page:message', commands)
     // 로그
-    logEvent(
-      `스케줄 방송 송출 시작 ${name} - ${file.base}`,
-      user,
-      'schedule',
-      zones
-    )
+    logEvent(`S01 스케줄 방송 송출 시작 ${name} - ${file.base}`, user, zones)
   } catch (error) {
     throw error
   }
 }
 
-// 스케줄에서 페이징을 만들어서 qsys로 보내는 함수
+// S02 스케줄에서 페이징을 만들어서 qsys로 보내는 함수
 const fnMakePageFromSchedule = async (args) => {
   const { idx, name, devices, file, Preamble } = args
   const arr = []
@@ -78,21 +73,27 @@ const fnMakePageFromSchedule = async (args) => {
   return arr
 }
 
+// S03 오늘 스케줄을 찾아서 APP로 전송
 const fnSendScheduleToAPP = async () => {
-  const schedules = await dbSchFindToday()
-  return io.scheduler.emit('today', schedules)
+  try {
+    const schedules = await dbSchFindToday()
+    return io.scheduler.emit('today', schedules)
+  } catch (error) {
+    logError(`S03 오늘 스케줄 전송 오류 ${error}`, 'server')
+  }
 }
 
-// 스케줄러 동작 변경
+// S04 스케줄러 동작 변경
 const fnSendActiveScheduleToAPP = (active) => {
   return io.scheduler.emit('active', active)
 }
-// 스케줄러 자동 전환 변경
+
+// S05 스케줄러 자동 전환 변경
 const fnSendAutoScheduleToAPP = (auto) => {
   return io.scheduler.emit('auto', auto)
 }
 
-// Qsys 스케줄 폴더를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
+// S06 Qsys 스케줄 폴더를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
 const fnCleanQsysScheduleFolder = async () => {
   const schedules = await dbSchFind({})
   const devices = await dbQsysFind({})
@@ -101,22 +102,26 @@ const fnCleanQsysScheduleFolder = async () => {
       await fnQsysCheckScheduleFolder(device, schedules)
     })
   )
-  logInfo(`Qsys 스케줄 폴더 정리 완료`, 'server', 'schedule')
+  logInfo(`S06 QSYS 스케줄 폴더 정리 완료`, 'server')
 }
 
-// gStatus.scheduleFolder를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
+// S07 gStatus.scheduleFolder를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
 const fnCleanScheduleFolder = async () => {
-  const schedules = await dbSchFind({})
-  const folders = fs.readdirSync(gStatus.scheduleFolder)
-  await Promise.all(
-    folders.map(async (folder) => {
-      if (!schedules.find((e) => e.idx === folder)) {
-        const folderPath = path.join(gStatus.scheduleFolder, folder)
-        await fs.promises.rmdir(folderPath, { recursive: true })
-      }
-    })
-  )
-  logInfo(`스케줄 폴더 정리 완료`, 'server', 'schedule')
+  try {
+    const schedules = await dbSchFind({})
+    const folders = fs.readdirSync(gStatus.scheduleFolder)
+    await Promise.all(
+      folders.map(async (folder) => {
+        if (!schedules.find((e) => e.idx === folder)) {
+          const folderPath = path.join(gStatus.scheduleFolder, folder)
+          await fs.promises.rmdir(folderPath, { recursive: true })
+        }
+      })
+    )
+    logInfo(`S07 스케줄 폴더 정리`, 'server')
+  } catch (error) {
+    logError(`S07 스케줄 폴더 정리 ${error}`, 'server')
+  }
 }
 
 fnCleanScheduleFolder()

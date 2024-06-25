@@ -18,7 +18,7 @@ const schedulerParser = (socket) => {
     try {
       await fnSendScheduleToAPP()
     } catch (error) {
-      logError(`스케줄 전송 오류 ${error}`, 'server', 'schedule')
+      logError(`스케줄 전송 오류 ${error}`, 'server')
     }
   })
 
@@ -32,28 +32,19 @@ const schedulerParser = (socket) => {
 
   // 스케줄 방송 시작
   socket.on('inTime', async (data) => {
-    const { name, user, zones, file, idx } = data
+    const { name, user, zones, file, idx, active } = data
     try {
       if (active === false) {
-        logWarning(
-          `비활성화된 스케줄 ${name} - ${idx}`,
-          user,
-          'schedule',
-          zones
-        )
+        logWarning(`비활성화된 스케줄 ${name} - ${idx}`, user, zones)
         return
       }
+      // 스케줄 방송 시작
       await fnInTimeScheduleRun(data)
       // 사용자 방송 횟수 추가
       await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
-      logEvent(
-        `스케줄 방송 시작 ${name} - ${file.base} - ${idx}`,
-        user,
-        'schedule',
-        zones
-      )
+      logEvent(`스케줄 방송 시작 ${name} - ${file.base} - ${idx}`, user, zones)
     } catch (error) {
-      logError(`스케줄 방송 시작 오류 ${error}`, 'server', 'schedule', zones)
+      logError(`스케줄 방송 시작 오류 ${error}`, user, zones)
     }
   })
 
@@ -69,7 +60,7 @@ const schedulerParser = (socket) => {
       // qsys page 초기화
       fnCheckPageStatusAll()
     } catch (error) {
-      logError(`스케줄 폴더 정리 오류 ${error}`, 'server', 'schedule')
+      logError(`스케줄 폴더 정리 오류 ${error}`, 'server')
     }
   })
 

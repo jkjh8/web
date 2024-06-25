@@ -7,19 +7,19 @@ moment.locale('ko')
 //   dbLogsMake
 //   logger.log({ level: 'error', levelNum: 0, message, source, category, zones })
 // }
-// function logDebug(message, source = '', category = '', zones = []) {
+// function logDebug(message, source = '', zones = []) {
 //   logger.log({ level: 'warn', levelNum: 1, message, source, category, zones })
 // }
-// function logWarn(message, source = '', category = '', zones = []) {
+// function logWarn(message, source = '', zones = []) {
 //   logger.log({ level: 'info', levelNum: 2, message, source, category, zones })
 // }
-// function logInfo(message, source = '', category = '', zones = []) {
+// function logInfo(message, source = '', zones = []) {
 //   logger.log({ level: 'http', levelNum: 3, message, source, category, zones })
 // }
 // function logData(message, source = '', category = '') {
 //   logger.log({ level: 'verbose', levelNum: 4, message, source, category })
 // }
-// function logEvent(message, source = '', category = '', zones = []) {
+// function logEvent(message, source = '', zones = []) {
 //   logger.log({ level: 'debug', levelNum: 5, message, source, category, zones })
 // }
 // function logCustom(message, source = '', category = '') {
@@ -27,7 +27,7 @@ moment.locale('ko')
 // }
 
 module.exports = {
-  logError: async (message, source = '', category = '', zones = []) => {
+  logError: async (message, source = '', zones = []) => {
     await dbLogsMake({
       level: 'error',
       levelNum: 0,
@@ -40,10 +40,10 @@ module.exports = {
       console.log(
         `\x1b[31m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} error ${message}, ${source}, ${category} ${zones}\x1b[0m`
+        )} error ${message}, ${source}, ${zones}\x1b[0m`
       )
   },
-  logWarn: async (message, source = '', category = '', zones = []) => {
+  logWarn: async (message, source = '', zones = []) => {
     await dbLogsMake({
       level: 'warn',
       levelNum: 1,
@@ -56,10 +56,10 @@ module.exports = {
       console.log(
         `\x1b[33m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} warn ${message}, ${source}, ${category} ${zones}\x1b[0m`
+        )} warn ${message}, ${source}, ${zones}\x1b[0m`
       )
   },
-  logInfo: async (message, source = '', category = '', zones = []) => {
+  logInfo: async (message, source = '', zones = []) => {
     await dbLogsMake({
       level: 'info',
       levelNum: 2,
@@ -72,10 +72,10 @@ module.exports = {
       console.log(
         `\x1b[32m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} info ${message}, ${source}, ${category}  ${zones}\x1b[0m`
+        )} info ${message}, ${source},  ${zones}\x1b[0m`
       )
   },
-  logDebug: async (message, source = '', category = '', zones = []) => {
+  logDebug: async (message, source = '', zones = []) => {
     await dbLogsMake({
       level: 'debug',
       levelNum: 3,
@@ -88,10 +88,10 @@ module.exports = {
       console.log(
         `\x1b[35m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} debug ${message}, ${source}, ${category} ${zones}\x1b[0m`
+        )} debug ${message}, ${source}, ${zones}\x1b[0m`
       )
   },
-  logEvent: async (message, source = '', category = '', zones = []) => {
+  logEvent: async (message, source = '', zones = []) => {
     await dbLogsMake({
       level: 'event',
       levelNum: 4,
@@ -104,7 +104,7 @@ module.exports = {
       console.log(
         `\x1b[36m${moment().format(
           'YYYY-MM-DD HH:mm:ss a'
-        )} event ${message}, ${source}, ${category} ${zones}\x1b[0m`
+        )} event ${message}, ${source}, ${zones}\x1b[0m`
       )
   }
 }

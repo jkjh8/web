@@ -1,7 +1,6 @@
 const axios = require('axios')
 const { spawn } = require('child_process')
-const { logInfo } = require('@logger')
-const { clear } = require('console')
+const { logInfo, logError } = require('@logger')
 
 const tts = axios.create({ baseURL: 'http://localhost:5000' })
 
@@ -28,7 +27,13 @@ const fnResetInfo = async () => {
 
 const fnMakeTtsFile = async (rate, text, voice, filePath) => {
   return new Promise((resolve, reject) => {
-    const python = spawn('python', ['src/api/tts/makeTtsFile.py', rate, text, voice, filePath])
+    const python = spawn('python', [
+      'src/api/tts/makeTtsFile.py',
+      rate,
+      text,
+      voice,
+      filePath
+    ])
     python.stdout.on('data', (data) => {
       resolve(JSON.parse(data.toString()))
     })

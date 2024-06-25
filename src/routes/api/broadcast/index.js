@@ -43,13 +43,14 @@ router.post('/file', async (req, res) => {
 
     // 각 디바이스에 업로드
     const promises = devices.map(async (item) => {
-      await fnQsysFileUpload(
-        item.file.fullpath,
-        item.ipaddress,
+      await fnQsysFileUpload({
+        file: item.file.fullpath,
+        ipaddress: item.ipaddress,
         addr,
-        item.deviceId,
-        socketId
-      )
+        deviceId: item.deviceId,
+        socket: socketId,
+        user: req.user.email
+      })
     })
     await Promise.all(promises)
     // 완료 리턴
@@ -65,7 +66,7 @@ router.put('/active', async (req, res) => {
     const { devices } = req.body
     const socketId = await fnGetSocketId(req.user.email)
     fnSendPageMessage(socketId, 'all', '방송구간 중복 확인')
-    const r = await fnCheckActive(devices)
+    const r = await fnCheckActive(devices, req.user.email)
     if (r && r.length) {
       fnSendPageMessage(socketId, 'all', '방송구간 중복')
     }
@@ -80,12 +81,13 @@ router.delete('/file', async (req, res) => {
   try {
     const { addr, devices } = req.body
     const promises = devices.map(async (item) => {
-      await fnQsysFileDelete(
-        item.file.base,
-        item.ipaddress,
+      await fnQsysFileDelete({
+        file: item.file.base,
+        ipaddress: item.ipaddress,
         addr,
-        item.deviceId
-      )
+        deviceId: item.deviceId,
+        user: req.user.email
+      })
     })
     await Promise.all(promises)
     res.status(200).json({ result: true })
