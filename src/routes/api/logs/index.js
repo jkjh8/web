@@ -6,7 +6,9 @@ const { logError } = require('@logger')
 
 const router = express.Router()
 
+//RL01 - 로그 목록
 router.get('/', isLoggedIn, async (req, res, next) => {
+  const { email } = req.user
   try {
     let sort = {}
     let { pagination, filter, level, options } = JSON.parse(req.query.options)
@@ -45,8 +47,9 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       }
     })
   } catch (error) {
-    logError(`로그 데이터 가져오기 오류 ${error}`, req.user.email, 'log')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RL01 로그 데이터 가져오기 ${error}`, email)
   }
 })
 

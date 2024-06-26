@@ -2,6 +2,7 @@ const fs = require('fs')
 const archiver = require('archiver')
 const hash = require('@api/utils/uniqueId')
 
+// RF03 - 파일 압축
 module.exports = (files) => {
   return new Promise((resolve, reject) => {
     const filename = `${hash()}.zip`

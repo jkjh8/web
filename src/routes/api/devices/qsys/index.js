@@ -1,5 +1,5 @@
 const express = require('express')
-const { logInfo, logError } = require('@logger')
+const { logInfo, logWarn, logError } = require('@logger')
 const {
   fnSendAllStatusAll,
   fnSendClientStatusAll,
@@ -22,69 +22,72 @@ const { fnGetBarixInfo } = require('@api/barix')
 
 const router = express.Router()
 
+// RQ01 - Qsys 장치 관리
 router.get('/', async (req, res) => {
+  const { email } = req.user
   try {
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
   } catch (error) {
-    logError(`Qsys 장치 검색 오류 ${error}`, 'server', 'qsys')
+    logError(`RQ01 Qsys 장치 검색 오류 ${error}`, email)
   }
 })
 
+// RQ02 - Qsys 장치 추가
 router.post('/', async (req, res) => {
+  const { email } = req.user
   try {
+    const { name, ipaddress, deviceId } = req.body
     // 데이터베이스 추가
-    await dbQsysMake({ ...req.body })
+    const data = await dbQsysMake({ ...req.body })
     // 전체 데이터 송신
     await fnSendAllStatusAll()
-    logInfo(
-      `QSYS 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
-      req.user.email,
-      'qsys'
-    )
-    res.status(200).json({ result: true })
-    // add event log
+    res.status(200).json({ result: true, data })
+    // 로그
+    logInfo(`RQ02 QSYS 장치 추가 ${name}:${ipaddress}-${deviceId}`, email)
   } catch (error) {
-    logError(`QSYS 장치 추가 오류: ${error}`, req.user.email, 'qsys')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`QSYS 장치 추가 오류: ${error}`, email)
   }
 })
 
+// RQ03 - Qsys 장치 수정
 router.put('/edit', async (req, res) => {
+  const { email } = req.user
   try {
     const { deviceId, ipaddress, name, amx } = req.body
     // 데이터베이스 업데이트
-    const r = await dbQsysUpdate({ deviceId }, { ipaddress, name, amx })
+    const data = await dbQsysUpdate({ deviceId }, { ipaddress, name, amx })
     // 전체 데이터 송신
     await fnSendAllStatusAll()
-    logInfo(
-      `QSYS 장치 수정 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
-      req.user.email,
-      'qsys'
-    )
-    res.status(200).json({ result: true, data: r })
+    res.status(200).json({ result: true, data })
+    // 로그
+    logInfo(`RQ03 QSYS 장치 수정 ${name}:${ipaddress}-${deviceId}`, email)
   } catch (error) {
-    logError(`QSYS 장치 수정 오류: ${error}`, req.user.email, 'qsys')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ03 QSYS 장치 수정 ${error}`, email)
   }
 })
 
+// RQ04 - Qsys 장치 제거
 router.delete('/', async (req, res) => {
+  const { email } = req.user
   try {
-    const r = await dbQsysRemove(req.body._id)
+    const { _id, name, ipaddress, deviceId } = req.body
+    res.status(200).json({ result: true, data: await dbQsysRemove(_id) })
     // 전체 데이터 송신
     await fnSendAllStatusAll()
-    logInfo(
-      `QSYS 장치 제거 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
-      req.user.email,
-      'qsys'
-    )
-    res.status(200).json({ result: true, data: r })
+    // 로그
+    logInfo(`RQ04 QSYS 장치 제거 ${name}:${ipaddress}-${deviceId}`, email)
   } catch (error) {
-    logError(`QSYS 장치 제거 오류: ${error}`, 'server', 'qsys')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ04 QSYS 장치 제거 ${error}`, email)
   }
 })
 
+// RQ05 - Qsys 장치 존재 확인
 router.get('/exists', async (req, res) => {
   try {
     res.status(200).json({ result: await dbQsysExists({ ...req.query.value }) })
@@ -93,67 +96,82 @@ router.get('/exists', async (req, res) => {
   }
 })
 
-// 방송구간 바릭스 세팅
+// RQ06 방송구간 바릭스 세팅
 router.put('/zoneupdate', async (req, res) => {
+  const { email } = req.user
   try {
     const { deviceId, zone, destination, ipaddress } = req.body
-    // update db
-    const r = await dbQsysUpdate(
-      { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
-      { 'ZoneStatus.$.destination': destination }
-    )
-
-    // set zone
+    // 스트림 구간 설정
     fnSendQsysData('qsys:device:gtr', {
       deviceId,
       zone,
       destination,
       ipaddress
     })
-    // get barix data
-    fnGetBarixInfo(ipaddress)
-    // share data all
-    res.status(200).json({ result: true, value: r })
+    // 5초후 바릭스 데이터 수집 요청
+    setTimeout(() => {
+      fnGetBarixInfo(ipaddress)
+    }, 5000)
+    // 데이터 베이스 업데이트 및 송신
+    res.status(200).json({
+      result: true,
+      data: await dbQsysUpdate(
+        { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
+        { 'ZoneStatus.$.destination': destination }
+      )
+    })
+    // 로그
+    logInfo(
+      `RQ06 QSYS 데이터 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
+      email
+    )
   } catch (error) {
-    logError(`QSYS 데이터 업데이트 ${error}`, 'qsys', 'event')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ06 QSYS 데이터 업데이트 ${error}`, email)
   }
 })
 
+// RQ07 - 스트림 구간 중복 확인
 router.get('/existszone', async (req, res) => {
+  const { email } = req.user
   try {
     const { id } = req.query
-    const r = await dbQsysFind({
-      ZoneStatus: { $elemMatch: { destination: id } }
-    })
     res.status(200).json({
       result: true,
-      value: r
+      value: await dbQsysFind({
+        ZoneStatus: { $elemMatch: { destination: id } }
+      })
     })
   } catch (error) {
-    logError(`QSYS 방송 지역 검색 ${error}`)
     res.status(500).json({ status: false, error })
+    // 로그
+    logError(`RQ07 QSYS 방송 지역 검색 ${error}`, email)
   }
 })
 
+// RQ08 - 스트림 구간 중복 확인(복수)
 router.get('/existszones', async (req, res) => {
+  const { email } = req.user
   try {
     const { id, deviceId } = req.query
-    const r = await dbQsysFind({
-      ZoneStatus: { $elemMatch: { destination: id } },
-      deviceId: { $ne: deviceId }
-    })
     res.status(200).json({
       result: true,
-      value: r
+      value: await dbQsysFind({
+        ZoneStatus: { $elemMatch: { destination: id } },
+        deviceId: { $ne: deviceId }
+      })
     })
   } catch (error) {
-    logError(`QSYS 방송 지역 검색 ${error}`)
     res.status(500).json({ status: false, error })
+    // 로그
+    logError(`RQ08 QSYS 방송 지역 검색 ${error}`, email)
   }
 })
 
+// RQ09 - 방송구간 이름 변경
 router.put('/modifiedzonename', async (req, res) => {
+  const { email } = req.user
   try {
     const { deviceId, zone, name } = req.body
     // update db
@@ -163,75 +181,74 @@ router.put('/modifiedzonename', async (req, res) => {
     )
 
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
+    // 로그
     logInfo(
-      `QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}, 사용자: ${req.user.email}`,
-      'q-sys',
-      'data'
+      `RQ09 QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}`,
+      email
     )
   } catch (error) {
-    logError(`QSYS 방송구간 이름변경 오류: ${error}`)
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ09 QSYS 방송구간 이름변경: ${error}`, email)
   }
 })
 
+// RQ10 - 스트림 채널 정보 수집
 router.get('/gtrs', (req, res) => {
+  const { email } = req.user
   try {
     const { deviceId } = req.query
     fnSendQsysData('qsys:device:gtrs', { deviceId })
     res.status(200).json({ result: true })
+    // 로그
+    logInfo(`RQ10 QSYS 장치ID: ${deviceId} 스트림 채널 정보 수집`, email)
   } catch (error) {
-    logError(
-      `Qsys 오디오 전송채널 재수집 오류 ${error}`,
-      req.user.email,
-      'qsys'
-    )
     res.status(500).json({ result: false, error })
+    logError(`QSYS 스트림 채널 재수집 오류 ${error}`, email)
   }
 })
 
+// RQ11 - 스트림 채널 재설정
 router.put('/strs', (req, res) => {
+  const { email } = req.user
   try {
-    const device = req.body.device
-    console.log(device)
-
+    const { device } = req.body
     fnSendQsysData('qsys:device:strs', { device })
-    logInfo(
-      `Qsys 오디오 전송 채널 재설정 ${device.name}, ${device.ipaddress}`,
-      req.user.email,
-      'qsys'
-    )
     res.status(200).json({ result: true })
-  } catch (error) {
-    logError(
-      `Qsys 오디오 전송채널 재설정 오류 ${error}`,
-      req.user.email,
-      'qsys'
+    // 로그
+    logInfo(
+      `RQ11 QSYS 스트림 재설정 ${device.name}, ${device.ipaddress}`,
+      email
     )
+  } catch (error) {
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ11 QSYS 스트림 재설정 ${error}`, email)
   }
 })
 
+// RQ12 - 방송 취소
 router.get('/cancel', (req, res) => {
+  const { email, isAdmin } = req.user
   try {
-    if (req.user.isAdmin) {
+    if (isAdmin) {
       const { name, ipaddress, deviceId, pageId } = req.query.device
 
       fnSendQsysData(`qsys:page:cancelAll`, deviceId)
-      logInfo(
-        `Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`,
-        req.user.email,
-        'qsys'
-      )
+      logWarn(`Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`, email)
       return res.status(200).json({ result: true })
     }
     res.status(401).json({ result: false, message: 'Invaild Auth' })
   } catch (error) {
-    logError(`Qsys 방송 취소 오류`, req.user.email, 'qsys')
     res.status(500).json(error)
+    // 로그
+    logError(`RQ12 Qsys 방송 취소 ${error}`, email)
   }
 })
 
+// RQ13 - 정보 업데이트(복수)
 router.put('/updatenames', async (req, res) => {
+  const { email } = req.user
   try {
     const zones = []
     const { deviceId, arr } = req.body
@@ -268,18 +285,11 @@ router.put('/updatenames', async (req, res) => {
       }
     })
     // 로그 기록
-    logInfo(
-      `QSYS 장치ID: ${deviceId} 방송구간 이름 및 Barix 업데이트`,
-      req.user.email,
-      'qsys'
-    )
+    logInfo(`RQ13 QSYS 방송구간 이름 및 스트림 업데이트 ID: ${deviceId}`, email)
   } catch (error) {
-    logError(
-      `QSYS 방송구간 이름 업데이트 오류 ${error}`,
-      req.user.email,
-      'qsys'
-    )
     res.status(500).json(error)
+    // 로그
+    logError(`RQ13 QSYS 방송구간 이름 및 스트림업데이트 ${error}`, email)
   }
 })
 

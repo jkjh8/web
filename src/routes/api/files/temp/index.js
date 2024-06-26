@@ -6,24 +6,28 @@ const { fnGetFileSize, fnRTemp } = require('@api/files')
 
 const router = express.Router()
 
+// RF01 - 임시 폴더 비우기
 router.delete('/', isAdmin, (req, res) => {
+  const { email } = req.user
   try {
     fnRTemp()
-    logInfo(`임시 폴더 비우기 완료`, req.user.email, 'files')
+    logInfo(`RF01 임시 폴더 비우기 완료`, email)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`임시 폴더 비우기 오류 ${error}`, req.user.email, 'files')
+    logError(`임시 폴더 비우기 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// RF02 - 임시 폴더 크기 확인
 router.get('/size', (req, res) => {
+  const { email } = req.user
   try {
-    let size = 0
-    size = fnGetFileSize(gStatus.tempFolder)
-    res.status(200).json({ result: true, size })
+    res
+      .status(200)
+      .json({ result: true, size: fnGetFileSize(gStatus.tempFolder) ?? 0 })
   } catch (error) {
-    logError(`임시 폴더 비우기 오류 ${error}`, req.user.email, 'files')
+    logError(`RF02 임시 폴더 크기 확인 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

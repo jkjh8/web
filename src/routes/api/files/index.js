@@ -13,132 +13,139 @@ const {
   fnGetFileSize,
   fnRFAF
 } = require('@api/files')
+const { fn } = require('moment')
 
 const router = express.Router()
 
+//RF04 - 파일 목록
 router.get('/', (req, res) => {
+  const { email } = req.user
   try {
     const { folder } = req.query
-    console.log(folder)
     res.status(200).json({ files: fnGetFiles(folder ?? gStatus.globalFolder) })
   } catch (error) {
-    logError(`파일 검색 오류: ${error}`, req.user.email, 'files')
+    logError(`RF04 파일 검색 오류: ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// RF05 - 파일 업로드
 router.post('/', (req, res) => {
+  const { email } = req.user
   uploader.any()(req, res, (error) => {
     if (error) {
-      logError(`파일 업로드 오류: ${error}`, req.user.email, 'files')
+      logError(`RF05 파일 업로드 ${error}`, email)
       return res.status(500).json({ result: false, error })
     }
+    res.status(200).json({ result: true })
+    // 로그
     logInfo(
-      `파일 업로드 완료 폴더 ${decodeURIComponent(req.headers.folder).replace(
+      `RF05 파일 업로드 완료 ${decodeURIComponent(req.headers.folder).replace(
         gStatus.mediaFolder,
         ''
       )}`,
-      req.user.email,
-      'files'
+      email
     )
-    res.status(200).json({
-      result: true
-    })
   })
 })
 
-// folders
+// RF06 폴더 가져오기
 router.get('/dir', (req, res) => {
+  const { email } = req.user
   try {
-    const { email } = req.user
     res.status(200).json(fnGetFolders(email))
   } catch (error) {
-    logError(`폴더 검색 오류 : ${error}`, req.user.email, 'files')
+    logError(`RF06 폴더 검색 : ${error}`, email)
   }
 })
 
+// RF07 폴더 생성
 router.post('/newfolder', (req, res) => {
+  const { email } = req.user
   try {
     const { folder, name } = req.body
     const newFolder = path.join(folder, name)
     fnMakeolder(newFolder)
+    res.status(200).json({ result: true, folder: newFolder })
+    // 로그
     logInfo(
-      `새폴더: ${newFolder.replace(gStatus.mediaFolder, '')}, ${
-        req.user.email
-      }`,
-      req.user.email,
-      'files'
+      `RF07 폴더생성 ${newFolder.replace(gStatus.mediaFolder, '')}`,
+      email
     )
-    res.status(200).json({ result: true })
   } catch (error) {
-    logError(`새폴더 오류: ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
+    logError(`RF07 폴더 생성: ${error}`, email)
   }
 })
 
+// RF08 파일(폴더) 삭제
 router.delete('/', (req, res) => {
+  const { email } = req.user
   try {
     const { files } = req.body
     fnRFAF(files)
-    logInfo(
-      `파일(폴더) 삭제: ${files.map((item) => item.base)}, ${req.user.email}`,
-      req.user.email,
-      'files'
-    )
     res.status(200).json({ result: true })
+    // 로그
+    logInfo(`RF08 파일(폴더) 삭제: ${files.map((item) => item.base)}`, email)
   } catch (error) {
-    logError(`파일(폴더) 삭제 오류 ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RF08 파일(폴더) 삭제 오류 ${error}`, email)
   }
 })
 
+// RF09 파일 다운로드(복수)
 router.get('/downloads', async (req, res) => {
+  const { email } = req.user
   try {
     res.download(await ziper(JSON.parse(req.query.files)))
   } catch (error) {
-    logError(`Files 다운로드 오류 ${error}`, req.user.email, 'files')
+    logError(`RF09 파일 다운로드 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// RF10 파일 다운로드(단일)
 router.get('/download', async (req, res) => {
+  const { email } = req.user
   try {
     const file = JSON.parse(req.query.file)
     res.download(file.fullpath)
   } catch (error) {
-    logError(`File 다운로드 오류 ${error}`, req.user.email, 'files')
+    logError(`RF10 파일 다운로드 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// RF11 파일(폴더) 이름 변경
 router.put('/rename', (req, res) => {
+  const { email } = req.user
   try {
     const { oldFile, newName } = req.body
     fs.renameSync(
       oldFile.fullpath,
       path.join(oldFile.dir, newName + oldFile.ext)
     )
-    logInfo(
-      `파일(폴더) 이름 변경: ${oldFile.name} -> ${newName}`,
-      req.user.email,
-      'files'
-    )
     res.status(200).json({ result: true })
+    // 로그
+    logInfo(`RF11 파일(폴더) 이름 변경: ${oldFile.name} -> ${newName}`, email)
   } catch (error) {
-    logError(`파일(폴더) 이름 변경 오류 ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RF11 파일(폴더) 이름 변경 오류 ${error}`, email)
   }
 })
 
+// RF12 파일(폴더) 크기 확인
 router.get('/size', (req, res) => {
+  const { email } = req.user
   try {
     const { fullpath } = req.query
-    let size = 0
-    size = ile(fullpath)
-    res.status(200).json({ result: true, size })
+    res.status(200).json({ result: true, size: fnGetFileSize(fullpath) ?? 0 })
   } catch (error) {
-    logError(`파일(폴더) 크기 확인 오류 ${error}`, req.user.email, 'files')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RF12 파일(폴더) 크기 확인 오류 ${error}`, email)
   }
 })
 

@@ -10,18 +10,21 @@ const router = require('express').Router()
 router.use('/barix', require('./barix'))
 router.use('/qsys', require('./qsys'))
 
+//SS01 서버 설정값 초기화
 router.get('/', async (req, res) => {
+  const { email } = req.user
   try {
     await initSetup()
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`Setup값 갱신 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS01 서버설정 가져오기 ${error}`, email)
   }
 })
 
-// 서버 모드를 조회하는 라우트입니다.
+//SS02 서버 모드를 조회하는 라우트입니다.
 router.get('/servermode', async (req, res) => {
+  const { email } = req.user
   try {
     await initSetup()
     res.status(200).json({
@@ -32,67 +35,73 @@ router.get('/servermode', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`서버모드 조회 오류 ${error}`, req.user.email, 'setup')
+    // 로그
+    logError(`SS02 서버모드 조회 ${error}`, email)
   }
 })
 
-// 서버 모드를 변경하는 라우트입니다.
+// SS03 서버 모드를 변경하는 라우트입니다.
 router.put('/servermode', async (req, res) => {
+  const { email } = req.user
   try {
     const { mode } = req.body
     await dbSetupUpdate({ key: 'mode' }, { value: mode })
     gStatus.mode = mode
     res.status(200).json({ result: true, mode: gStatus.mode })
     // 로그 기록
-    logInfo(`서버모드 변경 완료`, req.user.email, 'setup')
+    logInfo(`SS03 서버모드 변경 ${mode}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`서버모드 변경 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS03 서버모드 변경 ${error}`, email)
   }
 })
 
-// 백업 서버 주소를 변경하는 라우트입니다.
+// SS04 백업 서버 주소를 변경하는 라우트입니다.
 router.put('/backupaddress', async (req, res) => {
+  const { email } = req.user
   try {
     const { backupAddress } = req.body
     await dbSetupUpdate({ key: 'backupAddress' }, { value: backupAddress })
     gStatus.backupAddress = backupAddress
     res.status(200).json({ result: true, address: gStatus.backupAddress })
     // 로그 기록
-    logInfo(`백업서버 주소 변경 완료`, req.user.email, 'setup')
+    logInfo(`SS04 백업서버 주소 변경 ${backupAddress}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`백업서버 주소 변경 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS04 백업서버 주소 변경 ${error}`, email)
   }
 })
-// 백업 활성화를 확인하는 라우트입니다.
+//SS05 백업 활성화를 확인하는 라우트입니다.
 router.get('/backupactive', async (req, res) => {
+  const { email } = req.user
   try {
     await initSetup()
     res.status(200).json({ result: true, active: gStatus.backupActive })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`백업 활성화 조회 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS05 백업 활성화 조회 ${error}`, email)
   }
 })
-// 백업 활성화를 변경하는 라우트입니다.
+//SS06 백업 활성화를 변경하는 라우트입니다.
 router.put('/backupactive', async (req, res) => {
+  const { email } = req.user
   try {
     const { active } = req.body
     await dbSetupUpdate({ key: 'backupActive' }, { valueBoolean: active })
     gStatus.backupActive = active
     res.status(200).json({ result: true, active: gStatus.backupActive })
     // 로그 기록
-    logInfo(`백업 활성화 변경 완료`, req.user.email, 'setup')
+    logInfo(`SS06 백업 활성화 변경 ${active}`, email)
     // 백업 활성화가 true일 경우 사용자 정보를 백업합니다.
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`백업 활성화 변경 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS06 백업 활성화 변경 ${error}`, email)
   }
 })
 
-// 스케줄러 동작 변경
+//SS07 스케줄러 동작 변경
 router.put('/scheduleactive', async (req, res) => {
+  const { email } = req.user
   try {
     const { active } = req.body
     // db update
@@ -101,15 +110,16 @@ router.put('/scheduleactive', async (req, res) => {
     // send socket.io
     fnSendActiveScheduleToAPP(active)
     res.status(200).json({ result: true, active: gStatus.scheduler.active })
-    logInfo(`스케줄러 동작 변경 완료`, req.user.email, 'setup')
+    logInfo(`SS07 스케줄러 동작 변경 완료 ${active}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`스케줄러 동작 변경 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS07 스케줄러 동작 변경 오류 ${error}`, email)
   }
 })
 
-// 스케줄러 자동 전환 변경
+// SS08 스케줄러 자동 전환 변경
 router.put('/scheduleauto', async (req, res) => {
+  const { email } = req.user
   try {
     const { auto } = req.body
     // db update
@@ -118,10 +128,10 @@ router.put('/scheduleauto', async (req, res) => {
     // send socket.io
     fnSendAutoScheduleToAPP(auto)
     res.status(200).json({ result: true, auto: gStatus.scheduler.auto })
-    logInfo(`스케줄러 자동 전환 변경 완료`, req.user.email, 'setup')
+    logInfo(`SS08 스케줄러 자동 전환 변경 ${auto}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`스케줄러 자동 전환 변경 오류 ${error}`, req.user.email, 'setup')
+    logError(`SS08 스케줄러 자동 전환 변경 ${error}`, email)
   }
 })
 

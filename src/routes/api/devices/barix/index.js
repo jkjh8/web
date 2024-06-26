@@ -11,61 +11,69 @@ const {
 
 const router = express.Router()
 
+// RB01 - Barix 장치 관리
 router.get('/', async (req, res) => {
+  const { email } = req.user
   try {
     res.status(200).json({ result: true, devices: await dbBarixFind() })
   } catch (error) {
-    logError(`Barix 데이터 수집 오류 ${error}`, req.user.email, 'barix')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RB01 Barix 데이터 수집 ${error}`, email)
   }
 })
 
+// RB02 - Barix 장치 추가
 router.post('/', async (req, res) => {
+  const { email } = req.user
   try {
+    const { name, ipaddress, deviceId } = req.body
     // 데이터베이스 추가
     await dbBarixMake({ ...req.body })
     // add event log
     logInfo(
-      `Barix 장치 추가 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
-      req.user.email,
-      'barix'
+      `RB02 Barix 장치 추가 ${name}:${ipaddress}-${deviceId}`,
+      req.user.email
     )
     // await qsysDeviceSend('devices')
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`Barix 장치 추가 오류 ${error}`, req.user.email, 'barix')
     res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RB02 Barix 장치 추가 ${error}`, email)
   }
 })
 
+// RB03 - Barix 장치 수정
 router.put('/', async (req, res) => {
+  const { email } = req.user
   try {
     const { _id, name, ipaddress } = req.body
-    // 데이터베이스 업데이트
-    await dbBarixUpdate({ _id }, { name, ipaddress })
-    res.status(200).json({ result: true })
+    res.status(200).json({
+      result: true,
+      data: await dbBarixUpdate({ _id }, { name, ipaddress })
+    })
   } catch (error) {
-    logError(`Barix 장치 수정 오류 ${error}`, req.user.email, 'barix')
     res.status(500).json({ result: false, error })
+    logError(`RB03 Barix 장치 수정 ${error}`, email)
   }
 })
 
+// RB04 - Barix 장치 삭제
 router.delete('/', async (req, res) => {
+  const { email } = req.user
   try {
-    const r = await dbBarixRemoveById(req.body._id)
-    logInfo(
-      `Barix 장치 삭제 ${req.body.name}:${req.body.ipaddress}-${req.body.deviceId}`,
-      req.user.email,
-      'barix'
-    )
+    const { _id, name, ipaddress, deviceId } = req.body
+    res.status(200).json({ result: true, data: await dbBarixRemoveById(_id) })
+    logInfo(`RB04 Barix 장치 삭제 ${name}:${ipaddress}-${deviceId}`, email)
     // await qsysDeviceSend('devices')
-    res.status(200).json({ result: true, data: r })
   } catch (error) {
-    logError(`Barix 장치 삭제 오류 ${error}`, req.user.email, 'barix')
+    logError(`RB04 Barix 장치 삭제 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
+// RB05 - Barix 장치 존재 여부
 router.get('/exists', async (req, res) => {
   try {
     res
