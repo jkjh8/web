@@ -38,7 +38,7 @@ const fnInTimeScheduleRun = async (data) => {
     const commands = await fnSetLive(idx, { ...data, devices: page }, user)
     io.bridge.emit('qsys:page:message', commands)
     // 로그
-    logEvent(`S01 스케줄 방송 송출 시작 ${name} - ${file.base}`, user, zones)
+    return
   } catch (error) {
     throw error
   }

@@ -37,14 +37,14 @@ const schedulerParser = (socket) => {
     const { name, user, zones, file, idx, active } = data
     try {
       if (active === false) {
-        logWarning(`비활성화된 스케줄 ${name} - ${idx}`, user, zones)
+        logWarning(`비활성화된 스케줄 ${name} ID: ${idx}`, user, zones)
         return
       }
       // 스케줄 방송 시작
       await fnInTimeScheduleRun(data)
       // 사용자 방송 횟수 추가
       await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
-      logEvent(`스케줄 방송 시작 ${name}-${file.base}-${idx}`, user, zones)
+      logEvent(`스케줄 방송 시작 ${name} ${file.base} ID: ${idx}`, user, zones)
     } catch (error) {
       logError(`IS05 스케줄 방송 시작 ${error}`, user, zones)
     }
