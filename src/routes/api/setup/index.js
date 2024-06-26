@@ -31,7 +31,8 @@ router.get('/servermode', async (req, res) => {
       result: true,
       mode: gStatus.mode,
       backupAddress: gStatus.backupAddress,
-      backupActive: gStatus.backupActive
+      backupActive: gStatus.backupActive,
+      backupId: gStatus.backupId
     })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
@@ -71,6 +72,7 @@ router.put('/backupaddress', async (req, res) => {
     logError(`SS04 백업서버 주소 변경 ${error}`, email)
   }
 })
+
 //SS05 백업 활성화를 확인하는 라우트입니다.
 router.get('/backupactive', async (req, res) => {
   const { email } = req.user
@@ -82,6 +84,7 @@ router.get('/backupactive', async (req, res) => {
     logError(`SS05 백업 활성화 조회 ${error}`, email)
   }
 })
+
 //SS06 백업 활성화를 변경하는 라우트입니다.
 router.put('/backupactive', async (req, res) => {
   const { email } = req.user
@@ -135,4 +138,18 @@ router.put('/scheduleauto', async (req, res) => {
   }
 })
 
+// SS09 백업 ID
+router.put('/backupid', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { backupId } = req.body
+    await dbSetupUpdate({ key: 'backupId' }, { value: backupId })
+    gStatus.backupId = backupId
+    res.status(200).json({ result: true, backupId: gStatus.backupId })
+    logInfo(`SS09 백업 ID 변경 ${backupId}`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error: error.message })
+    logError(`SS09 백업 ID 변경 ${error}`, email)
+  }
+})
 module.exports = router

@@ -13,6 +13,7 @@ module.exports = {
     interval: 50,
     gainStep: 2,
     mode: 'Normal',
+    backupId: '',
     backupAddress: '',
     backupActive: false,
     voice: ''

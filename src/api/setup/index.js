@@ -20,6 +20,9 @@ module.exports = async function () {
         case 'mode':
           gStatus.mode = item.value
           break
+        case 'backupId':
+          gStatus.backupId = item.value
+          break
         case 'backupAddress':
           gStatus.backupAddress = item.value
           break
