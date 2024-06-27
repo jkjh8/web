@@ -1,7 +1,11 @@
 const Barix = require('@db/models/barix')
+const { fnBackupRequest } = require('@api/backup')
+
 module.exports = {
   dbBarixMake: async (obj) => {
-    return await Barix.create({ ...obj })
+    await Barix.create({ ...obj })
+    // backup
+    await fnBackupRequest('/backup/barix', obj, 'POST')
   },
   dbBarixFind: async (obj) => {
     return await Barix.find({ ...obj })
@@ -16,15 +20,19 @@ module.exports = {
     })
   },
   dbBarixUpdate: async (filer, value) => {
-    return await Barix.findOneAndUpdate(filer, value, {
+    await Barix.findOneAndUpdate(filer, value, {
       new: false,
       upsert: true
     })
+    // backup
+    await fnBackupRequest('/backup/barix', { filer, value }, 'PUT')
   },
   dbBarixExists: async (obj) => {
     return await Barix.exists(obj)
   },
   dbBarixRemoveById: async (id) => {
-    return await Barix.findByIdAndDelete(id)
+    await Barix.findByIdAndDelete(id)
+    // backup
+    await fnBackupRequest('/backup/barix', { data: { id } }, 'DELETE')
   }
 }

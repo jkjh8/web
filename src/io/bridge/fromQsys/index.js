@@ -10,7 +10,8 @@ const { fnBarixRelayOff } = require('@api/barix')
 const {
   fnSendClientStatusAll,
   fnSendClientQsysData,
-  fnSendClientPageMessage
+  fnSendClientPageMessage,
+  fnSendQsysData
 } = require('@api/qsys')
 const { fnAmxRelayOff } = require('@api/amx')
 
@@ -18,18 +19,33 @@ module.exports = function (socket) {
   // IB02
   socket.on('qsys:connect', async (device) => {
     const { deviceId, name, ipaddress } = device
-    const r = await dbQsysUpdate({ deviceId }, { connected: true })
+    // db에 연결 상태 갱신
+    const updated = await dbQsysUpdate({ deviceId }, { connected: true })
+    // client에 연결 상태 전송
     fnSendClientQsysData(deviceId, { connected: true })
-    fnQsysCheckMediaFolder(r)
-    logInfo(`IB02 QSYS 연결 ${name} - ${ipaddress} - ${deviceId}`, 'qsys')
+    // QSYS 저장소 용량 확인
+    fnQsysCheckMediaFolder(updated)
+    // 로그
+    logInfo(`IB02 QSYS 연결 ${name} - ${ipaddress}: ${deviceId}`, 'SERVER')
+    //5초후에 QSYS 데이터 가져오기 실행
+    setTimeout(() => {
+      fnSendQsysData('zone:get:channels', deviceId)
+      logInfo(
+        `IB02 QSYS 데이터 가져오기 실행 ${name} - ${ipaddress}: ${deviceId}`,
+        'SERVER'
+      )
+    }, 5000)
   })
 
   // IB03
   socket.on('qsys:disconnect', async (device) => {
     const { deviceId, name, ipaddress } = device
+    // db에 연결 상태 갱신
     await dbQsysUpdate({ deviceId }, { connected: false })
+    // client에 연결 상태 전송
     fnSendClientQsysData(deviceId, { connected: false })
-    logInfo(`IB03 QSYS 연결 해제 ${name} - ${ipaddress} - ${deviceId}`, 'qsys')
+    // 로그
+    logInfo(`IB03 QSYS 연결 해제 ${name} - ${ipaddress}: ${deviceId}`, 'SERVER')
   })
   //IB04
   socket.on('qsys:device', async (obj) => {
@@ -37,23 +53,31 @@ module.exports = function (socket) {
     await dbQsysUpdate({ deviceId }, { ...data })
     fnSendClientQsysData(deviceId, { ...data })
   })
-  //IB05
-  socket.on('qsys:rttr', async (obj) => {
-    const { deviceId, zone, value } = obj
-    let id = null
 
-    if (value) {
-      const r = await dbBarixFindOne({ ipaddress: value })
-      console.log(r)
-      if (r) {
-        id = r._id
+  //IB05
+  socket.on('qsys:get:tr', async (obj) => {
+    try {
+      const { deviceId, zone, value } = obj
+      let id = null
+
+      if (value) {
+        // barix에 ipaddress가 있는지 확인
+        const updated = await dbBarixFindOne({ ipaddress: value })
+        if (updated) {
+          // db에 Barix가 있으면 ID를 저장
+          id = updated._id
+        }
       }
+      // db에 zone에 destination을 저장
+      await dbQsysUpdate(
+        { deviceId, 'ZoneStatus.Zone': zone },
+        { 'ZoneStatus.$.destination': id }
+      )
+      // client에 전송
+      await fnSendClientStatusAll()
+    } catch (error) {
+      logError(`IB05 QSYS 방송 구간 지정 ${error}`, 'SERVER')
     }
-    await dbQsysUpdate(
-      { deviceId, 'ZoneStatus.Zone': zone },
-      { 'ZoneStatus.$.destination': id }
-    )
-    await fnSendClientStatusAll()
   })
 
   // IB06 page
@@ -71,7 +95,7 @@ module.exports = function (socket) {
         { $set: { 'devices.$.PageID': PageID } }
       )
     } catch (error) {
-      logError(`IB06 QSYS 방송 idx 갱신 오류 ${error}`, 'qsys')
+      logError(`IB06 QSYS 방송 idx 갱신 오류 ${error}`, 'SERVER')
     }
   })
 
@@ -115,7 +139,7 @@ module.exports = function (socket) {
         { 'PageStatus.$': { ...params } }
       )
     } catch (error) {
-      logError(`IB01 QSYS 브릿지 ${error}`, 'qsys')
+      logError(`IB01 QSYS 브릿지 ${error}`, 'SERVER')
     }
   })
 }

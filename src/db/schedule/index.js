@@ -1,9 +1,11 @@
 const Sch = require('@db/models/schedule')
 const moment = require('moment')
+const { fnBackupRequest } = require('@api/backup')
 
 module.exports = {
   dbSchMake: async (obj) => {
-    return await Sch.create({ ...obj })
+    await Sch.create({ ...obj })
+    await fnBackupRequest('/backup/schedules', obj, 'POST')
   },
   dbSchFind: async (obj) => {
     return await Sch.find({ ...obj }).sort({ time: 1 })
@@ -18,13 +20,15 @@ module.exports = {
     })
   },
   dbSchUpdate: async (filter, value) => {
-    return await Sch.findOneAndUpdate(filter, value, {
+    await Sch.findOneAndUpdate(filter, value, {
       new: true,
       upsert: true
     })
+    await fnBackupRequest('/backup/schedules', { filter, value }, 'PUT')
   },
   dbSchRemoveById: async (id) => {
-    return await Sch.findByIdAndDelete(id)
+    await Sch.findByIdAndDelete(id)
+    await fnBackupRequest('/backup/schedules', { data: { id } }, 'DELETE')
   },
   dbSchFindToday: async () => {
     const date = moment()
