@@ -1,7 +1,8 @@
 const Barix = require('@db/models/barix')
-const { fnBackupRequest } = require('@api/backup')
+const { fnBackupRequest } = require('../../api/backup')
 
 module.exports = {
+  dbBarix: Barix,
   dbBarixMake: async (obj) => {
     await Barix.create({ ...obj })
     // backup

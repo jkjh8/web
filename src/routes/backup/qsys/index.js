@@ -1,11 +1,12 @@
 const express = require('express')
 const { logError } = require('@logger')
 const {
+  dbQsys,
   dbQsysMake,
   dbQsysUpdate,
   dbQsysRemove,
   dbQsysBulkWrite
-} = require('@api/qsys')
+} = require('@db/qsys')
 
 const router = express.Router()
 
@@ -46,6 +47,7 @@ router.delete('/', async (req, res) => {
   }
 })
 
+// BQ04 bulk update
 router.put('/bulk', async (req, res) => {
   try {
     res
@@ -54,6 +56,34 @@ router.put('/bulk', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`BQ04 QSYS 정보 동기화 ${error}`, 'SERVER')
+  }
+})
+
+// BQ05 make many
+router.post('/many', async (req, res) => {
+  try {
+    const { qsys } = req.body
+    // qsys array를 받아서 개별로 db 문서 생성
+    for (let i = 0; i < qsys.length; i++) {
+      await dbQsysMake(qsys[i])
+    }
+    res.status(200).json({ result: true })
+
+    logInfo('BQ05 QSYS 정보 동기화 완료', 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BQ05 QSYS 정보 동기화 ${error}`, 'SERVER')
+  }
+})
+
+// BQ06 reset Qsys db
+router.delete('/reset', async (req, res) => {
+  try {
+    res.status(200).json({ result: true, data: await dbQsys.deleteMany({}) })
+    logInfo('BQ06 QSYS 정보 초기화 완료', 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BQ06 QSYS 정보 초기화 ${error}`, 'SERVER')
   }
 })
 

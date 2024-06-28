@@ -1,6 +1,11 @@
 const express = require('express')
 const logError = require('@logger')
-const { dbSchMake, dbSchUpdate, dbSchRemoveById } = require('@api/schedule')
+const {
+  dbSch,
+  dbSchMake,
+  dbSchUpdate,
+  dbSchRemoveById
+} = require('@db/schedule')
 
 const router = express.Router()
 
@@ -38,6 +43,33 @@ router.delete('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`BS03 스케줄 정보 동기화 ${error}`, 'SERVER')
+  }
+})
+
+// BS04 Make Many
+router.post('/many', async (req, res) => {
+  try {
+    const { schedules } = req.body
+    // schedules array를 받아서 개별로 db 문서 생성
+    for (let i = 0; i < schedules.length; i++) {
+      await dbSchMake(schedules[i])
+    }
+    res.status(200).json({ result: true })
+    logInfo('BS04 스케줄 정보 동기화 완료', 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BS04 스케줄 정보 동기화 ${error}`, 'SERVER')
+  }
+})
+
+// BS05 스케줄 초기화
+router.delete('/reset', async (req, res) => {
+  try {
+    res.status(200).json({ result: true, data: await dbSch.deleteMany({}) })
+    logInfo('BS05 스케줄 정보 초기화 완료', 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BS05 스케줄 정보 초기화 ${error}`, 'SERVER')
   }
 })
 

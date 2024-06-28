@@ -3,6 +3,7 @@ const moment = require('moment')
 const { fnBackupRequest } = require('@api/backup')
 
 module.exports = {
+  dbSch: Sch,
   dbSchMake: async (obj) => {
     await Sch.create({ ...obj })
     await fnBackupRequest('/backup/schedules', obj, 'POST')

@@ -13,6 +13,7 @@ const { fnAmxesRelayOn } = require('@api/amx')
 // io
 const { fnSendPageMessage } = require('@io/client/api')
 const io = require('@io')
+const { fnSendBridge } = require('@io/bridge/toQsys')
 
 const router = express.Router()
 
@@ -38,7 +39,7 @@ router.put('/', async (req, res) => {
 
     //////////////// 방송 시작 ////////////////
     // qsys page 시작
-    io.bridge.emit('qsys:page:live', await fnSetLive(idx, req.body, email))
+    fnSendBridge('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, 'page', zones)
 
@@ -75,7 +76,7 @@ router.put('/message', async (req, res) => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     //////////////// 방송 시작 ////////////////
-    io.bridge.emit(
+    fnSendBridge(
       'qsys:page:message',
       await fnSetLive(idx, req.body, user.email)
     )
@@ -112,7 +113,7 @@ router.get('/stop', async (req, res) => {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      io.bridge.emit('qsys:page:sstop', {
+      fnSendBridge('qsys:page:sstop', {
         deviceId,
         PageID: item.PageID,
         idx: item.idx
@@ -132,7 +133,7 @@ router.get('/cancel', async (req, res) => {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      io.bridge.emit('qsys:page:cancel', {
+      fnSendBridge('qsys:page:cancel', {
         deviceId,
         PageID: item.PageID,
         idx: item.idx

@@ -2,6 +2,7 @@ const User = require('@db/models/user')
 const { fnBackupRequest } = require('@api/backup')
 
 module.exports = {
+  dbUser: User,
   dbUserMake: async (obj) => {
     await User.create({ ...obj })
     // backup

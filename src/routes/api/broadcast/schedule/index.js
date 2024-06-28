@@ -5,6 +5,7 @@ const fs = require('node:fs')
 const uniqueId = require('@api/utils/uniqueId.js')
 //io
 const io = require('@io')
+const { fnSendBridge } = require('@io/bridge/toQsys')
 //db
 const {
   dbSchMake,
@@ -111,7 +112,7 @@ router.put('/', async (req, res) => {
 
     //////////////// 방송 시작 ////////////////
     // 방송 송출
-    io.bridge.emit('qsys:page:message', page)
+    fnSendBridge('qsys:page:message', page)
     // 로그기록
     logInfo(
       `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.base}`,

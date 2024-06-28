@@ -1,6 +1,6 @@
 const express = require('express')
-const { logError } = require('@logger')
-const { dbUserMake, dbUserUpdate, dbUserRemove } = require('@api/user')
+const { logInfo, logError } = require('@logger')
+const { dbUser, dbUserMake, dbUserUpdate, dbUserRemove } = require('@db/user')
 
 const router = express.Router()
 // BU01  post
@@ -39,3 +39,34 @@ router.delete('/', async (req, res) => {
     logError(`BU03 사용자 정보 동기화 ${error}`, 'SERVER')
   }
 })
+
+// BU04 대량 업데이트
+router.post('/many', async (req, res) => {
+  try {
+    const { users } = req.body
+
+    // users array를 받아서 개별로 db 문서 생성
+    for (let i = 0; i < users.length; i++) {
+      await dbUserMake(users[i])
+    }
+    res.status(200).json({ result: true })
+
+    logInfo('BU04 사용자 정보 동기화 완료', 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BU04 사용자 정보 동기화 ${error}`, 'SERVER')
+  }
+})
+
+// BU05 사용자 정보 초기화
+router.delete('/reset', async (req, res) => {
+  try {
+    await dbUser.deleteMany({})
+    res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BU05 사용자 정보 초기화 ${error}`, 'SERVER')
+  }
+})
+
+module.exports = router

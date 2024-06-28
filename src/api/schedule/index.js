@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 // io
 const io = require('@io')
+const { fnSendBridge } = require('@io/bridge/toQsys')
 // logger
 const { logInfo, logEvent, logError } = require('@logger')
 // db
@@ -36,7 +37,7 @@ const fnInTimeScheduleRun = async (data) => {
 
     //////////////// 방송 시작 ////////////////
     const commands = await fnSetLive(idx, { ...data, devices: page }, user)
-    io.bridge.emit('qsys:page:message', commands)
+    fnSendBridge('qsys:page:message', commands)
     // 로그
     return
   } catch (error) {

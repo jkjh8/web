@@ -1,5 +1,6 @@
 const axios = require('axios')
 const https = require('https')
+const { logError } = require('@logger')
 
 const backupServer = axios.create({
   httpsAgent: new https.Agent({
@@ -7,20 +8,18 @@ const backupServer = axios.create({
   })
 })
 
-const fnCheckBackup = () => {
-  const { mode, backupActive, backupAddress } = gStatus
-  if (mode === 'Backup' && backupActive && backupAddress) {
-    return true
-  }
-  return false
+function check() {
+  console.log('check')
 }
-const fnBackupRequest = async (addr, data, method) => {
+
+// BK01 백업
+async function fnBackupRequest(addr, data, method) {
   try {
     if (gStatus.mode !== 'Backup') {
       if (gStatus.backupActive) {
         if (gStatus.backupAddress) {
           const res = await backupServer.request({
-            url: addr,
+            url: `${gStatus.backupServer}/${addr}`,
             method: method,
             data: data,
             headers: {
@@ -34,18 +33,11 @@ const fnBackupRequest = async (addr, data, method) => {
       }
     }
   } catch (error) {
-    return error
+    logError(`BK01 백업 요청 ${error}`, 'SERVER')
   }
 }
 
-// const fnBackupPost = async (addr, data) => {
-//   return fnBackupRequest(addr, data, 'POST')
-// }
-
-// const fnBackupPut = async (addr, data) => {
-//   return fnBackupRequest(addr, data, 'PUT')
-// }
-
+// BK02 백업 서버 인증
 const isBackup = (req, res, next) => {
   if (req.headers && req.headers.backupId) {
     if (req.headers.backupId === gStatus.backupId) {
@@ -58,4 +50,8 @@ const isBackup = (req, res, next) => {
   }
 }
 
-module.exports = { isBackup, backupServer, fnCheckBackup, fnBackupRequest }
+module.exports = {
+  check,
+  fnBackupRequest,
+  isBackup
+}
