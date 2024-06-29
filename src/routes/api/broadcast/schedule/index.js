@@ -1,35 +1,27 @@
 const express = require('express')
-const axios = require('axios')
 const path = require('node:path')
 const fs = require('node:fs')
-const uniqueId = require('@api/utils/uniqueId.js')
-//io
-const io = require('@io')
-const { fnSendBridge } = require('@io/bridge/toQsys')
-//db
-const {
-  dbSchMake,
-  dbSchFind,
-  dbSchFindOne,
-  dbSchUpdate,
-  dbSchRemoveById
-} = require('@db/schedule')
+// logger
+const { logError, logWarn, logInfo } = require('@logger')
+// db
 const { dbPageMake } = require('@db/page')
 const { fnCheckActive } = require('@api/schedule')
 const { dbUserUpdate } = require('@db/user')
-const { dbQsysFind, dbQsysUpdate, dbQsysPageUpdate } = require('@db/qsys')
-//api
+const { dbQsysPageUpdate } = require('@db/qsys')
+const {
+  dbSchMake,
+  dbSchFind,
+  dbSchUpdate,
+  dbSchRemoveById
+} = require('@db/schedule')
+// api
+const uniqueId = require('@api/utils/uniqueId.js')
+const { fnSendQsysData } = require('@api/qsys')
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnCleanQsysScheduleFolder } = require('@api/schedule')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
-const { logError, logWarn, logInfo } = require('@logger')
-
-const {
-  fnQsysFileDelete,
-  fnQsysSyncFileSchedule,
-  fnQsysCheckScheduleFolder
-} = require('@api/qsys/files')
+const { fnQsysFileDelete, fnQsysSyncFileSchedule } = require('@api/qsys/files')
 const { fnMakePageFromSchedule } = require('@api/schedule')
 const { fnSendScheduleToAPP } = require('@api/schedule')
 
@@ -99,31 +91,17 @@ router.put('/', async (req, res) => {
     // Qsys db 업데이트
     await dbQsysPageUpdate(devices, idx)
 
-    //////////////// 릴레이 구동 ////////////////
-    // amx 릴레이 구동
-    await fnAmxesRelayOn(devices)
-    // Barix 릴레이 구동
-    await fnBarixesRelayOn(devices)
-    // 로그
-    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
+    // 릴레이 구동
+    await runRelays(devices)
 
-    //////////////// 1초 대기 ////////////////
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // 1초 대기
+    await wait(1000)
 
-    //////////////// 방송 시작 ////////////////
-    // 방송 송출
-    fnSendBridge('qsys:page:message', page)
-    // 로그기록
-    logInfo(
-      `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.base}`,
-      req.user.email,
-      zones
-    )
+    // 방송 시작
+    startBroadcast(page, name, idx, file.base, req.user.email, zones)
+
     // 사용횟수 증가
-    await dbUserUpdate(
-      { _id: req.user._id },
-      { $inc: { numberOfScheduleCall: 1 } }
-    )
+    await increaseUserScheduleCall(req.user._id)
   } catch (error) {
     logError(`SH03 스케줄 동작 ${error}`, req.user.email)
   }
@@ -141,9 +119,7 @@ router.post('/', async (req, res) => {
     // 스케줄 파일 경로
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
-    pageMode === 'file'
-      ? fs.copyFileSync(file.fullpath, currentFilePath)
-      : fs.renameSync(file.fullpath, currentFilePath)
+    copyOrRenameFile(pageMode, file.fullpath, currentFilePath)
     // 스케줄 파일 정보
     const newFile = fnGetFile(currentFilePath)
     // 스케줄 db 추가
@@ -161,10 +137,7 @@ router.post('/', async (req, res) => {
     })
     await fnSendScheduleToAPP()
     // 사용자 사용회수 증가
-    await dbUserUpdate(
-      { email: req.user.email },
-      { $inc: { numberOfSchedule: 1 } }
-    )
+    await increaseUserSchedule(req.user.email)
   } catch (error) {
     logError(`SH04 스케줄 추가 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
@@ -248,3 +221,41 @@ router.get('/clean', async (req, res) => {
 })
 
 module.exports = router
+
+// Helper functions
+
+async function runRelays(devices) {
+  // amx 릴레이 구동
+  await fnAmxesRelayOn(devices)
+  // Barix 릴레이 구동
+  await fnBarixesRelayOn(devices)
+  // 로그
+  logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function startBroadcast(page, name, idx, fileBase, email, zones) {
+  // 방송 송출
+  fnSendQsysData('qsys:page:message', page)
+  // 로그기록
+  logInfo(`스케줄 방송 송출 시작 ${name} - ${idx} - ${fileBase}`, email, zones)
+}
+
+async function increaseUserScheduleCall(userId) {
+  await dbUserUpdate({ _id: userId }, { $inc: { numberOfScheduleCall: 1 } })
+}
+
+function copyOrRenameFile(pageMode, sourcePath, destinationPath) {
+  if (pageMode === 'file') {
+    fs.copyFileSync(sourcePath, destinationPath)
+  } else {
+    fs.renameSync(sourcePath, destinationPath)
+  }
+}
+
+async function increaseUserSchedule(email) {
+  await dbUserUpdate({ email: email }, { $inc: { numberOfSchedule: 1 } })
+}

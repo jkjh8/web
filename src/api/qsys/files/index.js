@@ -1,6 +1,6 @@
 const axios = require('axios')
 const https = require('https')
-const { fnSendPageMessage } = require('@io/client/api')
+const { fnSendPageMessage } = require('@api/client')
 const fs = require('fs')
 const FormData = require('form-data')
 const { logInfo, logError, logEvent } = require('@logger')

@@ -2,7 +2,7 @@ const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll } = require('@db/qsys')
 const { dbSetupUpdate } = require('@db/setup')
 const fromQsys = require('./fromQsys')
-const { fnSendGlobalStatus } = require('../client/api')
+const { fnSendGlobalStatus } = require('@api/client')
 
 //IB01
 module.exports = (socketio) => {

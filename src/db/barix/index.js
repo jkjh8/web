@@ -26,7 +26,7 @@ module.exports = {
       upsert: true
     })
     // backup
-    await fnBackupRequest('/backup/barix', { filer, value }, 'PUT')
+    // await fnBackupRequest('/backup/barix', { filer, value }, 'PUT')
   },
   dbBarixExists: async (obj) => {
     return await Barix.exists(obj)

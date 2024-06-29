@@ -5,7 +5,7 @@ const { dbSetupUpdate } = require('@db/setup')
 // api
 const { fnSendScheduleToAPP } = require('@api/schedule')
 const { gStatus } = require('../../defaultVal')
-const { fnSendGlobalStatus } = require('../client/api')
+const { fnSendGlobalStatus } = require('@api/client')
 
 module.exports = (socketio) => {
   // IS01 소켓 연결

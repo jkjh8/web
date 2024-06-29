@@ -1,6 +1,6 @@
 const Qsys = require('@db/models/qsys')
 const { logError } = require('@logger')
-const { fnBackupRequest } = require('../../api/backup')
+const { fnBackupRequest } = require('@api/backup')
 
 const dbQsysMake = async (obj) => {
   await Qsys.create({ ...obj })
@@ -54,16 +54,12 @@ const dbQsysBulkWrite = async (arr) => {
 }
 
 const dbQsysUpdate = async (filer, value) => {
-  try {
-    await Qsys.findOneAndUpdate(filer, value, {
-      new: true,
-      upsert: true
-    })
-    // backup
-    await fnBackupRequest('/backup/qsys', { filer, value }, 'PUT')
-  } catch (error) {
-    logError(`Qsys Update Error: ${error}`, 'server')
-  }
+  await Qsys.findOneAndUpdate(filer, value, {
+    new: true,
+    upsert: true
+  })
+  // backup
+  // await fnBackupRequest('/backup/qsys', { filter, value }, 'PUT')
 }
 
 const dbQsysExists = async (obj) => {

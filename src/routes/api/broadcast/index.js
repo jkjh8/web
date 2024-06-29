@@ -4,11 +4,9 @@ const { logInfo, logError, logEvent } = require('@logger')
 const { dbUserFindOne } = require('@db/user')
 const { dbPageFindOne } = require('@db/page')
 const { dbQsysFind } = require('@db/qsys')
-// io
-const io = require('@io')
-const { fnSendPageMessage } = require('@io/client/api')
-const { fnSendBridge } = require('@io/bridge/toQsys')
 //api
+const { fnSendPageMessage } = require('@api/client')
+const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysFileUpload, fnQsysFileDelete } = require('@api/qsys/files')
 const { fnGetSocketId } = require('@api/user/socket')
 const { fnCheckActive } = require('@api/qsys/broadcast')
@@ -23,7 +21,7 @@ router.use('/schedule', require('./schedule'))
 router.get('/stop', async (req, res) => {
   try {
     const page = await dbPageFindOne({ idx: req.query.idx })
-    fnSendBridge(
+    fnSendQsysData(
       'qsys:page:stop',
       page.devices.map((e) => {
         return { deviceId: e.deviceId, PageID: e.PageID, idx: e.idx }

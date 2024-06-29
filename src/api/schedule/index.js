@@ -2,14 +2,14 @@ const fs = require('fs')
 const path = require('path')
 // io
 const io = require('@io')
-const { fnSendBridge } = require('@io/bridge/toQsys')
 // logger
 const { logInfo, logEvent, logError } = require('@logger')
 // db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
-const { dbQsysFind, dbQsysFindOne, dbQsysUpdate } = require('@db/qsys')
+const { dbQsysFind, dbQsysFindOne } = require('@db/qsys')
 // api
 const uniqueId = require('@api/utils/uniqueId')
+const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
 const { fnSetLive } = require('@api/qsys/broadcast')
 const { fnBarixesRelayOn } = require('@api/barix')
@@ -37,7 +37,7 @@ const fnInTimeScheduleRun = async (data) => {
 
     //////////////// 방송 시작 ////////////////
     const commands = await fnSetLive(idx, { ...data, devices: page }, user)
-    fnSendBridge('qsys:page:message', commands)
+    fnSendQsysData('qsys:page:message', commands)
     // 로그
     return
   } catch (error) {
