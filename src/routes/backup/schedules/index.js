@@ -52,7 +52,7 @@ router.post('/many', async (req, res) => {
     const { schedules } = req.body
     // schedules array를 받아서 개별로 db 문서 생성
     for (let i = 0; i < schedules.length; i++) {
-      await dbSchMake(schedules[i])
+      await dbSch.create(schedules[i])
     }
     res.status(200).json({ result: true })
     logInfo('BS04 스케줄 정보 동기화 완료', 'SERVER')

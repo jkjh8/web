@@ -47,7 +47,7 @@ router.post('/many', async (req, res) => {
 
     // users array를 받아서 개별로 db 문서 생성
     for (let i = 0; i < users.length; i++) {
-      await dbUserMake(users[i])
+      await dbUser.create(users[i])
     }
     res.status(200).json({ result: true })
 

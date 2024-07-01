@@ -65,7 +65,7 @@ router.post('/many', async (req, res) => {
     const { qsys } = req.body
     // qsys array를 받아서 개별로 db 문서 생성
     for (let i = 0; i < qsys.length; i++) {
-      await dbQsysMake(qsys[i])
+      await dbQsys.create(qsys[i])
     }
     res.status(200).json({ result: true })
 
