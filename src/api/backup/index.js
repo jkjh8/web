@@ -44,12 +44,12 @@ function fnBackupRequest(addr, data, method) {
 const isBackup = (req, res, next) => {
   if (req.headers && req.headers.backupid) {
     if (req.headers.backupid === gStatus.backupId) {
-      next()
+      return next()
     } else {
-      res.status(401).json({ result: false, message: 'Unauthorized' })
+      return res.status(401).json({ result: false, message: 'Unauthorized' })
     }
   } else {
-    res.status(401).json({ result: false, message: 'Unauthorized' })
+    return res.status(401).json({ result: false, message: 'Unauthorized' })
   }
 }
 
