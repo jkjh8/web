@@ -25,7 +25,7 @@ function fnBackupRequest(addr, data, method) {
               method: method,
               data: data,
               headers: {
-                backupId: gStatus.backupId
+                backupid: gStatus.backupId
               }
             })
             resolve(res.data)
