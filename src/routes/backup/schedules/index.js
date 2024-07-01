@@ -1,5 +1,5 @@
 const express = require('express')
-const logError = require('@logger')
+const { logInfo, logError } = require('@logger')
 const {
   dbSch,
   dbSchMake,
