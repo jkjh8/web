@@ -13,28 +13,30 @@ function check() {
 }
 
 // BK01 백업
-async function fnBackupRequest(addr, data, method) {
-  try {
-    if (gStatus.mode !== 'Backup') {
-      if (gStatus.backupActive) {
-        if (gStatus.backupAddress) {
-          const res = await backupServer.request({
-            url: `${gStatus.backupServer}/${addr}`,
-            method: method,
-            data: data,
-            headers: {
-              backupId: gStatus.backupId
-            }
-          })
-          return res.data
-        } else {
-          logError('백업 서버 주소가 설정되지 않았습니다.', 'SERVER')
+function fnBackupRequest(addr, data, method) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (gStatus.mode !== 'Backup') {
+        if (gStatus.backupActive) {
+          if (gStatus.backupAddress) {
+            const res = await backupServer.request({
+              url: `http://${gStatus.backupAddress}${addr}`,
+              method: method,
+              data: data,
+              headers: {
+                backupId: gStatus.backupId
+              }
+            })
+            resolve(res.data)
+          } else {
+            reject(new Error('백업 서버 주소가 설정되지 않았습니다.'))
+          }
         }
       }
+    } catch (error) {
+      reject(error)
     }
-  } catch (error) {
-    logError(`BK01 백업 요청 ${error}`, 'SERVER')
-  }
+  })
 }
 
 // BK02 백업 서버 인증
