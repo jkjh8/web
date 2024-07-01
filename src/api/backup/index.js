@@ -14,6 +14,7 @@ function check() {
 
 // BK01 백업
 function fnBackupRequest(addr, data, method) {
+  console.log('fnBackupRequest', addr, data, method)
   return new Promise(async (resolve, reject) => {
     try {
       if (gStatus.mode !== 'Backup') {

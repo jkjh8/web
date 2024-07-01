@@ -12,9 +12,13 @@ const fnSyncUser = async () => {
     if (userCount) {
       await fnBackupRequest('/backup/user/reset', {}, 'DELETE')
       // db에서 사용자 10개씩만 가져오기
+      console.log('userCount:', userCount)
       for (let i = 0; i < userCount; i += 10) {
-        const users = await dbUser.find({}).skip(i).limit(10)
-        await fnBackupRequest('/backup/user/many', { users }, 'POST')
+        await fnBackupRequest(
+          '/backup/user/many',
+          { users: await dbUser.find({}).skip(i).limit(10) },
+          'POST'
+        )
       }
     }
   } catch (error) {
