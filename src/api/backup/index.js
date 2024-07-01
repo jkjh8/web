@@ -41,6 +41,7 @@ function fnBackupRequest(addr, data, method) {
 
 // BK02 백업 서버 인증
 const isBackup = (req, res, next) => {
+  console.log(req.headers.backupId, gStatus.backupId)
   if (req.headers && req.headers.backupId) {
     if (req.headers.backupId === gStatus.backupId) {
       next()
