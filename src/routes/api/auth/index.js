@@ -92,7 +92,6 @@ router.get('/exists_email', async (req, res) => {
 // AH05 로그아웃
 router.get('/signout', isLoggedIn, async (req, res) => {
   try {
-    // console.log(req.user)
     if (req.cookies['jwt']) {
       // logInfo(`사용자 로그아웃: ${req.user.email}`)
       res

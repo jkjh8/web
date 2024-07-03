@@ -109,7 +109,6 @@ router.put('/', async (req, res) => {
 
 // SH04
 router.post('/', async (req, res) => {
-  console.log(req.body)
   try {
     const user = req.user.email
     const { pageMode, file, devices } = req.body

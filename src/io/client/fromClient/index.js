@@ -9,7 +9,6 @@ const { logInfo, logError } = require('@logger')
 module.exports = function (socket) {
   // IC02 볼륨
   socket.on('qsys:volume', async (obj) => {
-    console.log('qsys:volume', obj)
     const { email } = socket.user
     try {
       const { deviceId, zone, value } = obj
