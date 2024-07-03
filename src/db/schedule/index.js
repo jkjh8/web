@@ -6,7 +6,7 @@ module.exports = {
   dbSch: Sch,
   dbSchMake: async (obj) => {
     await Sch.create({ ...obj })
-    await fnBackupRequest('/backup/schedules', obj, 'POST')
+    fnBackupRequest('/backup/schedules', obj, 'POST')
   },
   dbSchFind: async (obj) => {
     return await Sch.find({ ...obj }).sort({ time: 1 })
@@ -25,11 +25,11 @@ module.exports = {
       new: true,
       upsert: true
     })
-    await fnBackupRequest('/backup/schedules', { filter, value }, 'PUT')
+    fnBackupRequest('/backup/schedules', { filter, value }, 'PUT')
   },
   dbSchRemoveById: async (id) => {
     await Sch.findByIdAndDelete(id)
-    await fnBackupRequest('/backup/schedules', { data: { id } }, 'DELETE')
+    fnBackupRequest('/backup/schedules', { data: { id } }, 'DELETE')
   },
   dbSchFindToday: async () => {
     const date = moment()

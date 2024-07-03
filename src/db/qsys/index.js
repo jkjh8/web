@@ -2,23 +2,25 @@ const Qsys = require('@db/models/qsys')
 const { logError } = require('@logger')
 const { fnBackupRequest } = require('@api/backup')
 
+//DQ01
 const dbQsysMake = async (obj) => {
   await Qsys.create({ ...obj })
   // backup
-  await fnBackupRequest('/backup/qsys', obj, 'POST')
+  fnBackupRequest('/backup/qsys', obj, 'POST')
 }
 
+//DQ02
 const dbQsysFindAll = async () => {
   return await Qsys.find().populate(
     'ZoneStatus.destination',
     'name idx deviceId ipaddress status streamurl'
   )
 }
-
+//DQ03
 const dbQsysFind = async (args) => {
   return await Qsys.find({ ...args })
 }
-
+// DQ04
 const dbQsysFindOne = (obj) => {
   return new Promise((resolve, reject) => {
     Qsys.findOne(obj)
@@ -30,7 +32,7 @@ const dbQsysFindOne = (obj) => {
       })
   })
 }
-
+// DQ05
 const dbQsysFindOnePop = async (args) => {
   return new Promise((resolve, reject) => {
     Qsys.findOne(args)
@@ -47,12 +49,14 @@ const dbQsysFindOnePop = async (args) => {
   })
 }
 
+//DQ06
 const dbQsysBulkWrite = async (arr) => {
   await Qsys.bulkWrite(arr)
   // backup
-  await fnBackupRequest('/backup/qsys/bulk', { arr }, 'PUT')
+  fnBackupRequest('/backup/qsys/bulk', { arr }, 'PUT')
 }
 
+//DQ07
 const dbQsysUpdate = async (filer, value) => {
   await Qsys.findOneAndUpdate(filer, value, {
     new: true,
@@ -65,11 +69,16 @@ const dbQsysUpdate = async (filer, value) => {
 const dbQsysExists = async (obj) => {
   return await Qsys.exists(obj)
 }
-
+// DQ08
+const dbQsysUpdateBackup = async (filter, value) => {
+  await Qsys.findOneAndUpdate(filter, value, { new: true, upsert: true })
+  fnBackupRequest('/backup/qsys', { filter, value }, 'PUT')
+}
+//DQ09
 const dbQsysRemove = async (id) => {
   await Qsys.findByIdAndDelete(id)
   // backup
-  await fnBackupRequest('/backup/qsys', { data: { id } }, 'DELETE')
+  fnBackupRequest('/backup/qsys', { data: { id } }, 'DELETE')
 }
 
 const dbQsysPageUpdate = async (devices, idx) => {
@@ -92,6 +101,7 @@ module.exports = {
   dbQsysFindOnePop,
   dbQsysBulkWrite,
   dbQsysUpdate,
+  dbQsysUpdateBackup,
   dbQsysExists,
   dbQsysRemove,
   dbQsysPageUpdate

@@ -190,7 +190,7 @@ router.put('/modifiedzonename', async (req, res) => {
     // 데이터 베이스 업데이트
     await dbQsysUpdate(key, value)
     // 백업전송
-    await fnBackupRequest('/backup/qsys', { key, value }, 'PUT')
+    fnBackupRequest('/backup/qsys', { key, value }, 'PUT')
     // 송신
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
     // 로그

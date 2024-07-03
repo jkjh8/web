@@ -1,6 +1,7 @@
 const axios = require('axios')
 const https = require('https')
 const { logError } = require('@logger')
+const { http } = require('winston')
 
 const backupServer = axios.create({
   httpsAgent: new https.Agent({
@@ -14,30 +15,30 @@ function check() {
 
 // BK01 백업
 function fnBackupRequest(addr, data, method) {
-  console.log('fnBackupRequest', addr, data, method)
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (gStatus.mode !== 'Backup') {
-        if (gStatus.backupActive) {
-          if (gStatus.backupAddress) {
-            const res = await backupServer.request({
-              url: `http://${gStatus.backupAddress}${addr}`,
-              method: method,
-              data: data,
-              headers: {
-                backupid: gStatus.backupId
-              }
-            })
-            resolve(res.data)
-          } else {
-            reject(new Error('백업 서버 주소가 설정되지 않았습니다.'))
+  if (gStatus.mode !== 'Backup') {
+    if (gStatus.backupActive) {
+      if (gStatus.backupAddress) {
+        axios({
+          url: `http://${gStatus.backupAddress}${addr}`,
+          method: method,
+          data: data,
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+          timeout: 5000,
+          headers: {
+            backupid: gStatus.backupId
           }
-        }
+        })
+          .then((res) => {
+            return res.data
+          })
+          .catch((error) => {
+            return error
+          })
+      } else {
+        reject(new Error('백업 서버 주소가 설정되지 않았습니다.'))
       }
-    } catch (error) {
-      reject(error)
     }
-  })
+  }
 }
 
 // BK02 백업 서버 인증
