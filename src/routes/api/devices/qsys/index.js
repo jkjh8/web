@@ -3,22 +3,14 @@ const { logInfo, logWarn, logError } = require('@logger')
 const {
   dbQsysMake,
   dbQsysFind,
-  dbQsysFindOne,
   dbQsysFindAll,
   dbQsysBulkWrite,
-  dbQsysUpdate,
+  dbQsysUpdateBackup,
   dbQsysExists,
   dbQsysRemove
 } = require('@db/qsys')
 
-const { fnBackupRequest } = require('@api/backup')
-const {
-  fnSendAllStatusAll,
-  fnSendClientStatusAll,
-  fnSendClientQsysData,
-  fnSendSocketStatusAll,
-  fnSendQsysData
-} = require('@api/qsys')
+const { fnSendAllStatusAll, fnSendQsysData } = require('@api/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
 const { fn } = require('moment')
 
@@ -59,12 +51,9 @@ router.put('/edit', async (req, res) => {
   try {
     const { deviceId, ipaddress, name, amx } = req.body
     // 데이터베이스 업데이트
-    const data = await dbQsysUpdate({ deviceId }, { ipaddress, name, amx })
-    // 백업전송
-    await fnBackupRequest(
-      '/backup/qsys',
-      { key: { deviceId }, value: { ipaddress, name, amx } },
-      'PUT'
+    const data = await dbQsysUpdateBackup(
+      { deviceId },
+      { ipaddress, name, amx }
     )
     // 전체 데이터 송신
     await fnSendAllStatusAll()
@@ -117,19 +106,14 @@ router.put('/zoneupdate', async (req, res) => {
       ipaddress
     })
     // 5초후 바릭스 데이터 수집 요청
-    setTimeout(() => {
-      fnGetBarixInfo(ipaddress)
-    }, 5000)
-    // 데이터 베이스 업데이트
-    const key = { 'deviceId': deviceId, 'ZoneStatus.Zone': zone }
-    const value = { 'ZoneStatus.$.destination': destination }
-    const data = dbQsysUpdate(key, value)
-    // 백업전송
-    await fnBackupRequest('/backup/qsys', { key, value }, 'PUT')
-    // 송신
+    setTimeout(() => fnGetBarixInfo(ipaddress), 5000)
+    // 데이터 베이스 업데이트 및 송신
     res.status(200).json({
       result: true,
-      data
+      data: await dbQsysUpdateBackup(
+        { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
+        { 'ZoneStatus.$.destination': destination }
+      )
     })
     // 로그
     logInfo(
@@ -185,12 +169,11 @@ router.put('/modifiedzonename', async (req, res) => {
   const { email } = req.user
   try {
     const { deviceId, zone, name } = req.body
-    const key = { deviceId, 'ZoneStatus.Zone': zone }
-    const value = { 'ZoneStatus.$.name': name }
     // 데이터 베이스 업데이트
-    await dbQsysUpdate(key, value)
-    // 백업전송
-    fnBackupRequest('/backup/qsys', { key, value }, 'PUT')
+    await dbQsysUpdateBackup(
+      { deviceId, 'ZoneStatus.Zone': zone },
+      { 'ZoneStatus.$.name': name }
+    )
     // 송신
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
     // 로그

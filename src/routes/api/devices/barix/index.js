@@ -6,11 +6,10 @@ const {
   dbBarixFind,
   dbBarixMake,
   dbBarixUpdate,
+  dbBarixUpdateBackup,
   dbBarixExists,
   dbBarixRemoveById
 } = require('@db/barix')
-// api
-const { fnBackupRequest } = require('@api/backup')
 
 const router = express.Router()
 
@@ -54,10 +53,9 @@ router.put('/', async (req, res) => {
     const { _id, name, ipaddress } = req.body
     const key = { _id }
     const value = { name, ipaddress }
-    const data = await dbBarixUpdate(key, value)
-    // 백업 전송
-    await fnBackupRequest('/backup/barix', { key, value }, 'PUT')
-    res.status(200).json({ result: true, data })
+    res
+      .status(200)
+      .json({ result: true, data: await dbBarixUpdateBackup(key, value) })
     // 로그
     logInfo(`RB03 Barix 장치 수정 ${name}:${ipaddress}`, email)
   } catch (error) {

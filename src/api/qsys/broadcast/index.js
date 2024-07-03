@@ -1,9 +1,8 @@
 // logger
-const { logInfo, logError, logEvent } = require('@logger')
+const { logInfo, logError } = require('@logger')
 // db
 const { dbPageMake } = require('@db/page')
 const { dbQsysFind, dbQsysUpdate, dbQsysUpdateBackup } = require('@db/qsys')
-// const { fnBackupRequest } = require('@api/backup')
 const Page = require('@db/models/page')
 
 // QB01 live 송출 명령 만들기
@@ -21,12 +20,6 @@ const fnSetLive = async (idx, obj, user) => {
           { deviceId },
           { $push: { PageStatus: { idx } } }
         )
-        // 백업 전송
-        // await fnBackupRequest(
-        //   '/backup/qsys',
-        //   { key: { deviceId }, value: { $push: { PageStatus: { idx } } } },
-        //   'PUT'
-        // )
         return { idx, deviceId, params }
       })
     )

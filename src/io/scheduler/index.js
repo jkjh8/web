@@ -1,5 +1,5 @@
 // logger
-const { logEvent, logInfo, logError } = require('@logger')
+const { logInfo } = require('@logger')
 // db
 const { dbSetupUpdate } = require('@db/setup')
 // api

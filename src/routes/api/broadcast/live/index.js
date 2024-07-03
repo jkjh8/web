@@ -31,7 +31,7 @@ router.put('/', async (req, res) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
     // 로그
-    logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, 'live', zones)
+    logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
     //////////////// 1초 대기 ////////////////
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -82,7 +82,6 @@ router.put('/message', async (req, res) => {
     logEvent(
       `메시지 방송 시작 모드:${Mode} 파일:${file.base} ID:${idx}`,
       email,
-      'page',
       zones
     )
     //////////////// 리턴 ////////////////

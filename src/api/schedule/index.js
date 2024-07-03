@@ -30,7 +30,7 @@ const fnInTimeScheduleRun = async (data) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
     // 로그
-    logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, user, zones)
+    logEvent(`스케줄 방송 릴레이 구동 완료:${name} ID:${idx}`, user, zones)
 
     //////////////// 1초 대기 ////////////////
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -47,7 +47,7 @@ const fnInTimeScheduleRun = async (data) => {
 
 // S02 스케줄에서 페이징을 만들어서 qsys로 보내는 함수
 const fnMakePageFromSchedule = async (args) => {
-  const { idx, name, devices, file, Preamble } = args
+  const { idx, devices, file, Preamble } = args
   const arr = []
   // 스케줄 반복이 한번이면 메시지 송출 후 삭제 추가 필요
   const promises = devices.map(async (item) => {
@@ -55,6 +55,7 @@ const fnMakePageFromSchedule = async (args) => {
     const device = await dbQsysFindOne({ deviceId })
     arr.push({
       deviceId,
+      name: device.name,
       params: {
         Mode: 'message',
         Zones,
@@ -65,8 +66,9 @@ const fnMakePageFromSchedule = async (args) => {
         Start: true
       },
       barix: device.ZoneStatus.map((e) => e.destination),
-      name,
       file,
+      zones:
+        Zones.length === device.ZoneStatus.length ? '전체' : Zones.join(','),
       ipaddress
     })
   })

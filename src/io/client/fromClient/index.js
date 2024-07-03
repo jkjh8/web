@@ -3,7 +3,6 @@ const { dbQsysUpdate, dbQsysUpdateBackup } = require('@db/qsys')
 // api
 const { fnSendQsysData } = require('@api/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
-const { fnBackupRequest } = require('@api/backup')
 // logger
 const { logInfo, logError } = require('@logger')
 
@@ -18,12 +17,6 @@ module.exports = function (socket) {
       const update = { 'ZoneStatus.$.gain': value }
       // DB 업데이트
       await dbQsysUpdateBackup(filter, update)
-      // 백업서버 전송
-      // await fnBackupRequest(
-      //   '/backup/qsys',
-      //   { key: filter, value: update },
-      //   'PUT'
-      // )
       // 소켓 전송
       fnSendQsysData('qsys:volume', obj)
       logInfo(`IC02 볼륨 ${deviceId} ${zone}: ${value}`, email)
@@ -39,15 +32,7 @@ module.exports = function (socket) {
       const { deviceId, zone, value } = obj
       const filter = { deviceId, 'ZoneStatus.Zone': zone }
       const update = { 'ZoneStatus.$.mute': value }
-
       await dbQsysUpdateBackup(filter, update)
-      // 백업서버 전송
-      // await fnBackupRequest(
-      //   '/backup/qsys',
-      //   { key: filter, value: update },
-      //   'PUT'
-      // )
-      // 소켓 전송
       fnSendQsysData('qsys:mute', obj)
       logInfo(`IC03 뮤트 장치: ${deviceId} ${zone}: ${value}`, email)
     } catch (error) {

@@ -1,17 +1,6 @@
 const axios = require('axios')
 const https = require('https')
 const { logError } = require('@logger')
-const { http } = require('winston')
-
-const backupServer = axios.create({
-  httpsAgent: new https.Agent({
-    rejectUnauthorized: false
-  })
-})
-
-function check() {
-  console.log('check')
-}
 
 // BK01 백업
 function fnBackupRequest(addr, data, method) {
@@ -35,7 +24,7 @@ function fnBackupRequest(addr, data, method) {
             return error
           })
       } else {
-        reject(new Error('백업 서버 주소가 설정되지 않았습니다.'))
+        return new Error('백업 서버 주소가 설정되지 않았습니다.')
       }
     }
   }
@@ -55,7 +44,6 @@ const isBackup = (req, res, next) => {
 }
 
 module.exports = {
-  check,
   fnBackupRequest,
   isBackup
 }

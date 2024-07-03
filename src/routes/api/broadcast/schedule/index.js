@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('node:path')
 const fs = require('node:fs')
 // logger
-const { logError, logWarn, logInfo } = require('@logger')
+const { logError, logWarn, logInfo, logEvent } = require('@logger')
 // db
 const { dbPageMake } = require('@db/page')
 const { fnCheckActive } = require('@api/schedule')
@@ -109,6 +109,7 @@ router.put('/', async (req, res) => {
 
 // SH04
 router.post('/', async (req, res) => {
+  console.log(req.body)
   try {
     const user = req.user.email
     const { pageMode, file, devices } = req.body

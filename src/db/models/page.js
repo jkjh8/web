@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const pageSchema = new mongoose.Schema(
   {
     idx: String,
+    name: String,
     schedule: String,
     user: String,
     Mode: String,
@@ -21,7 +22,8 @@ const pageSchema = new mongoose.Schema(
         State: String,
         SubState: String,
         Message: String,
-        amx: String
+        amx: String,
+        zones: Array
       }
     ]
   },

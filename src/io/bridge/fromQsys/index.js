@@ -123,9 +123,9 @@ module.exports = function (socket) {
         await fnBarixRelayOff(currentDevice.barix)
         // 방송 종료 로고
         logEvent(
-          `IB07 방송 종료 ${currentDevice.name} ID:${page.idx} - PAGEID:${PageID}`,
+          `방송 종료:${page.name} ${currentDevice.name} ID:${page.idx} - PAGEID:${PageID}`,
           page.user,
-          [currentDevice.name]
+          [currentDevice.zones]
         )
         // delete PageID
         return await dbQsysUpdate(

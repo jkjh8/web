@@ -6,7 +6,7 @@ module.exports = {
   dbBarixMake: async (obj) => {
     await Barix.create({ ...obj })
     // backup
-    await fnBackupRequest('/backup/barix', obj, 'POST')
+    fnBackupRequest('/backup/barix', obj, 'POST')
   },
   dbBarixFind: async (obj) => {
     return await Barix.find({ ...obj })
@@ -21,12 +21,18 @@ module.exports = {
     })
   },
   dbBarixUpdate: async (filer, value) => {
-    await Barix.findOneAndUpdate(filer, value, {
+    return await Barix.findOneAndUpdate(filer, value, {
       new: false,
       upsert: true
     })
+  },
+  dbBarixUpdateBackup: async (filer, value) => {
     // backup
-    // await fnBackupRequest('/backup/barix', { filer, value }, 'PUT')
+    fnBackupRequest('/backup/barix', { filer, value }, 'PUT')
+    return await Barix.findOneAndUpdate(filer, value, {
+      new: false,
+      upsert: true
+    })
   },
   dbBarixExists: async (obj) => {
     return await Barix.exists(obj)
@@ -34,6 +40,6 @@ module.exports = {
   dbBarixRemoveById: async (id) => {
     await Barix.findByIdAndDelete(id)
     // backup
-    await fnBackupRequest('/backup/barix', { data: { id } }, 'DELETE')
+    fnBackupRequest('/backup/barix', { data: { id } }, 'DELETE')
   }
 }

@@ -1,6 +1,5 @@
 const User = require('@db/models/user')
 const { fnBackupRequest } = require('@api/backup')
-const { logError } = require('@logger')
 
 module.exports = {
   dbUser: User,

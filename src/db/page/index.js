@@ -10,6 +10,7 @@ module.exports = {
   dbPageFindOne: (obj) => {
     return new Promise((resolve, reject) => {
       Page.findOne(obj)
+        .sort({ createdAt: -1 })
         .then((doc) => {
           resolve(doc)
         })
