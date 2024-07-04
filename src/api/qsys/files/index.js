@@ -148,7 +148,11 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
 }
 
 const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
-  return await api.delete(`${fnMakeAddr(ipaddress)}/${folder}`)
+  try {
+    return await api.delete(`${fnMakeAddr(ipaddress)}/${folder}`)
+  } catch (error) {
+    logError(`OF08 Q-SYS 폴더 삭제`, 'server')
+  }
 }
 
 module.exports = {

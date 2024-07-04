@@ -5,7 +5,6 @@ const fs = require('node:fs')
 const { logError, logWarn, logInfo, logEvent } = require('@logger')
 // db
 const { dbPageMake } = require('@db/page')
-const { fnCheckActive } = require('@api/schedule')
 const { dbUserUpdate } = require('@db/user')
 const { dbQsysPageUpdate } = require('@db/qsys')
 const {
@@ -16,12 +15,16 @@ const {
 } = require('@db/schedule')
 // api
 const uniqueId = require('@api/utils/uniqueId.js')
+const { fnCheckActive } = require('@api/schedule')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnCleanQsysScheduleFolder } = require('@api/schedule')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
-const { fnQsysFileDelete, fnQsysSyncFileSchedule } = require('@api/qsys/files')
+const {
+  fnQsysDeleteFolder,
+  fnQsysSyncFileSchedule
+} = require('@api/qsys/files')
 const { fnMakePageFromSchedule } = require('@api/schedule')
 const { fnSendScheduleToAPP } = require('@api/schedule')
 
@@ -116,9 +119,9 @@ router.put('/', async (req, res) => {
 
 // SH04
 router.post('/', async (req, res) => {
+  const { email } = req.user
+  const { pageMode, file, devices } = req.body
   try {
-    const { email } = req.user
-    const { pageMode, file, devices } = req.body
     // schedule idx 생성
     const idx = uniqueId(16)
     // 스케줄 폴더 생성
@@ -138,7 +141,7 @@ router.post('/', async (req, res) => {
     const schedule = await dbSchMake({
       ...req.body,
       idx,
-      user,
+      user: email,
       file: newFile
     })
 
@@ -186,13 +189,7 @@ router.delete('/', async (req, res) => {
     const { idx } = schedule
     schedule.devices.forEach(async (device) => {
       const { deviceId, ipaddress } = device
-      await fnQsysFileDelete({
-        idx,
-        ipaddress,
-        addr: 'schedule',
-        deviceId,
-        user: req.user.email
-      })
+      await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
     })
   } catch (error) {
     //
