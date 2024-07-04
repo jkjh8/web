@@ -71,7 +71,7 @@ const fnQsysFileUpload = async (args) => {
         )
       }
     }
-    return { deviceId, error }
+    throw error
   }
 }
 
@@ -94,45 +94,37 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
   try {
     const promises = devices.map(async (device) => {
       const { deviceId, ipaddress } = device
-      try {
-        await api.post(`${fnMakeAddr(ipaddress)}/schedule`, {
-          name: idx
-        })
-      } catch (error) {
-        if (
-          error.response.data &&
-          error.response.data.error.message === 'Directory already exists'
-        ) {
-          //
-        } else {
-          logError(
-            `QF05 Q-SYS 스케줄 동기화(폴더생성) ${deviceId} ${idx}`,
-            user ?? 'server'
-          )
-        }
-      }
-      try {
-        await fnQsysFileUpload({
-          file: file.fullpath,
-          ipaddress,
-          addr: `schedule/${idx}`,
-          deviceId,
-          user
-        })
-      } catch (error) {
-        logError(
-          `QF05 Q-SYS 스케줄 동기화(파일) ${deviceId} ${idx} ${file.base}`,
-          user ?? 'server'
-        )
-      }
-
+      // 폴더 생성
+      await fnQsysMakeFolderForSchedule(idx, deviceId, ipaddress)
+      await fnQsysFileUpload({
+        file: file.fullpath,
+        ipaddress,
+        addr: `schedule/${idx}`,
+        deviceId,
+        user
+      })
       await fnGetStrage(ipaddress)
     })
     await Promise.all(promises)
-    await dbSchUpdate({ idx }, { $set: { sync: true } })
-    return
+    return await dbSchUpdate({ idx }, { $set: { sync: true } })
   } catch (error) {
     logError(`OF05 Q-SYS 스케줄 동기화`, 'server')
+  }
+}
+
+// QF05-1 스케줄 파일 동기화
+const fnQsysMakeFolderForSchedule = async (idx, deviceId, ipaddress) => {
+  try {
+    await api.post(`${fnMakeAddr(ipaddress)}/schedule`, { name: idx })
+  } catch (error) {
+    if (
+      error.response.data &&
+      error.response.data.error.message === 'Directory already exists'
+    ) {
+      // Do nothing if the directory already exists
+    } else {
+      throw error // Rethrow the error if it's not a "Directory already exists" error
+    }
   }
 }
 
@@ -155,6 +147,10 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
   }
 }
 
+const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
+  return await api.delete(`${fnMakeAddr(ipaddress)}/${folder}`)
+}
+
 module.exports = {
   api,
   fnMakeAddr,
@@ -162,5 +158,6 @@ module.exports = {
   fnQsysFileUpload,
   fnQsysFileDelete,
   fnQsysSyncFileSchedule,
-  fnQsysCheckScheduleFolder
+  fnQsysCheckScheduleFolder,
+  fnQsysDeleteFolder
 }

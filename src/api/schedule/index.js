@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const moment = require('moment')
 // io
 const io = require('@io')
 // logger
@@ -14,6 +15,7 @@ const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
 const { fnSetLive } = require('@api/qsys/broadcast')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
+const { fnQsysDeleteFolder } = require('../qsys/files')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
@@ -68,7 +70,9 @@ const fnMakePageFromSchedule = async (args) => {
       barix: device.ZoneStatus.map((e) => e.destination),
       file,
       zones:
-        Zones.length === device.ZoneStatus.length ? '전체' : Zones.join(','),
+        Zones.length === device.ZoneStatus.length
+          ? `${device.name}- ALL`
+          : `${device.name}-${Zones.join(',')}`,
       ipaddress
     })
   })
@@ -127,7 +131,34 @@ const fnCleanScheduleFolder = async () => {
   }
 }
 
-fnCleanScheduleFolder()
+// S08 스케줄 한번 동작중 시간이 지난 스케줄 찾아서 QSYS에서 삭제
+const fnCleanQsysScheduleTypeOnce = async () => {
+  const schedules = await dbSchFind({ repeat: 'once' })
+  // 오늘 보다 하루전으로 날짜 설정
+  const yesterday = moment().subtract(1, 'days')
+  await Promise.all(
+    schedules.map(async (schedule) => {
+      const scheduleDate = moment(schedule.date)
+      if (scheduleDate < yesterday) {
+        const { devices, idx } = schedule
+        await Promise.all(
+          devices.map(async (device) => {
+            const { deviceId, ipaddress } = device
+            try {
+              await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
+              logInfo(`S08 QSYS 지난 스케줄 삭제 ${deviceId} ${idx}`, 'server')
+            } catch (error) {
+              logError(
+                `S08 QSYS 지난 스케줄 파일삭제 ${deviceId} ${idx}`,
+                'server'
+              )
+            }
+          })
+        )
+      }
+    })
+  )
+}
 
 module.exports = {
   fnMakePageFromSchedule,
@@ -136,5 +167,6 @@ module.exports = {
   fnCleanScheduleFolder,
   fnInTimeScheduleRun,
   fnSendActiveScheduleToAPP,
-  fnSendAutoScheduleToAPP
+  fnSendAutoScheduleToAPP,
+  fnCleanQsysScheduleTypeOnce
 }

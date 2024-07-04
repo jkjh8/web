@@ -13,6 +13,7 @@ const fnGetStrage = async (ipaddress) => {
     await dbQsysUpdate({ ipaddress }, { storage: data.meta.storage })
   } catch (error) {
     logError(`Q01 QSYS 저장소 정보 수집 ${error}`, 'server')
+    throw error
   }
 }
 
@@ -25,6 +26,7 @@ const getAllDeviceStorage = async () => {
     })
   } catch (error) {
     logError(`Q02 전체 QSYS 저장소 정보 수집 ${error}`, 'server')
+    throw error
   }
 }
 

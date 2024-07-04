@@ -8,7 +8,8 @@ const {
   fnSendScheduleToAPP,
   fnCleanQsysScheduleFolder,
   fnCleanScheduleFolder,
-  fnInTimeScheduleRun
+  fnInTimeScheduleRun,
+  fnCleanQsysScheduleTypeOnce
 } = require('@api/schedule')
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
@@ -44,6 +45,7 @@ const schedulerParser = (socket) => {
       await fnInTimeScheduleRun(data)
       // 사용자 방송 횟수 추가
       await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
+      // 로그 기록
       logEvent(
         `스케줄 방송 시작: ${name} 파일: ${file.base} ID: ${idx}`,
         user,
@@ -57,14 +59,19 @@ const schedulerParser = (socket) => {
   // IS06 00:00:00 스케줄 폴더 정리
   socket.on('clean', async () => {
     try {
-      //qsys 스케줄 폴더 비우기
-      fnCleanQsysScheduleFolder()
+      // 정상 모드일 때만 실행
+      if (gStatus.mode === 'Normal') {
+        // qsys page 초기화
+        fnCheckPageStatusAll()
+        //qsys 스케줄 폴더 비우기
+        fnCleanQsysScheduleFolder()
+        // qsys 스케줄 타입이 once인 폴더 비우기
+        fnCleanQsysScheduleTypeOnce()
+      }
       //스케줄 폴더 비우기
       fnCleanScheduleFolder()
       //temp 폴더 비우기
       fnRTemp()
-      // qsys page 초기화
-      fnCheckPageStatusAll()
     } catch (error) {
       logError(`IS06 스케줄 폴더 정리 ${error}`, 'server')
     }
@@ -72,7 +79,7 @@ const schedulerParser = (socket) => {
 
   // IS07 매시간 전달
   socket.on('hour', (time) => {
-    logInfo(`IS07 매시간 전달 ${time}`, 'server')
+    logInfo(`IS07 매시간 전달 ${JSON.stringify(time)}`, 'server')
   })
 }
 

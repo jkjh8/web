@@ -36,50 +36,58 @@ router.get('/stop', async (req, res) => {
 
 // BR02 파일 업로드
 router.post('/file', async (req, res) => {
+  const { email } = req.user
   try {
     const { addr, devices } = req.body
-    const socketId = await fnGetSocketId(req.user.email)
+    const socketId = await fnGetSocketId(email)
     fnSendPageMessage(socketId, 'all', '파일 업로드 시작')
 
     // 각 디바이스에 업로드
-    const promises = devices.map(async (item) => {
-      await fnQsysFileUpload({
-        file: item.file.fullpath,
-        ipaddress: item.ipaddress,
-        addr,
-        deviceId: item.deviceId,
-        socket: socketId,
-        user: req.user.email
+    await Promise.all(
+      devices.map(async (item) => {
+        try {
+          await fnQsysFileUpload({
+            file: item.file.fullpath,
+            ipaddress: item.ipaddress,
+            addr,
+            deviceId: item.deviceId,
+            socket: socketId,
+            user: email
+          })
+        } catch (error) {
+          logError(`BR02 파일 업로드 ${error}`, email)
+        }
       })
-    })
-    await Promise.all(promises)
+    )
     // 완료 리턴
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BR02 파일 업로드 ${error}`, req.user.email)
+    logError(`BR02 파일 업로드 ${error}`, email)
   }
 })
 
 // BR03 방송구간 중복확인
 router.put('/active', async (req, res) => {
+  const { email } = req.user
   try {
     const { devices } = req.body
-    const socketId = await fnGetSocketId(req.user.email)
+    const socketId = await fnGetSocketId(email)
     fnSendPageMessage(socketId, 'all', '방송구간 중복 확인')
-    const r = await fnCheckActive(devices, req.user.email)
+    const r = await fnCheckActive(devices, email)
     if (r && r.length) {
       fnSendPageMessage(socketId, 'all', '방송구간 중복')
     }
     res.status(200).json({ result: true, active: r })
   } catch (error) {
-    logError(`BR03 방송구간 중복확인 ${error}`, req.user.email)
+    logError(`BR03 방송구간 중복확인 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
 // BR04 파일 삭제
 router.delete('/file', async (req, res) => {
+  const { email } = req.user
   try {
     const { addr, devices } = req.body
     const promises = devices.map(async (item) => {
@@ -88,13 +96,13 @@ router.delete('/file', async (req, res) => {
         ipaddress: item.ipaddress,
         addr,
         deviceId: item.deviceId,
-        user: req.user.email
+        user: email
       })
     })
     await Promise.all(promises)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BR04 QSYS 방송 파일 삭제 ${error}`, req.user.email)
+    logError(`BR04 QSYS 방송 파일 삭제 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

@@ -67,8 +67,9 @@ router.put('/active', async (req, res) => {
 
 // SH03
 router.put('/', async (req, res) => {
+  const { _id, email } = req.user
   try {
-    const { idx, devices, name, file } = req.body
+    const { idx, devices, name, file, zones } = req.body
     // page 명령 만들기
     const page = await fnMakePageFromSchedule(req.body)
     // 방송구간 중복 확인
@@ -76,7 +77,7 @@ router.put('/', async (req, res) => {
     if (exists && exists.length) {
       logWarn(
         `SH03 스케줄 방송 구간 중복`,
-        req.user.email,
+        email,
         exists.map((e) => `${e.name}-${e.Zones.join(',')}`)
       )
     }
@@ -98,19 +99,25 @@ router.put('/', async (req, res) => {
     await wait(1000)
 
     // 방송 시작
-    startBroadcast(page, name, idx, file.base, req.user.email, zones)
+    fnSendQsysData('qsys:page:message', page)
+    // 로그 기록
+    logInfo(
+      `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.Base}`,
+      email,
+      zones
+    )
 
     // 사용횟수 증가
-    await increaseUserScheduleCall(req.user._id)
+    await dbUserUpdate({ email }, { $inc: { numberOfScheduleCall: 1 } })
   } catch (error) {
-    logError(`SH03 스케줄 동작 ${error}`, req.user.email)
+    logError(`SH03 스케줄 동작 ${error}`, email)
   }
 })
 
 // SH04
 router.post('/', async (req, res) => {
   try {
-    const user = req.user.email
+    const { email } = req.user
     const { pageMode, file, devices } = req.body
     // schedule idx 생성
     const idx = uniqueId(16)
@@ -119,7 +126,12 @@ router.post('/', async (req, res) => {
     // 스케줄 파일 경로
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
-    copyOrRenameFile(pageMode, file.fullpath, currentFilePath)
+    if (pageMode === 'file') {
+      fs.copyFileSync(file.fullpath, currentFilePath)
+    } else {
+      fs.renameSync(file.fullpath, currentFilePath)
+    }
+
     // 스케줄 파일 정보
     const newFile = fnGetFile(currentFilePath)
     // 스케줄 db 추가
@@ -130,16 +142,18 @@ router.post('/', async (req, res) => {
       file: newFile
     })
 
+    // 리턴
     res.status(200).json({
       result: schedule,
       idx,
       file: newFile
     })
+    // 스케줄 APP으로 전송
     await fnSendScheduleToAPP()
     // 사용자 사용회수 증가
-    await increaseUserSchedule(req.user.email)
+    await dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
   } catch (error) {
-    logError(`SH04 스케줄 추가 ${error}`, req.user.email)
+    logError(`SH04 스케줄 추가 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -198,12 +212,14 @@ router.delete('/', async (req, res) => {
 
 // SH08 스케줄 및 파일 동기화
 router.get('/sync', async (req, res) => {
+  const { email } = req.user
+  const { idx } = req.query
   try {
-    await fnQsysSyncFileSchedule(req.query.idx, req.user.email)
+    await fnQsysSyncFileSchedule(idx, email)
     res.status(200).json({ result: true })
-    logInfo(`SH08 스케줄 파일 동기화 ${req.query.idx}`, req.user.email)
+    logInfo(`SH08 스케줄 파일 동기화 ${idx}`, email)
   } catch (error) {
-    logError(`SH08 스케줄 파일 동기화 ${error}`, req.user.email)
+    logError(`SH08 스케줄 파일 동기화 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -235,27 +251,4 @@ async function runRelays(devices) {
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function startBroadcast(page, name, idx, fileBase, email, zones) {
-  // 방송 송출
-  fnSendQsysData('qsys:page:message', page)
-  // 로그기록
-  logInfo(`스케줄 방송 송출 시작 ${name} - ${idx} - ${fileBase}`, email, zones)
-}
-
-async function increaseUserScheduleCall(userId) {
-  await dbUserUpdate({ _id: userId }, { $inc: { numberOfScheduleCall: 1 } })
-}
-
-function copyOrRenameFile(pageMode, sourcePath, destinationPath) {
-  if (pageMode === 'file') {
-    fs.copyFileSync(sourcePath, destinationPath)
-  } else {
-    fs.renameSync(sourcePath, destinationPath)
-  }
-}
-
-async function increaseUserSchedule(email) {
-  await dbUserUpdate({ email: email }, { $inc: { numberOfSchedule: 1 } })
 }
