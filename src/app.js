@@ -23,7 +23,10 @@ global.gStatus = require('./defaultVal').gStatus
 require('@api/setup')()
 require('@api/setup/folders')(__dirname, app)
 
-app.use(require('morgan')('dev'))
+// 프로듀션 모드가 아닌 경우 로깅
+if (process.env.NODE_ENV !== 'production') {
+  app.use(require('morgan')('dev'))
+}
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())

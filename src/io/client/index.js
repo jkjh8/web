@@ -43,7 +43,7 @@ module.exports = async (socketio) => {
     }
 
     socketio.on('connection_error', (error) => {
-      console.log(`IC01 Socket Client 연결 - ${error}`)
+      logError(`IC01 Socket Client 연결 - ${error}`)
     })
 
     // 전체 상태 전송
