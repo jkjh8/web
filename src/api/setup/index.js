@@ -35,6 +35,9 @@ module.exports = async function () {
         case 'bridge':
           gStatus.bridge.lastupdate = item.updatedAt
           break
+        case 'relayOnTime':
+          gStatus.relayOnTime = item.valueNum
+          break
         case 'scheduler':
           if (item.auto) {
             gStatus.scheduler.auto = item.auto

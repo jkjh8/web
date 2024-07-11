@@ -5,6 +5,7 @@ const { logInfo, logError, logEvent } = require('@logger')
 const { dbQsysFindOne } = require('@db/qsys')
 const { dbUserUpdate } = require('@db/user')
 // api
+const { fnWaitRelayOnTime } = require('@api/broadcast')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnSetLive } = require('@api/qsys/broadcast')
@@ -33,8 +34,8 @@ router.put('/', async (req, res) => {
     // 로그
     logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
-    //////////////// 1초 대기 ////////////////
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    ////////////////  동작 대기 ////////////////
+    await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
     // qsys page 시작
@@ -71,8 +72,8 @@ router.put('/message', async (req, res) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
 
-    //////////////// 1초 대기 ////////////////
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    ////////////////  동작 대기 ////////////////
+    await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
     fnSendQsysData(

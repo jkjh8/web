@@ -81,6 +81,12 @@ const schedulerParser = (socket) => {
   socket.on('hour', (time) => {
     logInfo(`IS07 매시간 전달 ${JSON.stringify(time)}`, 'server')
   })
+
+  // IS08 릴레이 구동 시간 갱신
+  socket.on('relayOnTime', () => {
+    socket.emit('relayOnTime', gStatus.relayOnTime)
+    logInfo(`IS08 릴레이 구동 시간 갱신 ${gStatus.relayOnTime}`, 'server')
+  })
 }
 
 module.exports = schedulerParser

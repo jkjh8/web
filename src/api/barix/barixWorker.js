@@ -4,7 +4,7 @@ const axios = require('axios')
 
 const getHtml = async (ipaddress) => {
   axios
-    .get(`http://${ipaddress}/status2`)
+    .get(`http://${ipaddress}/status2`, { timeout: 5000 })
     .then((html) => {
       const $ = cheerio.load(html.data)
       parentPort.postMessage({

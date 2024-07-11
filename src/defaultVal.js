@@ -16,6 +16,7 @@ module.exports = {
     backupId: '',
     backupAddress: '',
     backupActive: false,
-    voice: ''
+    voice: '',
+    relayOnTime: 5
   }
 }

@@ -12,7 +12,8 @@ const { fnGetStrage } = require('..')
 const api = axios.create({
   httpsAgent: new https.Agent({
     rejectUnauthorized: false
-  })
+  }),
+  timeout: 5000
 })
 
 // QF01 메시지 주소 생성

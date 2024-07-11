@@ -20,6 +20,8 @@ module.exports = (socketio) => {
     gStatus.scheduler[type].lastupdate = new Date()
     // 전체 상태 전송
     fnSendGlobalStatus()
+    // send relay on time
+    socketio.emit('relayOnTime', gStatus.relayOnTime)
 
     logInfo(`IS01 Socekt 스케줄러 연결 ${socket.id}`, 'server')
 

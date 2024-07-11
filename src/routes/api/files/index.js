@@ -7,7 +7,7 @@ const ziper = require('./ziper')
 
 const uploader = require('./uploader')
 const {
-  fnMakeolder,
+  fnMakeFolder,
   fnGetFolders,
   fnGetFiles,
   fnGetFileSize,
@@ -65,7 +65,7 @@ router.post('/newfolder', (req, res) => {
   try {
     const { folder, name } = req.body
     const newFolder = path.join(folder, name)
-    fnMakeolder(newFolder)
+    fnMakeFolder(newFolder)
     res.status(200).json({ result: true, folder: newFolder })
     // 로그
     logInfo(

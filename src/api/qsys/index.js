@@ -8,7 +8,8 @@ const { dbQsysUpdate, dbQsysFindOne } = require('../../db/qsys')
 const fnGetStrage = async (ipaddress) => {
   try {
     const { data } = await axios.get(
-      `http://${ipaddress}/api/v0/cores/self/media?meta=storage`
+      `http://${ipaddress}/api/v0/cores/self/media?meta=storage`,
+      { timeout: 5000 }
     )
     await dbQsysUpdate({ ipaddress }, { storage: data.meta.storage })
   } catch (error) {

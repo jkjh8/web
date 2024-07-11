@@ -152,4 +152,31 @@ router.put('/backupid', async (req, res) => {
     logError(`SS09 백업 ID 변경 ${error}`, email)
   }
 })
+
+// SS10 릴레이 동작 시간
+router.get('/relayontime', async (req, res) => {
+  const { email } = req.user
+  try {
+    await initSetup()
+    res.status(200).json({ result: true, value: gStatus.relayOnTime })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS10 릴레이 동작 시간 조회 ${error}`, email)
+  }
+})
+
+// SS11 릴레이 동작 시간 변경
+router.put('/relayontime', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { newTime } = req.body
+    await dbSetupUpdate({ key: 'relayOnTime' }, { valueNum: newTime })
+    gStatus.relayOnTime = newTime
+    res.status(200).json({ result: true, value: gStatus.relayOnTime })
+    logInfo(`SS10 릴레이 동작 시간 변경 ${gStatus.relayOnTime}`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+  }
+})
+
 module.exports = router

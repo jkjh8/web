@@ -2,7 +2,7 @@ const axios = require('axios')
 const { spawn } = require('child_process')
 const { logInfo, logError } = require('@logger')
 
-const tts = axios.create({ baseURL: 'http://localhost:5000' })
+const tts = axios.create({ baseURL: 'http://localhost:5000', timeout: 5000 })
 
 const fnGetTtsInfo = async () => {
   return new Promise((resolve, reject) => {

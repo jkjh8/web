@@ -15,18 +15,21 @@ const {
 } = require('@db/schedule')
 // api
 const uniqueId = require('@api/utils/uniqueId.js')
-const { fnCheckActive } = require('@api/schedule')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnMakeFolder, fnGetFile } = require('@api/files')
-const { fnCleanQsysScheduleFolder } = require('@api/schedule')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const {
   fnQsysDeleteFolder,
   fnQsysSyncFileSchedule
 } = require('@api/qsys/files')
-const { fnMakePageFromSchedule } = require('@api/schedule')
-const { fnSendScheduleToAPP } = require('@api/schedule')
+const {
+  fnCheckActive,
+  fnMakePageFromSchedule,
+  fnSendScheduleToAPP,
+  fnCleanQsysScheduleFolder
+} = require('@api/schedule')
+const { fnWaitRelayOnTime } = require('@api/broadcast')
 
 // router
 const router = express.Router()
@@ -98,8 +101,8 @@ router.put('/', async (req, res) => {
     // 릴레이 구동
     await runRelays(devices)
 
-    // 1초 대기
-    await wait(1000)
+    // 대기
+    await fnWaitRelayOnTime()
 
     // 방송 시작
     fnSendQsysData('qsys:page:message', page)
@@ -111,7 +114,7 @@ router.put('/', async (req, res) => {
     )
 
     // 사용횟수 증가
-    await dbUserUpdate({ email }, { $inc: { numberOfScheduleCall: 1 } })
+    dbUserUpdate({ email }, { $inc: { numberOfScheduleCall: 1 } })
   } catch (error) {
     logError(`SH03 스케줄 동작 ${error}`, email)
   }
@@ -154,10 +157,10 @@ router.post('/', async (req, res) => {
     // 스케줄 APP으로 전송
     await fnSendScheduleToAPP()
     // 사용자 사용회수 증가
-    await dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
+    dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
   } catch (error) {
-    logError(`SH04 스케줄 추가 ${error}`, email)
     res.status(500).json({ result: false, error })
+    logError(`SH04 스케줄 추가 ${error}`, email)
   }
 })
 

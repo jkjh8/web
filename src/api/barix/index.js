@@ -99,7 +99,7 @@ const fnBarixRelayOff = async (arr) => {
         }
         // 릴레이 끄기
         try {
-          await axios.get(`http://${ipaddress}/rc.cgi?R=0`)
+          await axios.get(`http://${ipaddress}/rc.cgi?R=0`, { timeout: 5000 })
         } catch (error) {
           logError(`B04 Barix 릴레이 끄기 ${error}`, 'server')
         }
@@ -124,7 +124,7 @@ const fnBarixRelayOn = async (arr) => {
           ipaddress = barix.ipaddress
         }
         try {
-          await axios.get(`http://${ipaddress}/rc.cgi?R=1`)
+          await axios.get(`http://${ipaddress}/rc.cgi?R=1`, { timeout: 5000 })
         } catch (error) {
           logError(`B04 Barix 릴레이 켜기 ${error}`, 'server')
         }

@@ -1,6 +1,7 @@
 const Logs = require('@db/models/logs')
 
 module.exports = {
+  Logs,
   dbLogsMake: async (obj) => {
     return await Logs.create({ ...obj })
   },

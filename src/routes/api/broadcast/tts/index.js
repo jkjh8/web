@@ -1,7 +1,6 @@
 const path = require('node:path')
 const fs = require('node:fs')
 const express = require('express')
-const axios = require('axios')
 
 const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { dbTtsMake } = require('@db/tts')

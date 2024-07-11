@@ -1,14 +1,14 @@
-const { dbLogsMake } = require('@db/logs')
+const { Logs, dbLogsMake } = require('@db/logs')
 const moment = require('moment')
 moment.locale('ko')
-const log = async (level, levelNum, message, source = '', zones = []) => {
-  await dbLogsMake({
-    level,
-    levelNum,
-    message,
-    source,
-    zones
-  })
+const log = (level, levelNum, message, source = '', zones = []) => {
+  Logs.create({ level, levelNum, message, source, zones })
+    .then((result) => {
+      //
+    })
+    .catch((err) => {
+      console.log(err)
+    })
   if (process.env.NODE_ENV !== 'production') {
     let color = ''
     switch (level) {
@@ -39,19 +39,19 @@ const log = async (level, levelNum, message, source = '', zones = []) => {
 }
 
 module.exports = {
-  logError: async (message, source = '', zones = []) => {
-    await log('error', 0, message, source, zones)
+  logError: (message, source = '', zones = []) => {
+    log('error', 0, message, source, zones)
   },
-  logWarn: async (message, source = '', zones = []) => {
-    await log('warn', 1, message, source, zones)
+  logWarn: (message, source = '', zones = []) => {
+    log('warn', 1, message, source, zones)
   },
-  logInfo: async (message, source = '', zones = []) => {
-    await log('info', 2, message, source, zones)
+  logInfo: (message, source = '', zones = []) => {
+    log('info', 2, message, source, zones)
   },
-  logDebug: async (message, source = '', zones = []) => {
-    await log('debug', 3, message, source, zones)
+  logDebug: (message, source = '', zones = []) => {
+    log('debug', 3, message, source, zones)
   },
-  logEvent: async (message, source = '', zones = []) => {
-    await log('event', 4, message, source, zones)
+  logEvent: (message, source = '', zones = []) => {
+    log('event', 4, message, source, zones)
   }
 }
