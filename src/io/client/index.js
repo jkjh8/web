@@ -1,4 +1,4 @@
-const { logInfo, logError } = require('@logger')
+const { logInfo, logWarn, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
 const { dbUserUpdate } = require('@db/user')
@@ -31,7 +31,7 @@ module.exports = async (socketio) => {
     logInfo(`IC01 Socket client 연결`, email)
     // 연결 해제
     socket.on('disconnect', (reason) => {
-      logInfo(`IC01 Socket client 연결해제`, email)
+      logWarn(`IC01 Socket client 연결해제`, email)
     })
     // 클라이언트 함수
     fromClient(socket)

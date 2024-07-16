@@ -1,5 +1,5 @@
 // logger
-const { logInfo } = require('@logger')
+const { logInfo, logWarn } = require('@logger')
 // db
 const { dbSetupUpdate } = require('@db/setup')
 // api
@@ -46,7 +46,7 @@ module.exports = (socketio) => {
       // 전체 상태 전송
       fnSendGlobalStatus()
 
-      logInfo(`IS01 Socket 스케줄러 연결 해제 ${socket.id}`, 'server')
+      logWarn(`IS01 Socket 스케줄러 연결 해제 ${socket.id}`, 'server')
     })
     //
     require('./fromScheduler')(socket)
