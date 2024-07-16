@@ -9,6 +9,7 @@ const { logInfo, logEvent, logError } = require('@logger')
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne } = require('@db/qsys')
 // api
+const { fnWaitRelayOnTime } = require('@api/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
@@ -32,10 +33,14 @@ const fnInTimeScheduleRun = async (data) => {
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
     // 로그
-    logEvent(`스케줄 방송 릴레이 구동 완료:${name} ID:${idx}`, user, zones)
+    logEvent(
+      `스케줄 방송 릴레이 구동 완료:${name ?? ''} ID:${idx ?? ''}`,
+      user,
+      zones
+    )
 
-    //////////////// 1초 대기 ////////////////
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    //////////////// 대기 ////////////////
+    await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
     const commands = await fnSetLive(idx, { ...data, devices: page }, user)

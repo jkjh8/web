@@ -158,6 +158,7 @@ router.get('/relayontime', async (req, res) => {
   const { email } = req.user
   try {
     await initSetup()
+    console.log(gStatus.relayOnTime)
     res.status(200).json({ result: true, value: gStatus.relayOnTime })
   } catch (error) {
     res.status(500).json({ result: false, error })
