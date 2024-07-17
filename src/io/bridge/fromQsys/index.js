@@ -2,7 +2,7 @@
 const { logInfo, logError, logEvent } = require('@logger')
 // db
 const { dbPageUpdate, dbPageFindOne } = require('@db/page')
-const { dbQsysUpdate } = require('@db/qsys')
+const { dbQsysUpdate, dbQsysFindOne } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
 // api
 const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
@@ -19,12 +19,17 @@ module.exports = function (socket) {
   // IB02
   socket.on('qsys:connect', async (device) => {
     const { deviceId, name, ipaddress } = device
+    // db에서 찾기
+    const currentDevice = await dbQsysFindOne({ deviceId })
+    // 이미 연결되어 있으면 무시
+    if (currentDevice && currentDevice.connected) return
+
     // db에 연결 상태 갱신
-    const updated = await dbQsysUpdate({ deviceId }, { connected: true })
+    await dbQsysUpdate({ deviceId }, { connected: true })
     // client에 연결 상태 전송
     fnSendClientQsysData(deviceId, { connected: true })
     // QSYS 저장소 용량 확인
-    fnQsysCheckMediaFolder(updated)
+    fnQsysCheckMediaFolder(currentDevice)
     // 로그
     logInfo(`IB02 QSYS 연결 ${name} - ${ipaddress}: ${deviceId}`, 'SERVER')
     //5초후에 QSYS 데이터 가져오기 실행
@@ -41,6 +46,11 @@ module.exports = function (socket) {
   socket.on('qsys:disconnect', async (device) => {
     const { deviceId, name, ipaddress } = device
     // db에 연결 상태 갱신
+    const currentDevice = dbQsysFindOne({ deviceId })
+    // 이미 연결 해제되어 있으면 무시
+    if (currentDevice && !currentDevice.connected) return
+
+    // db에 업데이트
     await dbQsysUpdate({ deviceId }, { connected: false })
     // client에 연결 상태 전송
     fnSendClientQsysData(deviceId, { connected: false })
@@ -123,7 +133,9 @@ module.exports = function (socket) {
         await fnBarixRelayOff(currentDevice.barix)
         // 방송 종료 로고
         logEvent(
-          `방송 종료:${page.name} ${currentDevice.name} ID:${page.idx} - PAGEID:${PageID}`,
+          `방송 종료:${page.name ?? ''} ${currentDevice.name ?? ''} ID:${
+            page.idx ?? ''
+          } - PAGEID:${PageID ?? ''}`,
           page.user,
           [currentDevice.zones]
         )

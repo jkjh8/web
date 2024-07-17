@@ -8,7 +8,9 @@ const tts = axios.create({ baseURL: 'http://localhost:5000', timeout: 5000 })
 
 const fnGetTtsInfo = async () => {
   return new Promise((resolve, reject) => {
-    const python = spawn('C:/python/python312/python.exe', ['src/api/tts/getTtsInfo.py'])
+    const python = spawn('C:/python/python312/python.exe', [
+      'src/api/tts/getTtsInfo.py'
+    ])
     python.stdout.on('data', (data) => {
       resolve(JSON.parse(data.toString()))
     })
@@ -20,7 +22,9 @@ const fnGetTtsInfo = async () => {
 
 const fnResetInfo = async () => {
   return new Promise((resolve, reject) => {
-    const python = spawn('C:/python/python312/python.exe', ['src/api/tts/getTtsInfo.py'])
+    const python = spawn('C:/python/python312/python.exe', [
+      'src/api/tts/getTtsInfo.py'
+    ])
     python.stdout.on('data', (data) => {
       resolve(JSON.parse(data.toString()))
     })
@@ -37,6 +41,7 @@ const fnMakeTtsFile = async (rate, text, voice, filePath) => {
       filePath
     ])
     python.stdout.on('data', (data) => {
+      console.log(data.toString())
       resolve(JSON.parse(data.toString()))
     })
     python.stderr.on('data', (data) => {

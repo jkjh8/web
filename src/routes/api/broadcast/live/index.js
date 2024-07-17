@@ -41,7 +41,7 @@ router.put('/', async (req, res) => {
     // qsys page 시작
     fnSendQsysData('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
-    logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, 'page', zones)
+    logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, zones)
 
     // 방송 메시지 송출(연결된 사용자에게만)
     const socketId = await fnGetSocketId(email)
