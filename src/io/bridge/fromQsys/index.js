@@ -137,7 +137,7 @@ module.exports = function (socket) {
             page.idx ?? ''
           } - PAGEID:${PageID ?? ''}`,
           page.user,
-          [currentDevice.zones]
+          [currentDevice.name]
         )
         // delete PageID
         return await dbQsysUpdate(

@@ -1,4 +1,4 @@
-const { logInfo, logError } = require('@logger')
+const { logInfo, logWarn, logError } = require('@logger')
 const { dbQsysFindAll } = require('@db/qsys')
 const { dbSetupUpdate } = require('@db/setup')
 const fromQsys = require('./fromQsys')
@@ -27,7 +27,7 @@ module.exports = (socketio) => {
       // 전체 상태 전송
       fnSendGlobalStatus()
 
-      logInfo(`IB01 Socket Bridge 연결해제 ${socket.id}`, 'server')
+      logWarn(`IB01 Socket Bridge 연결해제 ${socket.id}`, 'server')
     })
 
     // functions

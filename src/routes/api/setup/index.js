@@ -26,7 +26,6 @@ router.get('/', async (req, res) => {
 router.get('/servermode', async (req, res) => {
   const { email } = req.user
   try {
-    await initSetup()
     res.status(200).json({
       result: true,
       mode: gStatus.mode,
@@ -77,7 +76,6 @@ router.put('/backupaddress', async (req, res) => {
 router.get('/backupactive', async (req, res) => {
   const { email } = req.user
   try {
-    await initSetup()
     res.status(200).json({ result: true, active: gStatus.backupActive })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
@@ -157,8 +155,6 @@ router.put('/backupid', async (req, res) => {
 router.get('/relayontime', async (req, res) => {
   const { email } = req.user
   try {
-    await initSetup()
-    console.log(gStatus.relayOnTime)
     res.status(200).json({ result: true, value: gStatus.relayOnTime })
   } catch (error) {
     res.status(500).json({ result: false, error })

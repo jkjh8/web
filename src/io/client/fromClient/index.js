@@ -2,23 +2,24 @@
 const { dbQsysUpdate, dbQsysUpdateBackup } = require('@db/qsys')
 // api
 const { fnSendQsysData } = require('@api/qsys')
+const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { fnGetBarixInfo } = require('@api/barix')
 // logger
-const { logInfo, logError } = require('@logger')
+const { logInfo, logError, logWarn } = require('@logger')
 
 module.exports = function (socket) {
   // IC02 볼륨
   socket.on('qsys:volume', async (obj) => {
     const { email } = socket.user
     try {
-      const { deviceId, zone, value } = obj
+      const { deviceId, zone, value, name } = obj
       const filter = { deviceId, 'ZoneStatus.Zone': zone }
       const update = { 'ZoneStatus.$.gain': value }
       // DB 업데이트
       await dbQsysUpdateBackup(filter, update)
       // 소켓 전송
       fnSendQsysData('qsys:volume', obj)
-      logInfo(`IC02 볼륨 ${deviceId} ${zone}: ${value}`, email)
+      logInfo(`IC02 볼륨 ${name}-${deviceId} ${zone}: ${value}`, email)
     } catch (error) {
       logError(`IC02 볼륨 ${error}`, email)
     }
@@ -28,12 +29,12 @@ module.exports = function (socket) {
   socket.on('qsys:mute', async (obj) => {
     const { email } = socket.user
     try {
-      const { deviceId, zone, value } = obj
+      const { deviceId, zone, value, name } = obj
       const filter = { deviceId, 'ZoneStatus.Zone': zone }
       const update = { 'ZoneStatus.$.mute': value }
       await dbQsysUpdateBackup(filter, update)
       fnSendQsysData('qsys:mute', obj)
-      logInfo(`IC03 뮤트 장치: ${deviceId} ${zone}: ${value}`, email)
+      logInfo(`IC03 뮤트 장치: ${name}-${deviceId} ${zone}: ${value}`, email)
     } catch (error) {
       logError(`IC03 뮤트 ${error}`, email)
     }
@@ -57,10 +58,13 @@ module.exports = function (socket) {
     }
   })
   // IC06 장치
-  socket.on('zone:set:device', (deviceId) => {
+  socket.on('zone:set:device', async (device) => {
     const { email } = socket.user
     try {
+      const { name, deviceId } = device
       fnSendQsysData('zone:set:device', deviceId)
+      fnQsysCheckMediaFolder(device)
+      logWarn(`IC06 장치 재설정 ${name}-${deviceId}`, email)
     } catch (error) {
       logError(`IC06 장치 ${error}`, email)
     }
