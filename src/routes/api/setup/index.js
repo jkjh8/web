@@ -14,11 +14,22 @@ router.use('/qsys', require('./qsys'))
 router.get('/', async (req, res) => {
   const { email } = req.user
   try {
-    await initSetup()
+    // await initSetup()
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
     logError(`SS01 서버설정 가져오기 ${error}`, email)
+  }
+})
+
+// SS01-1 서버 설정값 초기화
+router.get('/reload', async (req, res) => {
+  try {
+    await initSetup()
+    res.status(200).json({ result: true, value: gStatus })
+  } catch (error) {
+    res.status(500).json({ result: false, error: error.message })
+    logError(`SS01-1 서버설정 가져오기 ${error}`, email)
   }
 })
 

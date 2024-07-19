@@ -28,13 +28,16 @@ const fnQsysCheckMediaFolder = async (device) => {
   const url = `http://${device.ipaddress}/api/v0/cores/self/media/Messages`
   axios
     .post(url, {
-      method: 'POST'
+      name: 'live'
     })
     .then((res) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 LIVE`, 'server')
     })
     .catch((err) => {
-      console.log(err)
+      logError(
+        `QF02 Q-SYS 기본 폴더 생성 LIVE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
+        'server'
+      )
     })
   axios
     .post(url, {
@@ -44,7 +47,10 @@ const fnQsysCheckMediaFolder = async (device) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 SCHEDULE`, 'server')
     })
     .catch((err) => {
-      console.log(err)
+      logError(
+        `QF02 Q-SYS 기본 폴더 생성 SCHEDULE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
+        'server'
+      )
     })
 }
 

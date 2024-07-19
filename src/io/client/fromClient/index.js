@@ -1,5 +1,5 @@
 // db
-const { dbQsysUpdate, dbQsysUpdateBackup } = require('@db/qsys')
+const { dbQsysUpdateBackup } = require('@db/qsys')
 // api
 const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
