@@ -60,8 +60,9 @@ module.exports = function (socket) {
   //IB04
   socket.on('qsys:device', async (obj) => {
     const { deviceId, data } = obj
-    await dbQsysUpdate({ deviceId }, { ...data })
     fnSendClientQsysData(deviceId, { ...data })
+    // db에 업데이트
+    await dbQsysUpdate({ deviceId }, { ...data })
   })
 
   //IB05

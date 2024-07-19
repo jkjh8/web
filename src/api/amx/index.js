@@ -16,7 +16,7 @@ const fnAmxRelayOn = (device) => {
       const udp = dgram.createSocket('udp4')
       udp.send(
         `#on,${device.params.Zones.join(',')}!`,
-        12032,
+        9000,
         device.amx,
         (error) => {
           if (error) {
@@ -39,7 +39,7 @@ const fnAmxRelayOff = (device) => {
       const udp = dgram.createSocket('udp4')
       udp.send(
         `#off,${device.params.Zones.join(',')}!`,
-        12032,
+        9000,
         device.amx,
         (error) => {
           if (error) {

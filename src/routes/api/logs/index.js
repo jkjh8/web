@@ -3,6 +3,7 @@ const Hangul = require('hangul-js')
 const Logs = require('@db/models/logs')
 const { isLoggedIn } = require('@api/user')
 const { logError } = require('@logger')
+const moment = require('moment')
 
 const router = express.Router()
 
@@ -11,13 +12,25 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   const { email } = req.user
   try {
     let sort = {}
-    let { pagination, filter, level, options } = JSON.parse(req.query.options)
+    let { pagination, filter, level, start, end } = JSON.parse(
+      req.query.options
+    )
     let { rowsPerPage, page, sortBy, descending } = pagination
     sort[sortBy] = descending ? -1 : 1
 
     const searchOptions = []
     if (level && level !== 0) {
       searchOptions.push({ levelNum: { $gte: level } })
+    }
+    if (start) {
+      searchOptions.push({
+        createdAt: { $gte: new Date(`${start} 00:00:00`) }
+      })
+    }
+    if (end) {
+      searchOptions.push({
+        createdAt: { $lte: new Date(`${end} 23:59:59`) }
+      })
     }
     if (filter) {
       // filter에서 글자에서 \가 있으면 삭제
