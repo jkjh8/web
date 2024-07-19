@@ -2,7 +2,7 @@ const express = require('express')
 const Hangul = require('hangul-js')
 const Logs = require('@db/models/logs')
 const { isLoggedIn, isAdmin } = require('@api/user')
-const { logError } = require('@logger')
+const { logError, logWarn } = require('@logger')
 const moment = require('moment')
 
 const router = express.Router()
