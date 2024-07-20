@@ -36,7 +36,12 @@ module.exports = {
     const weekday = date.day()
     const toDay = date.format('YYYY-MM-DD')
     return await Sch.find({
-      $or: [{ date: toDay }, { repeat: 'everyDay' }, { weekDays: weekday }]
+      $or: [
+        { $and: [{ repeat: 'once' }, { date: toDay }] },
+        { repeat: 'everyDay' },
+        { $and: [{ repeat: 'everyWeek' }, { weekDays: { $in: weekday } }] },
+        { $and: [{ repeat: 'workDays' }, { weekDays: { $in: weekday } }] }
+      ]
     }).sort({ time: 1 })
   }
 }
