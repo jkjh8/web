@@ -149,6 +149,37 @@ router.get('/size', (req, res) => {
   }
 })
 
+// RF13 파일 존재 확인
+router.get('/exist', (req, res) => {
+  const { email } = req.user
+  try {
+    const { data } = req.query
+    const { folder, name } = JSON.parse(data)
+    console.log(folder, name)
+    res
+      .status(200)
+      .json({ result: true, exist: fs.existsSync(path.join(folder, name)) })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RF13 파일 존재 확인 오류 ${error}`, email)
+  }
+})
+
+// RF14 파일 복사
+router.put('/copy', (req, res) => {
+  const { email } = req.user
+  try {
+    const { original, name, folder } = req.body
+    fs.copyFileSync(original, path.join(folder, name))
+    res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RF14 파일 복사 오류 ${error}`, email)
+  }
+})
+
 router.use('/temp', require('./temp'))
 
 module.exports = router
