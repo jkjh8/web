@@ -7,6 +7,7 @@ const { logError } = require('@logger')
 const { dbSchFind, dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('@db/schedule')
 const { fnGetStrage } = require('..')
+const { fn } = require('moment')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -99,12 +100,25 @@ const fnQsysFileUpload = async (args) => {
 // QF04 파일 삭제
 const fnQsysFileDelete = async (args) => {
   const { addr, ipaddress, file, deviceId, user } = args
+  axios
+    .delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`)
+    .then(async () => {
+      await fnGetStrage(ipaddress)
+    })
+    .catch((error) => {
+      logError(`QF04 Q-SYS 파일 삭제 : ${deviceId} ${file}`, user)
+    })
+}
+
+// QF04-1 파일 삭제 비동기화
+const fnQsysFileDeleteAsync = async (args) => {
+  const { addr, ipaddress, file, deviceId, user } = args
   try {
     await axios.delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`)
     // 파일 삭제 후 스토리지 정보 갱신
     await fnGetStrage(ipaddress)
   } catch (error) {
-    logError(`QF04 Q-SYS 파일 삭제 : ${deviceId} ${file}`, user)
+    logError(`QF04-1 Q-SYS 파일 삭제 : ${deviceId} ${file}`, user)
   }
 }
 
@@ -168,6 +182,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
   }
 }
 
+// QF07 폴더 삭제
 const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
   try {
     return await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`)
@@ -181,6 +196,7 @@ module.exports = {
   fnQsysCheckMediaFolder,
   fnQsysFileUpload,
   fnQsysFileDelete,
+  fnQsysFileDeleteAsync,
   fnQsysSyncFileSchedule,
   fnQsysCheckScheduleFolder,
   fnQsysDeleteFolder

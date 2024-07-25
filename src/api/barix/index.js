@@ -7,28 +7,34 @@ const axios = require('axios')
 let barixInterval = null
 
 //b01
-const fnGetBarixInfo = async (ipaddress) => {
+const fnGetBarixInfo = async (device) => {
   try {
     const worker = new Worker(path.join(__dirname, 'barixWorker.js'), {
-      workerData: ipaddress
+      workerData: device.ipaddress
     })
 
+    // 워커로부터 메시지를 받았을 때
     worker.on('message', async (data) => {
+      // 장치로 부터 상태 확인
       if (data.status) {
-        await dbBarixUpdate(
-          { ipaddress },
-          { ...data, active: true, reconnect: 0 }
-        )
+        if (device.status === false) {
+          await dbBarixUpdate(
+            { ipaddress },
+            { ...data, status: true, reconnect: 0 }
+          )
+          logInfo(`B01 Barix 연결 ${ipaddress}`, 'server')
+        }
       } else {
         // 장비 상태가 false일 경우 reconnect 증가
-        const device = await dbBarixFindOne({ ipaddress })
         // db 연결 해지 재접속 업데이트
         await dbBarixUpdate(
           { ipaddress },
           { status: false, reconnect: device.reconnect + 1 }
         )
-        // 로그
-        logError(`B01 Barix 정보 수집 ${ipaddress}`, 'server')
+        // 로그 변경이 있을 때만
+        if (device.status === true) {
+          logError(`B01 Barix 연결 오류 ${ipaddress}`, 'server')
+        }
       }
       worker.terminate()
     })
@@ -59,7 +65,7 @@ const fnGetBarixes = async () => {
   }
   devices.forEach(async (element) => {
     try {
-      fnGetBarixInfo(element.ipaddress)
+      fnGetBarixInfo(element)
     } catch (error) {
       logError(`B02 Barix 정보 수집 ${error}`, 'server')
     }
@@ -106,7 +112,7 @@ const fnBarixRelayOff = async (arr) => {
       })
     )
   } catch (error) {
-    logError(`Barix 릴레이 끄기 ${error}`, 'server')
+    logError(`B04 Barix 릴레이 끄기 ${error}`, 'server')
   }
 }
 
@@ -146,6 +152,7 @@ const fnBarixesRelayOn = async (devices) => {
 
 const fnBarixesRelayOff = async (devices) => {
   try {
+    console.log(devices)
     return await Promise.all(devices.map((zone) => fnBarixRelayOff(zone.barix)))
   } catch (error) {
     logError(`B05 Barix 릴레이 끄기 ${error}`, 'server')

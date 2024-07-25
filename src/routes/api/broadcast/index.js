@@ -5,7 +5,7 @@ const { dbPageFindOne } = require('@db/page')
 //api
 const { fnSendPageMessage } = require('@api/client')
 const { fnSendQsysData } = require('@api/qsys')
-const { fnQsysFileUpload, fnQsysFileDelete } = require('@api/qsys/files')
+const { fnQsysFileUpload, fnQsysFileDeleteAsync } = require('@api/qsys/files')
 const { fnGetSocketId } = require('@api/user/socket')
 const { fnCheckActive } = require('@api/qsys/broadcast')
 
@@ -91,7 +91,7 @@ router.delete('/file', async (req, res) => {
   try {
     const { addr, devices } = req.body
     const promises = devices.map(async (item) => {
-      await fnQsysFileDelete({
+      await fnQsysFileDeleteAsync({
         file: item.file.base,
         ipaddress: item.ipaddress,
         addr,

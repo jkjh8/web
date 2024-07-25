@@ -5,7 +5,7 @@ const { dbPageUpdate, dbPageFindOne } = require('@db/page')
 const { dbQsysUpdate, dbQsysFindOne } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
 // api
-const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
+const { fnQsysCheckMediaFolder, fnQsysFileDelete } = require('@api/qsys/files')
 const { fnBarixRelayOff } = require('@api/barix')
 const {
   fnSendClientStatusAll,
@@ -140,6 +140,16 @@ module.exports = function (socket) {
           page.user,
           [currentDevice.name]
         )
+        // delete file
+        if (!page.schedule && page.file) {
+          fnQsysFileDelete({
+            addr: 'live',
+            ipaddress: currentDevice.ipaddress,
+            file: page.file.base,
+            deviceId: currentDevice.deviceId,
+            user: page.user
+          })
+        }
         // delete PageID
         return await dbQsysUpdate(
           { deviceId },

@@ -120,6 +120,7 @@ router.put('/zoneupdate', async (req, res) => {
       `RQ06 QSYS 데이터 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
       email
     )
+    await fnSendAllStatusAll()
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그

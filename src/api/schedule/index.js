@@ -43,7 +43,11 @@ const fnInTimeScheduleRun = async (data) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    const commands = await fnSetLive(idx, { ...data, devices: page }, user)
+    const commands = await fnSetLive(
+      idx,
+      { ...data, devices: page, schedule: true },
+      user
+    )
     fnSendQsysData('qsys:page:message', commands)
     // 로그
     return

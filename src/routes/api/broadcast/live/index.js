@@ -20,13 +20,15 @@ const router = express.Router()
 // BL01 실시간 방송 시작
 router.put('/', async (req, res) => {
   const { email } = req.user
+  const { devices, zones } = req.body
+  const socketId = await fnGetSocketId(email)
   try {
     // 변수
-    const { devices, zones } = req.body
 
     const idx = uniqueId(16)
 
     //////////////// 릴레이 구동 ////////////////
+    fnSendPageMessage(socketId, 'all', '방송 장비 기동 중')
     // amx 릴레이 구동
     await fnAmxesRelayOn(devices)
     // Barix 릴레이 구동
@@ -35,6 +37,7 @@ router.put('/', async (req, res) => {
     logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
     ////////////////  동작 대기 ////////////////
+    fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
@@ -44,7 +47,6 @@ router.put('/', async (req, res) => {
     logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, zones)
 
     // 방송 메시지 송출(연결된 사용자에게만)
-    const socketId = await fnGetSocketId(email)
     fnSendPageMessage(socketId, 'all', '실시간 방송 시작')
 
     //////////////// 리턴 ////////////////
@@ -61,18 +63,21 @@ router.put('/', async (req, res) => {
 // BL02 메세지 방송 시작
 router.put('/message', async (req, res) => {
   const { email } = req.user
+  const { Mode, devices, file, zones } = req.body
+  const socketId = await fnGetSocketId(email)
   try {
     // 변수
-    const { Mode, devices, file, zones } = req.body
     const idx = uniqueId(16)
 
     //////////////// 릴레이 구동 ////////////////
+    fnSendPageMessage(socketId, 'all', '방송 장비 기동 중')
     // amx 릴레이 구동
     await fnAmxesRelayOn(devices)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
 
     ////////////////  동작 대기 ////////////////
+    fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
@@ -85,6 +90,7 @@ router.put('/message', async (req, res) => {
       email,
       zones
     )
+    logEvent(`메세지 방송 송출 시작 ID:${idx}`, email, zones)
     //////////////// 리턴 ////////////////
     res.status(200).json({ result: true, idx })
 
