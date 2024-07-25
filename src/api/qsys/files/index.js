@@ -8,6 +8,7 @@ const { dbSchFind, dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('@db/schedule')
 const { fnGetStrage } = require('..')
 const { fn } = require('moment')
+const { dbQsysFindOne } = require('../../../db/qsys')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -24,6 +25,9 @@ const fnMakeAddr = (ipaddr) => {
   return `http://${ipaddr}/api/v0/cores/self/media/Messages`
 }
 
+const fnMakeAddrDefault = (ipaddr) => {
+  return `http://${ipaddr}/api/v0/cores/self/media`
+}
 // QF02 qsys에 기본 폴더 생성
 const fnQsysCheckMediaFolder = async (device) => {
   const url = `http://${device.ipaddress}/api/v0/cores/self/media/Messages`
@@ -191,13 +195,33 @@ const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
   }
 }
 
+// QF08 live 파일 삭제
+const fnQsysDeleteLive = async (deviceId) => {
+  try {
+    const device = await dbQsysFindOne({ deviceId })
+    const { ZoneStatus } = device
+    // ZoneStatus 인장중 하나라도 active가 ture면 리턴
+    const find = ZoneStatus.find((z) => z.active === true)
+    if (find) return
+    // 아니면 qsys의 messages/live 폴더의 파일 목록을 가져와서 하나씩 삭제
+    const { data } = await axios.get(`${fnMakeAddr(device.ipaddress)}/live`)
+    data.forEach(async (d) => {
+      await axios.delete(`${fnMakeAddrDefault(device.ipaddress)}/${d.path}`)
+    })
+  } catch (error) {
+    logError(`OF08 Q-SYS live 파일 삭제 ${error}`, 'server')
+  }
+}
+
 module.exports = {
   fnMakeAddr,
+  fnMakeAddrDefault,
   fnQsysCheckMediaFolder,
   fnQsysFileUpload,
   fnQsysFileDelete,
   fnQsysFileDeleteAsync,
   fnQsysSyncFileSchedule,
   fnQsysCheckScheduleFolder,
-  fnQsysDeleteFolder
+  fnQsysDeleteFolder,
+  fnQsysDeleteLive
 }

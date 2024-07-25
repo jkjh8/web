@@ -7,11 +7,17 @@ const { dbTtsMake } = require('@db/tts')
 const { dbUserUpdate } = require('@db/user')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGetFile } = require('@api/files')
+const { fnMakeTtsFileVW } = require('@api/tts/voiceware')
 const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()
 
-const { tts, fnGetTtsInfo, fnResetInfo, fnMakeTtsFile } = require('@api/tts')
+const {
+  tts,
+  fnGetTtsInfo,
+  fnResetInfo,
+  fnMakeTtsFile
+} = require('@api/tts/sapi')
 let ttsProperty = {}
 
 // TT01
@@ -99,6 +105,20 @@ router.put('/voice', async (req, res) => {
   } catch (error) {
     logError(`TT05 TTS음성 ${error}`, email)
     res.status(500).json({ result: false, error })
+  }
+})
+
+// TT06 voiceware make
+router.put('/vw', async (req, res) => {
+  const { email } = req.user
+  try {
+    const name = uniqueId(16)
+    console.log(req.body)
+    const data = await fnMakeTtsFileVW({ ...req.body, name })
+    console.log(data)
+  } catch (error) {
+    res.status(200).json({ result: false, error })
+    logError(`TT06 보이스웨어 TTS 생성 ${error}`, email)
   }
 })
 

@@ -3,6 +3,7 @@ const { Worker } = require('worker_threads')
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
 const { logError, logDebug } = require('@logger')
 const axios = require('axios')
+const io = require('@io')
 
 let barixInterval = null
 
@@ -17,21 +18,22 @@ const fnGetBarixInfo = async (device) => {
     worker.on('message', async (data) => {
       // 장치로 부터 상태 확인
       if (data.status) {
+        await dbBarixUpdate(
+          { ipaddress: device.ipaddress },
+          { ...data, status: true, reconnect: 0 }
+        )
+        // 상태 변경이 있을 때만 로그 기록
         if (device.status === false) {
-          await dbBarixUpdate(
-            { ipaddress },
-            { ...data, status: true, reconnect: 0 }
-          )
           logInfo(`B01 Barix 연결 ${ipaddress}`, 'server')
         }
       } else {
         // 장비 상태가 false일 경우 reconnect 증가
         // db 연결 해지 재접속 업데이트
         await dbBarixUpdate(
-          { ipaddress },
+          { ipaddress: device.ipaddress },
           { status: false, reconnect: device.reconnect + 1 }
         )
-        // 로그 변경이 있을 때만
+        // 상태 변경이 있을 때만 로그 기록
         if (device.status === true) {
           logError(`B01 Barix 연결 오류 ${ipaddress}`, 'server')
         }
@@ -60,9 +62,13 @@ const fnGetBarixes = async () => {
   let devices = []
   try {
     devices = await dbBarixFind()
+    for (let device of devices) {
+      fnGetBarixInfo(device)
+    }
   } catch (error) {
     logError(`B02 Barix DB 정보 조회 ${error}`, 'server')
   }
+
   devices.forEach(async (element) => {
     try {
       fnGetBarixInfo(element)
@@ -77,6 +83,7 @@ const fnStartBarix = () => {
   barixInterval = setInterval(async () => {
     try {
       await fnGetBarixes()
+      await fnSendSocketBarixInfo()
     } catch (error) {
       logError(`B03 Barix 정보 시작 ${error}`, 'server')
     }
@@ -152,10 +159,18 @@ const fnBarixesRelayOn = async (devices) => {
 
 const fnBarixesRelayOff = async (devices) => {
   try {
-    console.log(devices)
     return await Promise.all(devices.map((zone) => fnBarixRelayOff(zone.barix)))
   } catch (error) {
     logError(`B05 Barix 릴레이 끄기 ${error}`, 'server')
+  }
+}
+
+//B06 바릭스 정보 공유
+const fnSendSocketBarixInfo = async () => {
+  try {
+    io.client.emit('barix:devices', await dbBarixFind())
+  } catch (error) {
+    logError(`B06 Barix 정보 공유 ${error}`, 'server')
   }
 }
 
@@ -167,5 +182,6 @@ module.exports = {
   fnBarixRelayOn,
   fnBarixRelayOff,
   fnBarixesRelayOn,
-  fnBarixesRelayOff
+  fnBarixesRelayOff,
+  fnSendSocketBarixInfo
 }

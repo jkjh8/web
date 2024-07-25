@@ -2,7 +2,7 @@
 const { dbQsysUpdateBackup } = require('@db/qsys')
 // api
 const { fnSendQsysData } = require('@api/qsys')
-const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
+const { fnQsysCheckMediaFolder, fnQsysDeleteLive } = require('@api/qsys/files')
 const { fnGetBarixInfo } = require('@api/barix')
 // logger
 const { logInfo, logError, logWarn } = require('@logger')
@@ -64,6 +64,7 @@ module.exports = function (socket) {
       const { name, deviceId } = device
       fnSendQsysData('zone:set:device', deviceId)
       fnQsysCheckMediaFolder(device)
+      fnQsysDeleteLive(deviceId)
       logWarn(`IC06 장치 재설정 ${name}-${deviceId}`, email)
     } catch (error) {
       logError(`IC06 장치 ${error}`, email)

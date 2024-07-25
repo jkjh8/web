@@ -11,6 +11,8 @@ const {
   dbBarixRemoveById
 } = require('@db/barix')
 
+const { fnGetBarixInfo } = require('@api/barix')
+
 const router = express.Router()
 
 // RB01 - Barix 장치 관리
@@ -80,12 +82,26 @@ router.delete('/', async (req, res) => {
 
 // RB05 - Barix 장치 존재 여부
 router.get('/exists', async (req, res) => {
+  const { email } = req.user
   try {
     res
       .status(200)
       .json({ result: await dbBarixExists({ ...req.query.value }) })
   } catch (error) {
     res.status(500).json({ result: false, error })
+    logError(`RB05 Barix 존재 여부 ${error}`, email)
+  }
+})
+
+// RB06 - Barix 상태 갱신
+router.put('/refresh', async (req, res) => {
+  const { email } = req.user
+  try {
+    fnGetBarixInfo(req.body)
+    res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`RB06 Barix 상태 갱신 ${error}`, email)
   }
 })
 

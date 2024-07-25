@@ -52,6 +52,12 @@ module.exports = async function () {
             gStatus.scheduler.backup.lastupdate = item.lastupdate
           }
           break
+        case 'ttsMode':
+          gStatus.ttsMode = item.value
+          break
+        case 'voiceWareVoice':
+          gStatus.voiceWareVoice = item.value
+          break
       }
     }
     logInfo('SU02 서버 기본 세팅 데이터가 업데이트(from DB)', 'server')

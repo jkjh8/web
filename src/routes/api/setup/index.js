@@ -5,6 +5,7 @@ const {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP
 } = require('@api/schedule')
+const { gStatus } = require('../../../defaultVal')
 const router = require('express').Router()
 
 router.use('/barix', require('./barix'))
@@ -184,6 +185,57 @@ router.put('/relayontime', async (req, res) => {
     logInfo(`SS10 릴레이 동작 시간 변경 ${gStatus.relayOnTime}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
+  }
+})
+
+// SS12 TTS Mode
+router.get('/ttsmode', async (req, res) => {
+  const { email } = req.user
+  try {
+    res.status(200).json({ result: true, value: gStatus.ttsMode })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS12 TTS Mode 조회 ${error}`, email)
+  }
+})
+
+// SS13 TTS Mode 변경
+router.put('/ttsmode', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { newMode } = req.body
+    await dbSetupUpdate({ key: 'ttsMode' }, { value: newMode })
+    gStatus.ttsMode = newMode
+    res.status(200).json({ result: true, value: gStatus.ttsMode })
+    logInfo(`SS13 TTS Mode 변경 ${gStatus.ttsMode}`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS13 TTS Mode 변경 ${error}`, email)
+  }
+})
+
+// SS14 TTS Voiceware voice
+router.get('/voicewarevoice', async (req, res) => {
+  const { email } = req.user
+  try {
+    res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS14 TTS Voiceware voice 조회 ${error}`, email)
+  }
+})
+
+// SS15 TTS Voiceware voice 변경
+router.put('/voicewarevoice', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { newVoice } = req.body
+    await dbSetupUpdate({ key: 'voiceWareVoice' }, { value: newVoice })
+    gStatus.voiceWareVoice = newVoice
+    res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
+  } catch (error) {
+    res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
+    logError(`SS15 TTS Voiceware voice 변경 ${error}`, email)
   }
 })
 
