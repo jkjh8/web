@@ -5,21 +5,39 @@ const { logInfo, logError } = require('@logger')
 
 const fnMakeTtsFileVW = (args) => {
   return new Promise((resolve, reject) => {
-    console.log(args)
     const { voice, text, volume, speed, pitch, filePath, name } = args
     const vw = spawn('C:/bs/web/src/api/tts/voiceware/Voiceware.exe', [
       text,
-      name,
+      filePath,
       voice,
       volume,
       speed,
       pitch
     ])
     vw.stdout.on('data', (data) => {
-      resolve(data.toString())
+      try {
+        const ret = data.toString()
+        console.log(ret)
+        // ret를 ,로 구분하고 :를 분리해서 Object로 만들어준다.
+        const obj = ret.split(',').reduce((acc, cur) => {
+          const [key, value] = cur.split('=')
+          acc[key] = value
+          return acc
+        }, {})
+        resolve(obj)
+      } catch (error) {
+        reject(error)
+      }
     })
     vw.stderr.on('data', (data) => {
-      reject(new Error(data))
+      const ret = data.toString()
+      // ret를 ,로 구분하고 :를 분리해서 Object로 만들어준다.
+      const obj = ret.split(',').reduce((acc, cur) => {
+        const [key, value] = cur.split('=')
+        acc[key] = value
+        return acc
+      }, {})
+      reject(new Error(obj))
     })
   })
 }

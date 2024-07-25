@@ -37,6 +37,7 @@ router.get('/', async (req, res) => {
 
 // TT02
 router.put('/', async (req, res) => {
+  const { email } = req.user
   try {
     const { rate, text, voice } = req.body
     const name = `${uniqueId(16)}.mp3`
@@ -47,8 +48,8 @@ router.put('/', async (req, res) => {
     // 파일 정보 수집
     const file = await fnGetFile(filePath)
     // 데이터 업데이트
-    await dbTtsMake({ rate, text, voice, user: req.user.email })
-    await dbUserUpdate({ _id: req.user._id }, { $inc: { numberOfTtsCalls: 1 } })
+    await dbTtsMake({ rate, text, voice, user: email })
+    await dbUserUpdate({ email }, { $inc: { numberOfTtsCalls: 1 } })
     res.status(200).json({
       result: true,
       value: {
@@ -57,25 +58,27 @@ router.put('/', async (req, res) => {
       }
     })
   } catch (error) {
-    logError(`TT02 TTS 생성 ${error}`, req.user.email)
+    logError(`TT02 TTS 생성 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
 // TT03 TTS 파일 삭제
 router.delete('/', (req, res) => {
+  const { email } = req.user
   try {
     const { file } = req.body
     fs.unlinkSync(file.fullpath)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`TT03 TTS 파일 삭제 ${error}`, req.user.email)
+    logError(`TT03 TTS 파일 삭제 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
 
 // TT04 TTS 음성 확인
 router.get('/voice', async (req, res) => {
+  const { email } = req.user
   try {
     let r = await dbSetupFindOne({ key: 'voice' })
     if (r && r.value) {
@@ -83,7 +86,7 @@ router.get('/voice', async (req, res) => {
     }
     res.status(200).json({ ...gStatus })
   } catch (error) {
-    logError(`TT04 TTS음성 ${error}`, req.user.email)
+    logError(`TT04 TTS음성 ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -111,11 +114,29 @@ router.put('/voice', async (req, res) => {
 // TT06 voiceware make
 router.put('/vw', async (req, res) => {
   const { email } = req.user
+  const { text, voice } = req.body
   try {
     const name = uniqueId(16)
-    console.log(req.body)
-    const data = await fnMakeTtsFileVW({ ...req.body, name })
-    console.log(data)
+    const filePath = path.join(gStatus.tempFolder, `${name}.wav`)
+    const { result, filename, error } = await fnMakeTtsFileVW({
+      ...req.body,
+      filePath,
+      name
+    })
+    if (!result) {
+      return res.status(500).json({ result: false, error })
+    }
+    // 파일 정보 수집
+    const file = await fnGetFile(filename)
+    // 데이터 업데이트
+    await dbTtsMake({ text, voice, user: email })
+    await dbUserUpdate({ email }, { $inc: { numberOfTtsCalls: 1 } })
+    res.status(200).json({
+      result: true,
+      value: {
+        file
+      }
+    })
   } catch (error) {
     res.status(200).json({ result: false, error })
     logError(`TT06 보이스웨어 TTS 생성 ${error}`, email)
