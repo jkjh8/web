@@ -99,7 +99,7 @@ router.put('/zoneupdate', async (req, res) => {
   try {
     const { deviceId, zone, destination, ipaddress, port } = req.body
     // 스트림 구간 설정
-    fnSendQsysData('qsys:device:gtr', {
+    fnSendQsysData('qsys:device:str', {
       deviceId,
       zone,
       destination,
@@ -274,7 +274,7 @@ router.put('/updatenames', async (req, res) => {
     // 전체 데이터 송신
     await fnSendAllStatusAll()
     // 큐시스 미디어 스트림 업데이트
-    await fnSendQsysData('qsys:device:strs', { deviceId })
+    await fnSendQsysData('qsys:device:strs', { ...req.body })
     // barix get info
     arr.forEach((item) => {
       if (item.destination && item.destination.ipaddress) {

@@ -188,7 +188,7 @@ const fnBarixChangeQsys = async (obj) => {
       if (device) {
         const { deviceId, ZoneStatus } = device
         const idx = ZoneStatus.findIndex((item) => item.destination == _id)
-        fnSendQsysData('qsys:device:gtr', {
+        fnSendQsysData('qsys:device:str', {
           deviceId,
           zone: idx + 1,
           destination: _id,
