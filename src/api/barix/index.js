@@ -1,8 +1,13 @@
 const path = require('path')
-const { Worker } = require('worker_threads')
-const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
-const { logError, logDebug } = require('@logger')
 const axios = require('axios')
+const { Worker } = require('worker_threads')
+const { logError, logDebug } = require('@logger')
+// db
+const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
+const { dbQsys } = require('@db/qsys')
+// api
+const { fnSendQsysData } = require('@api/qsys')
+// io
 const io = require('@io')
 
 let barixInterval = null
@@ -174,6 +179,29 @@ const fnSendSocketBarixInfo = async () => {
   }
 }
 
+//B07 바릭스 채널 변경에 따른 Qsys 채널 재설정
+const fnBarixChangeQsys = async (obj) => {
+  const { _id, ipaddress, port } = obj
+  dbQsys
+    .findOne({ 'ZoneStatus.destination': _id })
+    .then((device) => {
+      if (device) {
+        const { deviceId, ZoneStatus } = device
+        const idx = ZoneStatus.findIndex((item) => item.destination == _id)
+        fnSendQsysData('qsys:device:gtr', {
+          deviceId,
+          zone: idx + 1,
+          destination: _id,
+          ipaddress,
+          port
+        })
+      }
+    })
+    .catch((error) => {
+      logError(`B07 Barix 채널 변경 ${error}`, 'server')
+    })
+}
+
 module.exports = {
   fnGetBarixInfo,
   fnGetBarixes,
@@ -183,5 +211,6 @@ module.exports = {
   fnBarixRelayOff,
   fnBarixesRelayOn,
   fnBarixesRelayOff,
-  fnSendSocketBarixInfo
+  fnSendSocketBarixInfo,
+  fnBarixChangeQsys
 }

@@ -7,8 +7,8 @@ const { logError } = require('@logger')
 const { dbSchFind, dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('@db/schedule')
 const { fnGetStrage } = require('..')
-const { fn } = require('moment')
-const { dbQsysFindOne } = require('../../../db/qsys')
+const { dbQsysFindOne, dbQsysFind } = require('../../../db/qsys')
+const { log } = require('console')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -208,11 +208,24 @@ const fnQsysDeleteLive = async (deviceId) => {
     data.forEach(async (d) => {
       await axios.delete(`${fnMakeAddrDefault(device.ipaddress)}/${d.path}`)
     })
+    logWarn(`OF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
   } catch (error) {
     logError(`OF08 Q-SYS live 파일 삭제 ${error}`, 'server')
   }
 }
 
+// QF09 전체 큐시스 live 파일 삭제
+const fnQsysDeleteLiveAll = async () => {
+  try {
+    const qsys = await dbQsysFind()
+    qsys.forEach(async (device) => {
+      await fnQsysDeleteLive(device.deviceId)
+    })
+    logWarn(`OF09 Q-SYS Live파일 전체 삭제`)
+  } catch (error) {
+    logError(`OF09 Q-SYS Live파일 전체 삭제 ${error}`, 'server')
+  }
+}
 module.exports = {
   fnMakeAddr,
   fnMakeAddrDefault,
@@ -223,5 +236,6 @@ module.exports = {
   fnQsysSyncFileSchedule,
   fnQsysCheckScheduleFolder,
   fnQsysDeleteFolder,
-  fnQsysDeleteLive
+  fnQsysDeleteLive,
+  fnQsysDeleteLiveAll
 }

@@ -13,6 +13,7 @@ const {
 } = require('@api/schedule')
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
+const { fnQsysDeleteLiveAll } = require('@api/qsys/files')
 const { log } = require('winston')
 
 const schedulerParser = (socket) => {
@@ -67,6 +68,8 @@ const schedulerParser = (socket) => {
         fnCleanQsysScheduleFolder()
         // qsys 스케줄 타입이 once인 폴더 비우기
         fnCleanQsysScheduleTypeOnce()
+        // qsys 라이브 폴더 비우기
+        fnQsysDeleteLiveAll()
       }
       //스케줄 폴더 비우기
       fnCleanScheduleFolder()
@@ -79,7 +82,7 @@ const schedulerParser = (socket) => {
 
   // IS07 매시간 전달
   socket.on('hour', (time) => {
-    logInfo(`IS07 매시간 전달 ${JSON.stringify(time)}`, 'server')
+    //logInfo(`IS07 매시간 전달 ${JSON.stringify(time)}`, 'server')
   })
 
   // IS08 릴레이 구동 시간 갱신

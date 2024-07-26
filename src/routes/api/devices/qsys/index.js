@@ -97,13 +97,14 @@ router.get('/exists', async (req, res) => {
 router.put('/zoneupdate', async (req, res) => {
   const { email } = req.user
   try {
-    const { deviceId, zone, destination, ipaddress } = req.body
+    const { deviceId, zone, destination, ipaddress, port } = req.body
     // 스트림 구간 설정
     fnSendQsysData('qsys:device:gtr', {
       deviceId,
       zone,
       destination,
-      ipaddress
+      ipaddress,
+      port
     })
     // 5초후 바릭스 데이터 수집 요청
     setTimeout(() => fnGetBarixInfo(ipaddress), 5000)

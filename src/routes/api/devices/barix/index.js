@@ -10,8 +10,9 @@ const {
   dbBarixExists,
   dbBarixRemoveById
 } = require('@db/barix')
-
-const { fnGetBarixInfo } = require('@api/barix')
+const { dbQsysFindAll } = require('@db/qsys')
+// api
+const { fnGetBarixInfo, fnBarixChangeQsys } = require('@api/barix')
 
 const router = express.Router()
 
@@ -52,14 +53,15 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
   const { email } = req.user
   try {
-    const { _id, name, ipaddress } = req.body
+    const { _id, name, ipaddress, port } = req.body
     const key = { _id }
-    const value = { name, ipaddress }
+    const value = { name, ipaddress, port }
     res
       .status(200)
       .json({ result: true, data: await dbBarixUpdateBackup(key, value) })
     // 로그
     logInfo(`RB03 Barix 장치 수정 ${name}:${ipaddress}`, email)
+    fnBarixChangeQsys({ _id, ipaddress, port })
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`RB03 Barix 장치 수정 ${error}`, email)

@@ -10,8 +10,8 @@ const dbQsysMake = async (obj) => {
 }
 
 //DQ02
-const dbQsysFindAll = async () => {
-  return await Qsys.find().populate(
+const dbQsysFindAll = async (obj) => {
+  return await Qsys.find(obj).populate(
     'ZoneStatus.destination',
     'name idx deviceId ipaddress status streamurl'
   )

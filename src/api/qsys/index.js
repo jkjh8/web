@@ -52,7 +52,7 @@ const fnSendClientQsysData = async (deviceId, obj) => {
 
 // Q05 Q-SYS 전체 데이터를 다수 호출시에도 1초에 1번만 전송
 let sendClientStatusAll = null
-const timeoutSendClientStatusAll = false
+let timeoutSendClientStatusAll = false
 const fnSendClientStatusAll = async () => {
   try {
     // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
@@ -75,12 +75,12 @@ const fnSendClientStatusAll = async () => {
   }
 }
 
-// Q05Bridge로 전송
+// Q05 Bridge로 전송
 const fnSendQsysData = async (key, obj) => {
   try {
     io.bridge.emit(key, obj)
   } catch (error) {
-    logError(`Q06 QSYS Bridge 전송 ${error}`, 'server', 'bridge')
+    logError(`Q06 QSYS Bridge 전송 ${error}`, 'server')
   }
 }
 
@@ -138,5 +138,6 @@ module.exports = {
   fnSendAllStatusAll,
   fnSendQsysData,
   fnSendClientPageMessage,
-  fnCheckPageStatus
+  fnCheckPageStatus,
+  fnCheckPageStatusAll
 }
