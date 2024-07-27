@@ -83,3 +83,6 @@ require('@io').initIO(io)
 
 const { getAllDeviceStorage } = require('@api/qsys')
 getAllDeviceStorage()
+
+// const { fnGetFileFolderAll } = require('@api/files')
+// console.log(fnGetFileFolderAll(gStatus.mediaFolder))

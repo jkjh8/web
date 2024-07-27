@@ -17,6 +17,26 @@ const fnMakeFolder = (folder) => {
   }
 }
 
+// F01-1 폴더내 모든 폴더 및 파일 리스트 구하기
+const fnGetFileFolderAll = (folder) => {
+  const files = fs.readdirSync(folder)
+  const fileList = []
+  for (let file of files) {
+    const fullpath = path.resolve(folder, file)
+    const isDirectory = fs.statSync(fullpath).isDirectory()
+    fileList.push({
+      label: file,
+      path: fullpath,
+      isDirectory: isDirectory
+    })
+    if (isDirectory) {
+      const children = fnGetFileFolderAll(fullpath)
+      fileList.push(...children)
+    }
+  }
+  return fileList
+}
+
 // F02 폴더 정보 구하기
 const fnGetFolders = (email) => {
   const { globalFolder, mediaFolder } = gStatus
@@ -107,6 +127,7 @@ const fnRemoveUserFolder = (email) => {
 
 module.exports = {
   fnGetFolder,
+  fnGetFileFolderAll,
   fnMakeFolder,
   fnGetFolders,
   fnGetFiles,

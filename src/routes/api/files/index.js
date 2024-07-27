@@ -4,7 +4,7 @@ const fs = require('fs')
 const { logInfo, logError } = require('@logger')
 
 const ziper = require('./ziper')
-
+const { fnBackupUploader } = require('@api/backup')
 const uploader = require('./uploader')
 const {
   fnMakeFolder,
@@ -14,6 +14,8 @@ const {
   fnRFAF
 } = require('@api/files')
 const { fn } = require('moment')
+const { default: axios } = require('axios')
+const { gStatus } = require('../../../defaultVal')
 
 const router = express.Router()
 
@@ -46,6 +48,10 @@ router.post('/', (req, res) => {
       )}`,
       email
     )
+    // 업로드 된 파일을 백업 서버로도 전송
+    req.files.forEach((file) => {
+      fnBackupUploader(file.path, req.headers.folder)
+    })
   })
 })
 

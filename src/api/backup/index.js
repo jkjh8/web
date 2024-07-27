@@ -1,5 +1,7 @@
 const axios = require('axios')
 const https = require('https')
+const fs = require('fs')
+const FormData = require('form-data')
 const { logError } = require('@logger')
 
 // BK01 백업
@@ -43,7 +45,25 @@ const isBackup = (req, res, next) => {
   }
 }
 
+// BK03 백업에 업로드
+const fnBackupUploader = (file, folder) => {
+  const form = new FormData()
+  form.append('media', fs.createReadStream(file))
+  axios
+    .post(`http://${gStatus.backupAddress}/backup/files`, form, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+      headers: { ...form.getHeaders(), folder, backupid: gStatus.backupId }
+    })
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
 module.exports = {
   fnBackupRequest,
-  isBackup
+  isBackup,
+  fnBackupUploader
 }
