@@ -70,4 +70,14 @@ module.exports = function (socket) {
       logError(`IC06 장치 ${error}`, email)
     }
   })
+  // IC07 방송상태 갱신
+  socket.on('zone:get:active', (device) => {
+    const { email } = socket.user
+    try {
+      fnSendQsysData('zone:get:active', device.deviceId)
+      logInfo(`IC07 방송상태 갱신 ${device.name}-${device.deviceId}`, email)
+    } catch (error) {
+      logError(`IC07 방송상태 ${error}`, email)
+    }
+  })
 }

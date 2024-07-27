@@ -43,7 +43,8 @@ router.get('/servermode', async (req, res) => {
       mode: gStatus.mode,
       backupAddress: gStatus.backupAddress,
       backupActive: gStatus.backupActive,
-      backupId: gStatus.backupId
+      backupId: gStatus.backupId,
+      backupFile: gStatus.backupFile
     })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
@@ -236,6 +237,32 @@ router.put('/voicewarevoice', async (req, res) => {
   } catch (error) {
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
     logError(`SS15 TTS Voiceware voice 변경 ${error}`, email)
+  }
+})
+
+// SS16 백업 파일
+router.get('/backupfile', async (req, res) => {
+  const { email } = req.user
+  try {
+    res.status(200).json({ result: true, value: gStatus.backupFile })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS16 백업 파일 조회 ${error}`, email)
+  }
+})
+
+// SS17 백업 파일 변경
+router.put('/backupfile', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { newValue } = req.body
+    await dbSetupUpdate({ key: 'backupFile' }, { valueBoolean: newValue })
+    gStatus.backupFile = newValue
+    res.status(200).json({ result: true, value: gStatus.backupFile })
+    logInfo(`SS17 백업 파일 변경 ${gStatus.backupFile}`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS17 백업 파일 변경 ${error}`, email)
   }
 })
 

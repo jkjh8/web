@@ -49,6 +49,7 @@ const isBackup = (req, res, next) => {
 // BK03 백업에 업로드
 const fnBackupUploader = (file, folder) => {
   if (gStatus.mode === 'Backup') return
+  if (gStatus.backupFile === false) return
   if (gStatus.backupActive === false) return
   if (gStatus.backupAddress) {
     const form = new FormData()
@@ -67,8 +68,29 @@ const fnBackupUploader = (file, folder) => {
   }
 }
 
+const fnBackupFileFolderDelete = (list) => {
+  if (gStatus.mode === 'Backup') return
+  if (gStatus.backupFile === false) return
+  if (gStatus.backupActive === false) return
+  if (gStatus.backupAddress) {
+    axios
+      .delete(`http://${gStatus.backupAddress}/backup/files`, {
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        headers: { backupid: gStatus.backupId },
+        data: { list }
+      })
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
+}
+
 module.exports = {
   fnBackupRequest,
   isBackup,
-  fnBackupUploader
+  fnBackupUploader,
+  fnBackupFileFolderDelete
 }

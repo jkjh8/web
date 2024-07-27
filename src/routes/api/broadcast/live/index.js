@@ -8,7 +8,7 @@ const { dbUserUpdate } = require('@db/user')
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnBarixesRelayOn } = require('@api/barix')
-const { fnSetLive } = require('@api/qsys/broadcast')
+const { fnSetLive, fnSetZoneActive } = require('@api/qsys/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
 const { fnGetSocketId } = require('@api/user/socket')
 const { fnAmxesRelayOn } = require('@api/amx')
@@ -33,6 +33,10 @@ router.put('/', async (req, res) => {
     await fnAmxesRelayOn(devices)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
+    // db에서 방송 중으로 변경
+    devices.forEach(async (device) => {
+      fnSetZoneActive(device.deviceId, device.params.Zones)
+    })
     // 로그
     logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
@@ -75,6 +79,12 @@ router.put('/message', async (req, res) => {
     await fnAmxesRelayOn(devices)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
+    // db에서 방송 중으로 변경
+    devices.forEach(async (device) => {
+      fnSetZoneActive(device.deviceId, device.params.Zones)
+    })
+    // 로그
+    logEvent(`메시지 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
 
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')

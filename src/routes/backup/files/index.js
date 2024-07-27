@@ -44,4 +44,24 @@ router.post('/', (req, res) => {
   })
 })
 
+router.delete('/', (req, res) => {
+  try {
+    const { list } = req.body
+    for (let file of list) {
+      if (fs.existsSync(file.fullpath)) {
+        const stat = fs.statSync(file.fullpath)
+        if (stat.isDirectory()) {
+          fnRFAF(fnGetFiles(file.fullpath))
+          fs.rmdirSync(file.fullpath)
+        } else {
+          fs.unlinkSync(file.fullpath)
+        }
+      }
+    }
+    res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+  }
+})
+
 module.exports = router

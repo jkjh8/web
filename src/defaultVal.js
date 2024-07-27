@@ -18,6 +18,7 @@ module.exports = {
     backupActive: false,
     voice: '',
     relayOnTime: 5,
-    ttsMode: 'sapi'
+    ttsMode: 'sapi',
+    backupFile: false
   }
 }

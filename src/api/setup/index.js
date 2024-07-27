@@ -58,6 +58,9 @@ module.exports = async function () {
         case 'voiceWareVoice':
           gStatus.voiceWareVoice = item.value
           break
+        case 'backupFile':
+          gStatus.backupFile = item.valueBoolean
+          break
       }
     }
     logInfo('SU02 서버 기본 세팅 데이터가 업데이트(from DB)', 'server')

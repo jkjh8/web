@@ -3,6 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const { logInfo, logError } = require('@logger')
 
+const { fnBackupFileFolderDelete } = require('@api/backup')
 const ziper = require('./ziper')
 const { fnBackupUploader } = require('@api/backup')
 const uploader = require('./uploader')
@@ -93,6 +94,8 @@ router.delete('/', (req, res) => {
     res.status(200).json({ result: true })
     // 로그
     logInfo(`RF08 파일(폴더) 삭제: ${files.map((item) => item.base)}`, email)
+    // 백업 서버로 삭제 요청
+    fnBackupFileFolderDelete(files)
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그

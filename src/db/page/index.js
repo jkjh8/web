@@ -1,6 +1,7 @@
 const Page = require('@db/models/page')
 
 module.exports = {
+  dbPage: Page,
   dbPageMake: async (obj) => {
     return await Page.create({ ...obj })
   },

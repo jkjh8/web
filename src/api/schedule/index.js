@@ -13,7 +13,7 @@ const { fnWaitRelayOnTime } = require('@api/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
-const { fnSetLive } = require('@api/qsys/broadcast')
+const { fnSetLive, fn } = require('@api/qsys/broadcast')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const { fnQsysDeleteFolder } = require('../qsys/files')
@@ -32,6 +32,11 @@ const fnInTimeScheduleRun = async (data) => {
     await fnAmxesRelayOn(page)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
+
+    // db에서 방송 중으로 변경
+    page.forEach(async (item) => {
+      fnSetZoneActive(item.deviceId, item.params.Zones)
+    })
     // 로그
     logEvent(
       `스케줄 방송 릴레이 구동 완료:${name ?? ''} ID:${idx ?? ''}`,

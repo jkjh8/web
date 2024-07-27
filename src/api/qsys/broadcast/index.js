@@ -1,9 +1,15 @@
 // logger
 const { logInfo, logError } = require('@logger')
 // db
-const { dbPageMake } = require('@db/page')
-const { dbQsysFind, dbQsysUpdate, dbQsysUpdateBackup } = require('@db/qsys')
-const Page = require('@db/models/page')
+const { dbPage, dbPageMake } = require('@db/page')
+const {
+  dbQsysFind,
+  dbQsysUpdate,
+  dbQsysUpdateBackup,
+  dbQsysFindOne
+} = require('@db/qsys')
+
+const { fnSendClientQsysData } = require('@api/qsys')
 
 // QB01 live 송출 명령 만들기
 const fnSetLive = async (idx, obj, user) => {
@@ -70,10 +76,25 @@ const fnClearQsysPageID = async (user) => {
 const fnDeleteOldPage = async () => {
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-    await Page.deleteMany({ updatedAt: { $lt: oneHourAgo } })
+    await dbPage.deleteMany({ updatedAt: { $lt: oneHourAgo } })
     logInfo('QB04 마지막 업데이트가 한시간이 지난 문서 삭제 완료', 'server')
   } catch (error) {
     logError(`QB04 페이지 완료 문서 삭제 ${error}`, 'server', 'broadcast')
+  }
+}
+
+// QB04 Zone arr 배열의 리스트를 받아서 db의 ZoneStatus Active를 true로 변경
+const fnSetZoneActive = async (deviceId, arr) => {
+  try {
+    const device = await dbQsysFindOne({ deviceId })
+    const ZoneStatus = device.ZoneStatus
+    for (let zone of arr) {
+      ZoneStatus[zone - 1].Active = true
+    }
+    await dbQsysUpdate({ deviceId }, { ZoneStatus })
+    fnSendClientQsysData(deviceId, { ZoneStatus })
+  } catch (error) {
+    logError(`QB04 QSYS Zone Active 변경 ${error}`, 'server')
   }
 }
 
@@ -81,5 +102,6 @@ module.exports = {
   fnSetLive,
   fnCheckActive,
   fnClearQsysPageID,
-  fnDeleteOldPage
+  fnDeleteOldPage,
+  fnSetZoneActive
 }
