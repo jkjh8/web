@@ -4,7 +4,7 @@ const { Worker } = require('worker_threads')
 const { logError, logDebug } = require('@logger')
 // db
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
-const { dbQsys } = require('@db/qsys')
+const { dbQsys, dbQsysFindOne } = require('@db/qsys')
 // api
 const { fnSendQsysData } = require('@api/qsys')
 // io
@@ -102,27 +102,28 @@ const fnRestartBarix = () => {
 
 //B04 릴레이 제어
 // rc.cgi?{c}={value}
-const fnBarixRelayOff = async (arr) => {
+const fnBarixRelayOff = async (device) => {
   try {
-    await Promise.all(
-      arr.map(async (device) => {
-        if (!device) return
-        let ipaddress
-        // ipaddress 찾기
-        if (device.ipaddress) {
-          ipaddress = device.ipaddress
-        } else {
-          const barix = await dbBarixFindOne({ _id: device })
-          ipaddress = barix.ipaddress
-        }
-        // 릴레이 끄기
-        try {
-          await axios.get(`http://${ipaddress}/rc.cgi?R=0`, { timeout: 5000 })
-        } catch (error) {
-          logError(`B04 Barix 릴레이 끄기 ${error}`, 'server')
-        }
-      })
-    )
+    const currentDevice = await dbQsysFindOne({ deviceId: device.deviceId })
+    const ZoneStatus = currentDevice.ZoneStatus
+
+    for (let i = 0; i < device.barix.length; i++) {
+      if (device.barix[i] === null) return
+      if (ZoneStatus[i].Active) return
+      let ipaddress
+      if (device.barix[i].ipaddress) {
+        ipaddress = device.barix[i].ipaddress
+      } else {
+        const barix = await dbBarixFindOne({ _id: device.barix[i] })
+        ipaddress = barix.ipaddress
+      }
+      // 릴레이 끄기
+      try {
+        await axios.get(`http://${ipaddress}/rc.cgi?R=0`, { timeout: 5000 })
+      } catch (error) {
+        logError(`B04 Barix 릴레이 끄기 ${error}`, 'server')
+      }
+    }
   } catch (error) {
     logError(`B04 Barix 릴레이 끄기 ${error}`, 'server')
   }
@@ -181,25 +182,23 @@ const fnSendSocketBarixInfo = async () => {
 
 //B07 바릭스 채널 변경에 따른 Qsys 채널 재설정
 const fnBarixChangeQsys = async (obj) => {
-  const { _id, ipaddress, port } = obj
-  dbQsys
-    .findOne({ 'ZoneStatus.destination': _id })
-    .then((device) => {
-      if (device) {
-        const { deviceId, ZoneStatus } = device
-        const idx = ZoneStatus.findIndex((item) => item.destination == _id)
-        fnSendQsysData('qsys:device:str', {
-          deviceId,
-          zone: idx + 1,
-          destination: _id,
-          ipaddress,
-          port
-        })
-      }
-    })
-    .catch((error) => {
-      logError(`B07 Barix 채널 변경 ${error}`, 'server')
-    })
+  try {
+    const { _id, ipaddress, port } = obj
+    const device = await dbQsys.findOne({ 'ZoneStatus.destination': _id })
+    if (device) {
+      const { deviceId, ZoneStatus } = device
+      const idx = ZoneStatus.findIndex((item) => item.destination == _id)
+      await fnSendQsysData('qsys:device:str', {
+        deviceId,
+        zone: idx + 1,
+        destination: _id,
+        ipaddress,
+        port
+      })
+    }
+  } catch (error) {
+    logError(`B07 Barix 채널 변경 ${error}`, 'server')
+  }
 }
 
 module.exports = {

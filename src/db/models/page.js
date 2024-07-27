@@ -7,6 +7,7 @@ const pageSchema = new mongoose.Schema(
     schedule: String,
     user: String,
     Mode: String,
+    dub: Array,
     schedule: { type: Boolean, default: false },
     MaxPageTime: Number,
     Station: { type: Number, default: 1 },

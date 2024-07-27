@@ -128,11 +128,15 @@ module.exports = function (socket) {
         // Page에서 device 찾기
         const currentDevice =
           page.devices[page.devices.findIndex((e) => e.deviceId === deviceId)]
-        // amx relay off
-        await fnAmxRelayOff(currentDevice)
-        // barix relay off
-        await fnBarixRelayOff(currentDevice.barix)
-        // 방송 종료 로고
+
+        // 릴레이 1초 후에 끄기
+        setTimeout(async () => {
+          // amx relay off
+          await fnAmxRelayOff(currentDevice)
+          // barix relay off
+          await fnBarixRelayOff(currentDevice)
+        }, 1000)
+        // 방송 종료 로그
         logEvent(
           `방송 종료:${page.name ?? ''} ${currentDevice.name ?? ''} ID:${
             page.idx ?? ''

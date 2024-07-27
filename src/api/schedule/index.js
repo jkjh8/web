@@ -8,15 +8,21 @@ const { logInfo, logEvent, logError } = require('@logger')
 // db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne } = require('@db/qsys')
+const { dbPageUpdate } = require('@db/page')
 // api
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
 const { fnSendQsysData } = require('@api/qsys')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
-const { fnSetLive, fn } = require('@api/qsys/broadcast')
+const {
+  fnSetLive,
+  fnSetZoneActive,
+  fnCheckActive
+} = require('@api/qsys/broadcast')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const { fnQsysDeleteFolder } = require('../qsys/files')
+const { dbPage, dbPageMake } = require('@db/page')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
@@ -26,6 +32,21 @@ const fnInTimeScheduleRun = async (data) => {
     const idx = uniqueId(16)
     // page 생성
     const page = await fnMakePageFromSchedule(data)
+
+    const commands = await fnSetLive(
+      idx,
+      { ...data, devices: page, schedule: true },
+      user
+    )
+
+    // 방송 중복 확인
+    const active = await fnCheckActive(data.devices, user)
+    if (active.length > 0) {
+      await dbPageUpdate({ idx }, { dub: active })
+      for (const item of active) {
+        logEvent(`스케줄 방송 중복 확인 ${item.name}}`, user, item.Zones)
+      }
+    }
 
     //////////////// 릴레이 구동 ////////////////
     // amx 릴레이 구동
@@ -48,11 +69,7 @@ const fnInTimeScheduleRun = async (data) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    const commands = await fnSetLive(
-      idx,
-      { ...data, devices: page, schedule: true },
-      user
-    )
+
     fnSendQsysData('qsys:page:message', commands)
     // 로그
     return
@@ -79,9 +96,11 @@ const fnMakePageFromSchedule = async (args) => {
         Station: 1,
         Priority: 3,
         Message: `schedule/${idx}/${file.base}`,
+        MessageDelete: false,
         Start: true
       },
       barix: device.ZoneStatus.map((e) => e.destination),
+      amx: device.amx,
       file,
       zones:
         Zones.length === device.ZoneStatus.length

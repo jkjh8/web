@@ -15,7 +15,6 @@ const { fnSendClientQsysData } = require('@api/qsys')
 const fnSetLive = async (idx, obj, user) => {
   try {
     const { _id, createdAt, updatedAt, ...rest } = obj
-    console.log(rest)
     const { devices } = rest
     // page 생성
     await dbPageMake({ ...rest, user, idx })

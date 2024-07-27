@@ -1,4 +1,5 @@
 const dgram = require('dgram')
+const { dbQsysFindOne } = require('@db/qsys')
 const { logError } = require('@logger')
 
 //A01 릴레이 여러개 구동
@@ -33,26 +34,25 @@ const fnAmxRelayOn = (device) => {
 }
 
 //A03 릴레이 끄기
-const fnAmxRelayOff = (device) => {
-  return new Promise((resolve, reject) => {
+const fnAmxRelayOff = async (device) => {
+  try {
+    const checkDevice = await dbQsysFindOne({ deviceId: device.deviceId })
+    const ZoneStatus = checkDevice.ZoneStatus
+    const Zones = device.params.Zones
+    const active = Zones.filter((zone) => !ZoneStatus[zone - 1].Active)
     if (device.amx) {
       const udp = dgram.createSocket('udp4')
-      udp.send(
-        `#off,${device.params.Zones.join(',')}!`,
-        9000,
-        device.amx,
-        (error) => {
-          if (error) {
-            logError(`A03 AMX 릴레이 끄기 ${device.name} - ${error}`, 'server')
-            reject(error)
-          }
-          udp.close()
-          resolve()
+      udp.send(`#off,${active.join(',')}!`, 9000, device.amx, (error) => {
+        if (error) {
+          logError(`A03 AMX 릴레이 끄기 ${device.name} - ${error}`, 'server')
+          throw error
         }
-      )
+        udp.close()
+      })
     }
-    resolve()
-  })
+  } catch (error) {
+    logError(`A03 AMX 릴레이 끄기 ${error}`, 'server')
+  }
 }
 
 module.exports = {
