@@ -1,6 +1,7 @@
 const express = require('express')
 const { logInfo, logError } = require('@logger')
 const { dbUser, dbUserMake, dbUserUpdate, dbUserRemove } = require('@db/user')
+const { fnRemoveUserFolder } = require('@api/files')
 
 const router = express.Router()
 // BU01  post
@@ -31,6 +32,8 @@ router.put('/', async (req, res) => {
 // BU03 delete
 router.delete('/', async (req, res) => {
   try {
+    const curr = dbUserFindOne({ _id: req.body.id })
+    fnRemoveUserFolder(curr.email)
     res
       .status(200)
       .json({ result: true, data: await dbUserRemove(req.body.id) })

@@ -11,7 +11,8 @@ const {
   dbSchMake,
   dbSchFind,
   dbSchUpdate,
-  dbSchRemoveById
+  dbSchRemoveById,
+  dbSchRemoveByUser
 } = require('@db/schedule')
 // api
 const uniqueId = require('@api/utils/uniqueId.js')
@@ -233,6 +234,21 @@ router.get('/clean', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`SH09 스케줄 폴더 정리 ${error}`, req.user.email)
+  }
+})
+
+// SH10 스케줄 삭제 By USER
+router.delete('/user', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { user } = req.body
+    await dbSchRemoveByUser(user)
+    res.status(200).json({ result: true })
+    logWarn(`SH10 스케줄 삭제 ${user}`, email)
+    await fnSendScheduleToAPP()
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SH10 스케줄 삭제 ${error}`, email)
   }
 })
 

@@ -31,6 +31,10 @@ module.exports = {
     await Sch.findByIdAndDelete(id)
     fnBackupRequest('/backup/schedules', { data: { id } }, 'DELETE')
   },
+  dbSchRemoveByUser: async (user) => {
+    await Sch.deleteMany({ user })
+    fnBackupRequest('/backup/schedules/user', { data: { user } }, 'DELETE')
+  },
   dbSchFindToday: async () => {
     const date = moment()
     const weekday = date.day()

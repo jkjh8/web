@@ -73,4 +73,17 @@ router.delete('/reset', async (req, res) => {
   }
 })
 
+router.delete('/user', async (req, res) => {
+  try {
+    res.status(200).json({
+      result: true,
+      data: await dbSch.deleteMany({ user: req.body.user })
+    })
+    logInfo(`BS06 스케줄 사용자 삭제 완료 ${req.body.user}`, 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BS06 스케줄 사용자 삭제 ${error}`, 'SERVER')
+  }
+})
+
 module.exports = router

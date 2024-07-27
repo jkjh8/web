@@ -99,6 +99,12 @@ const fnRFAF = (list) => {
   }
 }
 
+// F08 사용자 폴더 삭제
+const fnRemoveUserFolder = (email) => {
+  const folder = path.resolve(gStatus.mediaFolder, email)
+  fs.rmdirSync(folder, { recursive: true })
+}
+
 module.exports = {
   fnGetFolder,
   fnMakeFolder,
@@ -107,5 +113,6 @@ module.exports = {
   fnGetFile,
   fnGetFileSize,
   fnRTemp,
-  fnRFAF
+  fnRFAF,
+  fnRemoveUserFolder
 }

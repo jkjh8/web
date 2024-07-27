@@ -2,6 +2,7 @@ const express = require('express')
 const { logInfo, logWarn, logError } = require('@logger')
 const { dbUserFind, dbUserUpdate, dbUserRemove } = require('@db/user')
 const { isAdmin } = require('@api/user')
+const { fnRemoveUserFolder } = require('@api/files')
 
 const router = express.Router()
 
@@ -52,7 +53,8 @@ router.put('/admin', isAdmin, async (req, res) => {
 router.delete('/', isAdmin, async (req, res) => {
   const { email } = req.user
   try {
-    const { _id, name } = req.body
+    const { _id, name, email } = req.body
+    fnRemoveUserFolder(email)
     res.status(200).json({ result: true, data: await dbUserRemove(_id) })
     logWarn(`RU04 사용자 삭제 ${name}:${req.body.email}`, email)
   } catch (error) {
