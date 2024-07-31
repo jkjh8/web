@@ -1,5 +1,6 @@
 module.exports = {
   gStatus: {
+    version: '',
     ttsAddress: 'http://127.0.0.1:9998',
     bridge: { connected: false, id: '', lastupdate: '' },
     scheduler: {

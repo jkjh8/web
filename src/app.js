@@ -2,7 +2,7 @@
 const path = require('node:path')
 const fs = require('node:fs')
 const MongoStore = require('connect-mongo')
-
+const information = require('../package.json')
 require('module-alias/register')
 require('dotenv').config()
 require('@db')
@@ -22,6 +22,7 @@ const app = express()
 global.gStatus = require('./defaultVal').gStatus
 require('@api/setup')()
 require('@api/setup/folders')(__dirname, app)
+global.gStatus.version = information.version
 
 // 프로듀션 모드가 아닌 경우 로깅
 if (process.env.NODE_ENV !== 'production') {
@@ -83,6 +84,3 @@ require('@io').initIO(io)
 
 const { getAllDeviceStorage } = require('@api/qsys')
 getAllDeviceStorage()
-
-// const { fnGetFileFolderAll } = require('@api/files')
-// console.log(fnGetFileFolderAll(gStatus.mediaFolder))
