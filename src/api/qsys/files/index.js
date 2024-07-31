@@ -22,15 +22,15 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // QF01 메시지 주소 생성
 const fnMakeAddr = (ipaddr) => {
-  return `http://${ipaddr}/api/v0/cores/self/media/Messages`
+  return `https://${ipaddr}/api/v0/cores/self/media/Messages`
 }
 
 const fnMakeAddrDefault = (ipaddr) => {
-  return `http://${ipaddr}/api/v0/cores/self/media`
+  return `https://${ipaddr}/api/v0/cores/self/media`
 }
 // QF02 qsys에 기본 폴더 생성
 const fnQsysCheckMediaFolder = async (device) => {
-  const url = `http://${device.ipaddress}/api/v0/cores/self/media/Messages`
+  const url = `https://${device.ipaddress}/api/v0/cores/self/media/Messages`
   axios
     .post(url, {
       name: 'live'
