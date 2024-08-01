@@ -20,11 +20,30 @@ const router = express.Router()
 router.get('/', async (req, res) => {
   const { email } = req.user
   try {
-    res.status(200).json({ result: true, devices: await dbBarixFind() })
+    res.status(200).json({
+      result: true,
+      devices: await dbBarixFind()
+    })
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
     logError(`RB01 Barix 데이터 수집 ${error}`, email)
+  }
+})
+
+// RB01-1 - Barix 장치 검색
+router.get('/ip', async (req, res) => {
+  try {
+    const { options } = req.query
+    res
+      .status(200)
+      .json({
+        result: true,
+        devices: await dbBarixFind({ ipaddress: { $in: req.query.ip } })
+      })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`RB01-1 Barix 장치 검색 ${error}`, email)
   }
 })
 
