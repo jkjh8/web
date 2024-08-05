@@ -145,15 +145,15 @@ module.exports = function (socket) {
           [currentDevice.name]
         )
         // delete file
-        if (!page.schedule && page.file) {
-          fnQsysFileDelete({
-            addr: 'live',
-            ipaddress: currentDevice.ipaddress,
-            file: page.file.base,
-            deviceId: currentDevice.deviceId,
-            user: page.user
-          })
-        }
+        // if (!page.schedule && page.file) {
+        //   fnQsysFileDelete({
+        //     addr: 'live',
+        //     ipaddress: currentDevice.ipaddress,
+        //     file: page.file.base,
+        //     deviceId: currentDevice.deviceId,
+        //     user: page.user
+        //   })
+        // }
         // delete PageID
         return await dbQsysUpdate(
           { deviceId },

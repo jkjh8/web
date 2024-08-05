@@ -2,8 +2,10 @@ const axios = require('axios')
 const https = require('https')
 const fs = require('fs')
 const FormData = require('form-data')
+
 const { logError } = require('@logger')
 const { gStatus } = require('../../defaultVal')
+const { fnGetFileFolderAll } = require('@api/files')
 
 // BK01 백업
 function fnBackupRequest(addr, data, method) {
@@ -60,14 +62,15 @@ const fnBackupUploader = (file, folder) => {
         headers: { ...form.getHeaders(), folder, backupid: gStatus.backupId }
       })
       .then((res) => {
-        console.log(res)
+        // console.log(res)
       })
       .catch((error) => {
-        console.error(error)
+        logError(`BK03 백업 파일 업로드`)
       })
   }
 }
 
+// BK04 백업에 파일 삭제
 const fnBackupFileFolderDelete = (list) => {
   if (gStatus.mode === 'Backup') return
   if (gStatus.backupFile === false) return
@@ -80,17 +83,35 @@ const fnBackupFileFolderDelete = (list) => {
         data: { list }
       })
       .then((res) => {
-        console.log(res)
+        // console.log(res)
       })
       .catch((error) => {
-        console.error(error)
+        logError(`BK04 백업 파일 삭제`)
       })
   }
+}
+
+// BK05 전체 파일 백업 서버로 복사
+const fnBackupFilesNow = async () => {
+  return new Promise((resolve, reject) => {
+    try {
+      const list = fnGetFileFolderAll(gStatus.mediaFolder)
+      for (const item of list) {
+        if (!item.isDirectory) {
+          fnBackupUploader(item.path, item.folder)
+        }
+      }
+      resolve()
+    } catch (error) {
+      reject(new Error(error))
+    }
+  })
 }
 
 module.exports = {
   fnBackupRequest,
   isBackup,
   fnBackupUploader,
-  fnBackupFileFolderDelete
+  fnBackupFileFolderDelete,
+  fnBackupFilesNow
 }

@@ -91,7 +91,7 @@ const fnSetZoneActive = async (deviceId, arr) => {
       ZoneStatus[zone - 1].Active = true
     }
     await dbQsysUpdate({ deviceId }, { ZoneStatus })
-    fnSendClientQsysData(deviceId, { ZoneStatus })
+    // fnSendClientQsysData(deviceId, { ZoneStatus })
   } catch (error) {
     logError(`QB04 QSYS Zone Active 변경 ${error}`, 'server')
   }

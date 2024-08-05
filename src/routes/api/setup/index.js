@@ -1,11 +1,14 @@
-const initSetup = require('@api/setup')
+const { gStatus } = require('../../../defaultVal')
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
+// api
+const initSetup = require('@api/setup')
 const {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP
 } = require('@api/schedule')
-const { gStatus } = require('../../../defaultVal')
+const { fnBackupFilesNow } = require('@api/backup')
+
 const router = require('express').Router()
 
 router.use('/barix', require('./barix'))
@@ -263,6 +266,20 @@ router.put('/backupfile', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`SS17 백업 파일 변경 ${error}`, email)
+  }
+})
+
+// SS18 지금 파일 백업
+router.get('/backupnow', async (req, res) => {
+  const { email } = req.user
+  try {
+    // 백업 서버로 파일을 백업합니다.
+    await fnBackupFilesNow()
+    res.status(200).json({ result: true })
+    logInfo(`SS18 지금 파일 백업 완료`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS18 지금 파일 백업 ${error}`, email)
   }
 })
 

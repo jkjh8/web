@@ -27,6 +27,7 @@ const fnGetFileFolderAll = (folder) => {
     fileList.push({
       label: file,
       path: fullpath,
+      folder: path.dirname(fullpath),
       isDirectory: isDirectory
     })
     if (isDirectory) {
