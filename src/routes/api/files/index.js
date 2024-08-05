@@ -189,6 +189,13 @@ router.put('/copy', (req, res) => {
   }
 })
 
+// RF15 메뉴얼 다운로드
+router.get('/manual', async (req, res) => {
+  const file = 'manual.pdf'
+  const path = 'src/public'
+  res.download(`${path}/${file}`, file)
+})
+
 router.use('/temp', require('./temp'))
 
 module.exports = router
