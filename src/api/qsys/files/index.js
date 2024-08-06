@@ -32,9 +32,13 @@ const fnMakeAddrDefault = (ipaddr) => {
 const fnQsysCheckMediaFolder = async (device) => {
   const url = `https://${device.ipaddress}/api/v0/cores/self/media/Messages`
   axios
-    .post(url, {
-      name: 'live'
-    })
+    .post(
+      url,
+      {
+        name: 'live'
+      },
+      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+    )
     .then((res) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 LIVE`, 'server')
     })
@@ -45,9 +49,13 @@ const fnQsysCheckMediaFolder = async (device) => {
       )
     })
   axios
-    .post(url, {
-      name: 'schedule'
-    })
+    .post(
+      url,
+      {
+        name: 'schedule'
+      },
+      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+    )
     .then((res) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 SCHEDULE`, 'server')
     })
@@ -71,7 +79,8 @@ const fnQsysFileUpload = async (args) => {
       `${fnMakeAddr(ipaddress)}/${addr}`,
       form,
       {
-        headers: { ...form.getHeaders() }
+        headers: { ...form.getHeaders() },
+        httpsAgent: new https.Agent({ rejectUnauthorized: false })
       }
     )
     // 파일 업로드 후 스토리지 정보 갱신
@@ -105,7 +114,9 @@ const fnQsysFileUpload = async (args) => {
 const fnQsysFileDelete = async (args) => {
   const { addr, ipaddress, file, deviceId, user } = args
   axios
-    .delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`)
+    .delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    })
     .then(async () => {
       await fnGetStrage(ipaddress)
     })
@@ -118,7 +129,9 @@ const fnQsysFileDelete = async (args) => {
 const fnQsysFileDeleteAsync = async (args) => {
   const { addr, ipaddress, file, deviceId, user } = args
   try {
-    await axios.delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`)
+    await axios.delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    })
     // 파일 삭제 후 스토리지 정보 갱신
     await fnGetStrage(ipaddress)
   } catch (error) {
@@ -154,7 +167,11 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
 // QF05-1 스케줄 파일 동기화
 const fnQsysMakeFolderForSchedule = async (idx, deviceId, ipaddress) => {
   try {
-    await axios.post(`${fnMakeAddr(ipaddress)}/schedule`, { name: idx })
+    await axios.post(
+      `${fnMakeAddr(ipaddress)}/schedule`,
+      { name: idx },
+      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+    )
   } catch (error) {
     if (
       error.response.data &&
@@ -173,7 +190,10 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
     if (!schedules) {
       schedules = await dbSchFind({})
     }
-    const { data } = await axios.get(`${fnMakeAddr(device.ipaddress)}/schedule`)
+    const { data } = await axios.get(
+      `${fnMakeAddr(device.ipaddress)}/schedule`,
+      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+    )
     //  data의 name중 schedules의 idx와 같은 것이 없는 것을 찾아서 삭제
     data.forEach(async (d) => {
       const find = schedules.find((s) => s.idx === d.name)
@@ -189,7 +209,9 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
 // QF07 폴더 삭제
 const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
   try {
-    return await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`)
+    return await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    })
   } catch (error) {
     logError(`OF08 Q-SYS 폴더 삭제`, 'server')
   }
@@ -206,7 +228,9 @@ const fnQsysDeleteLive = async (deviceId) => {
     // 아니면 qsys의 messages/live 폴더의 파일 목록을 가져와서 하나씩 삭제
     const { data } = await axios.get(`${fnMakeAddr(device.ipaddress)}/live`)
     data.forEach(async (d) => {
-      await axios.delete(`${fnMakeAddrDefault(device.ipaddress)}/${d.path}`)
+      await axios.delete(`${fnMakeAddrDefault(device.ipaddress)}/${d.path}`, {
+        httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      })
     })
     logWarn(`OF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
   } catch (error) {

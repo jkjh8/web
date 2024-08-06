@@ -1,21 +1,22 @@
 const axios = require('axios')
 const io = require('@io')
+const https = require('https')
 const { logInfo, logError } = require('@logger')
 const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
 const { dbQsysUpdate, dbQsysFindOne } = require('../../db/qsys')
 
 // Q01 qsys 저장소 정보 수집
 const fnGetStrage = async (ipaddress) => {
-  try {
-    const { data } = await axios.get(
-      `http://${ipaddress}/api/v0/cores/self/media?meta=storage`,
-      { timeout: 5000 }
-    )
-    await dbQsysUpdate({ ipaddress }, { storage: data.meta.storage })
-  } catch (error) {
-    logError(`Q01 QSYS 저장소 정보 수집 ${error}`, 'server')
-    throw error
-  }
+  axios
+    .get(`https://${ipaddress}/api/v0/cores/self/media?meta=storage`, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    })
+    .then((res) => {
+      dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
+    })
+    .catch((err) => {
+      logError(`Q01 QSYS 저장소 정보 수집`, 'server')
+    })
 }
 
 // Q02 전체 QSYS 저장소 정보 수집
