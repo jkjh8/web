@@ -6,9 +6,7 @@ const FormData = require('form-data')
 const { logWarn, logError } = require('@logger')
 const { dbSchFind, dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('@db/schedule')
-const { fnGetStrage } = require('..')
-const { dbQsysFindOne, dbQsysFind } = require('../../../db/qsys')
-const { log } = require('console')
+const { dbQsysFindOne, dbQsysFind, dbQsysUpdate } = require('../../../db/qsys')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -250,6 +248,21 @@ const fnQsysDeleteLiveAll = async () => {
     logError(`OF09 Q-SYS Live파일 전체 삭제 ${error}`, 'server')
   }
 }
+
+// QF10 qsys 저장소 정보 수집
+const fnGetStrage = async (ipaddress) => {
+  axios
+    .get(`https://${ipaddress}/api/v0/cores/self/media?meta=storage`, {
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    })
+    .then((res) => {
+      dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
+    })
+    .catch((err) => {
+      logError(`Q01 QSYS 저장소 정보 수집`, 'server')
+    })
+}
+
 module.exports = {
   fnMakeAddr,
   fnMakeAddrDefault,
@@ -261,5 +274,6 @@ module.exports = {
   fnQsysCheckScheduleFolder,
   fnQsysDeleteFolder,
   fnQsysDeleteLive,
-  fnQsysDeleteLiveAll
+  fnQsysDeleteLiveAll,
+  fnGetStrage
 }
