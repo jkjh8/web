@@ -3,13 +3,15 @@
 const { logEvent, logInfo, logError } = require('@logger')
 // db
 const { dbUserUpdate } = require('@db/user')
+const { dbSetupUpdate } = require('@db/setup')
 // api
 const {
   fnSendScheduleToAPP,
   fnCleanQsysScheduleFolder,
   fnCleanScheduleFolder,
   fnInTimeScheduleRun,
-  fnCleanQsysScheduleTypeOnce
+  fnCleanQsysScheduleTypeOnce,
+  fnSendActiveScheduleToAPP
 } = require('@api/schedule')
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
@@ -76,7 +78,7 @@ const schedulerParser = (socket) => {
       //temp 폴더 비우기
       fnRTemp()
     } catch (error) {
-      logError(`IS06 스케줄 폴더 정리 ${error}`, 'server')
+      logError(`IS06 스케줄 폴더 정리 ${error}`, 'scheduler')
     }
   })
 
@@ -88,7 +90,14 @@ const schedulerParser = (socket) => {
   // IS08 릴레이 구동 시간 갱신
   socket.on('relayOnTime', () => {
     socket.emit('relayOnTime', gStatus.relayOnTime)
-    logInfo(`IS08 릴레이 구동 시간 갱신 ${gStatus.relayOnTime}`, 'server')
+    logInfo(`IS08 릴레이 구동 시간 갱신 ${gStatus.relayOnTime}`, 'scheduler')
+  })
+  // IS09 스케줄 동작 변경
+  socket.on('active:mode', (mode) => {
+    gStatus.activeMode = mode
+    dbSetupUpdate({ key: 'activeMode' }, { value: mode })
+    fnSendActiveScheduleToAPP(mode)
+    logInfo(`스케줄러 동작이 변경되었습니다. ${mode}`, 'scheduler')
   })
 }
 

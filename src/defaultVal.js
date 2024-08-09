@@ -14,6 +14,7 @@ module.exports = {
     interval: 50,
     gainStep: 2,
     mode: 'Normal',
+    activeMode: 'main',
     backupId: '',
     backupAddress: '',
     backupActive: false,
