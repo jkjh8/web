@@ -6,6 +6,10 @@ const { dbSetupUpdate } = require('@db/setup')
 const { fnSendScheduleToAPP } = require('@api/schedule')
 const { gStatus } = require('../../defaultVal')
 const { fnSendGlobalStatus } = require('@api/client')
+const {
+  fnSendAutoScheduleToAPP,
+  fnSendActiveScheduleToAPP
+} = require('../../api/schedule')
 
 module.exports = (socketio) => {
   // IS01 소켓 연결
@@ -47,6 +51,7 @@ module.exports = (socketio) => {
       fnSendGlobalStatus()
 
       logWarn(`IS01 Socket 스케줄러 연결 해제 ${socket.id}`, 'server')
+      fnSendActiveScheduleToAPP(gStatus.activeMode)
     })
     //
     require('./fromScheduler')(socket)
