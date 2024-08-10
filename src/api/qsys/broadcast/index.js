@@ -9,8 +9,6 @@ const {
   dbQsysFindOne
 } = require('@db/qsys')
 
-const { fnSendClientQsysData } = require('@api/qsys')
-
 // QB01 live 송출 명령 만들기
 const fnSetLive = async (idx, obj, user) => {
   try {
@@ -91,7 +89,6 @@ const fnSetZoneActive = async (deviceId, arr) => {
       ZoneStatus[zone - 1].Active = true
     }
     await dbQsysUpdate({ deviceId }, { ZoneStatus })
-    // fnSendClientQsysData(deviceId, { ZoneStatus })
   } catch (error) {
     logError(`QB04 QSYS Zone Active 변경 ${error}`, 'server')
   }

@@ -1,10 +1,4 @@
 const { dbQsysFindAll } = require('@db/qsys')
-const {
-  fnSendClientQsysData,
-  fnSendClientZoneStatus,
-  fnSendSocketStatusAll,
-  fnSendClientPageMessage
-} = require('@api/qsys')
 const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { logInfo, logError } = require('@logger')
 const io = require('@io')
@@ -17,7 +11,6 @@ const qsysParser = async (key, value) => {
           deviceId: value.deviceId,
           data: { connected: true }
         })
-        // fnSendClientQsysData(value.deviceId, { connected: true })
         fnQsysCheckMediaFolder({
           deviceId: value.deviceId,
           name: value.name,
@@ -29,7 +22,6 @@ const qsysParser = async (key, value) => {
         )
         break
       case 'disconnect':
-        // fnSendClientQsysData(value.deviceId, { connected: false })
         io.client.emit('qsys:device', {
           deviceId: value.deviceId,
           data: { connected: false }
@@ -40,7 +32,6 @@ const qsysParser = async (key, value) => {
         )
         break
       case 'ZoneStatus':
-        // fnSendClientZoneStatus(value.deviceId, value.ZoneStatus)
         io.client.emit('qsys:ZoneStatus', {
           deviceId: value.deviceId,
           ZoneStatus: value.ZoneStatus
@@ -51,7 +42,6 @@ const qsysParser = async (key, value) => {
           deviceId: value.deviceId,
           data: value.data
         })
-        // fnSendClientQsysData(value.deviceId, { ...value.data })
         break
       case 'deviceAll':
         const devices = await dbQsysFindAll()
