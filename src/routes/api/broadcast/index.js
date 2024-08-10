@@ -4,7 +4,8 @@ const { logError, logEvent } = require('@logger')
 const { dbPageFindOne } = require('@db/page')
 //api
 const { fnSendPageMessage } = require('@api/client')
-const { fnSendQsysData } = require('@api/qsys')
+// const { fnSendQsysData } = require('@api/qsys')
+const { fnSendDeviceMuticast } = require('@multicast')
 const { fnQsysFileUpload, fnQsysFileDeleteAsync } = require('@api/qsys/files')
 const { fnGetSocketId } = require('@api/user/socket')
 const { fnCheckActive } = require('@api/qsys/broadcast')
@@ -19,12 +20,18 @@ router.use('/schedule', require('./schedule'))
 router.get('/stop', async (req, res) => {
   try {
     const page = await dbPageFindOne({ idx: req.query.idx })
-    fnSendQsysData(
+    fnSendDeviceMuticast(
       'qsys:page:stop',
       page.devices.map((e) => {
         return { deviceId: e.deviceId, PageID: e.PageID, idx: e.idx }
       })
     )
+    // fnSendQsysData(
+    //   'qsys:page:stop',
+    //   page.devices.map((e) => {
+    //     return { deviceId: e.deviceId, PageID: e.PageID, idx: e.idx }
+    //   })
+    // )
     res.status(200).json({ result: true })
     // 로그
     logEvent(`방송 중지 ${req.query.idx}`, req.user.email, page.zones)

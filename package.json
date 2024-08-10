@@ -45,8 +45,8 @@
     "@logger": "src/logger",
     "@api": "src/api",
     "@clients": "src/io/clients",
-    "@bridge": "src/io/bridge",
     "@io": "src/io",
-    "@app": "src/app"
+    "@app": "src/app",
+    "@multicast": "src/multicast"
   }
 }

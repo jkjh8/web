@@ -11,6 +11,7 @@ const {
 } = require('@db/qsys')
 
 const { fnSendAllStatusAll, fnSendQsysData } = require('@api/qsys')
+const { fnSendDeviceMuticast } = require('@multicast')
 const { fnGetBarixInfo } = require('@api/barix')
 const { fn } = require('moment')
 
@@ -99,13 +100,20 @@ router.put('/zoneupdate', async (req, res) => {
   try {
     const { deviceId, zone, destination, ipaddress, port } = req.body
     // 스트림 구간 설정
-    fnSendQsysData('qsys:device:str', {
+    fnSendDeviceMuticast('qsys:device:str', {
       deviceId,
       zone,
       destination,
       ipaddress,
       port
     })
+    // fnSendQsysData('qsys:device:str', {
+    //   deviceId,
+    //   zone,
+    //   destination,
+    //   ipaddress,
+    //   port
+    // })
     // 5초후 바릭스 데이터 수집 요청
     setTimeout(() => fnGetBarixInfo(ipaddress), 5000)
     // 데이터 베이스 업데이트 및 송신
@@ -195,7 +203,8 @@ router.get('/gtrs', (req, res) => {
   const { email } = req.user
   try {
     const { deviceId } = req.query
-    fnSendQsysData('qsys:device:gtrs', { deviceId })
+    // fnSendQsysData('qsys:device:gtrs', { deviceId })
+    fnSendDeviceMuticast('qsys:device:gtrs', { deviceId })
     res.status(200).json({ result: true })
     // 로그
     logInfo(`RQ10 QSYS 장치ID: ${deviceId} 스트림 채널 정보 수집`, email)
@@ -210,7 +219,8 @@ router.put('/strs', (req, res) => {
   const { email } = req.user
   try {
     const { device } = req.body
-    fnSendQsysData('qsys:device:strs', { device })
+    // fnSendQsysData('qsys:device:strs', { device })
+    fnSendDeviceMuticast('qsys:device:strs', { device })
     res.status(200).json({ result: true })
     // 로그
     logInfo(
@@ -231,7 +241,8 @@ router.get('/cancel', (req, res) => {
     if (isAdmin) {
       const { name, ipaddress, deviceId, pageId } = req.query.device
 
-      fnSendQsysData(`qsys:page:cancelAll`, deviceId)
+      // fnSendQsysData(`qsys:page:cancelAll`, deviceId)
+      fnSendDeviceMuticast(`qsys:page:cancelAll`, deviceId)
       logWarn(`Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`, email)
       return res.status(200).json({ result: true })
     }
@@ -274,7 +285,8 @@ router.put('/updatenames', async (req, res) => {
     // 전체 데이터 송신
     await fnSendAllStatusAll()
     // 큐시스 미디어 스트림 업데이트
-    await fnSendQsysData('qsys:device:strs', { ...req.body })
+    // await fnSendQsysData('qsys:device:strs', { ...req.body })
+    fnSendDeviceMuticast('qsys:device:strs', { ...req.body })
     // barix get info
     arr.forEach((item) => {
       if (item.destination && item.destination.ipaddress) {

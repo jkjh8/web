@@ -6,9 +6,11 @@ const { logError, logDebug } = require('@logger')
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
 const { dbQsys, dbQsysFindOne } = require('@db/qsys')
 // api
-const { fnSendQsysData } = require('@api/qsys')
+// const { fnSendQsysData } = require('@api/qsys')
+const { fnSendDeviceMuticast } = require('@multicast')
 // io
 const io = require('@io')
+const { fn } = require('moment')
 
 let barixInterval = null
 
@@ -188,7 +190,7 @@ const fnBarixChangeQsys = async (obj) => {
     if (device) {
       const { deviceId, ZoneStatus } = device
       const idx = ZoneStatus.findIndex((item) => item.destination == _id)
-      await fnSendQsysData('qsys:device:str', {
+      fnSendDeviceMuticast('qsys:device:str', {
         deviceId,
         zone: idx + 1,
         destination: _id,

@@ -2,9 +2,14 @@ const axios = require('axios')
 const io = require('@io')
 const https = require('https')
 const { logInfo, logError } = require('@logger')
-const { dbQsysFindAll, dbQsysFind } = require('@db/qsys')
-const { dbQsysUpdate, dbQsysFindOne } = require('../../db/qsys')
+const {
+  dbQsysFindAll,
+  dbQsysFind,
+  dbQsysUpdate,
+  dbQsysFindOne
+} = require('@db/qsys')
 const { fnGetStrage } = require('./files')
+const { fnSendDeviceMuticast } = require('@multicast')
 
 // Q01 전체 QSYS 저장소 정보 수집
 const getAllDeviceStorage = async () => {
@@ -38,6 +43,14 @@ const fnSendClientQsysData = async (deviceId, obj) => {
   }
 }
 
+const fnSendClientZoneStatus = async (deviceId, ZoneStatus) => {
+  try {
+    io.client.emit('qsys:ZoneStatus', { deviceId, ZoneStatus })
+  } catch (error) {
+    logError(`Q03 QSYS 단일 지역 데이터 Client 송신 ${error}`, 'server', 'qsys')
+  }
+}
+
 // Q04 Q-SYS 전체 데이터를 다수 호출시에도 1초에 1번만 전송
 let sendClientStatusAll = null
 let timeoutSendClientStatusAll = false
@@ -63,20 +76,22 @@ const fnSendClientStatusAll = async () => {
   }
 }
 
-// Q05 Bridge로 전송
-const fnSendQsysData = async (key, obj) => {
-  try {
-    io.bridge.emit(key, obj)
-  } catch (error) {
-    logError(`Q05 QSYS Bridge 전송 ${error}`, 'server')
-  }
-}
+// // Q05 Bridge로 전송
+// const fnSendQsysData = async (key, obj) => {
+//   try {
+//     // io.bridge.emit(key, obj)
+//     fnSendDeviceMuticast(key, obj)
+//   } catch (error) {
+//     logError(`Q05 QSYS Bridge 전송 ${error}`, 'server')
+//   }
+// }
 
 // Q06 전체 데이터 송신
 const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
-    io.bridge.emit('qsys:devices', data)
+    // io.bridge.emit('qsys:devices', data)
+    fnSendDeviceMuticast('getAll', {})
     io.client.emit('qsys:devices', data)
   } catch (error) {
     logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'server')
@@ -123,8 +138,9 @@ module.exports = {
   fnSendSocketStatusAll,
   fnSendClientStatusAll,
   fnSendAllStatusAll,
-  fnSendQsysData,
+  // fnSendQsysData,
   fnSendClientPageMessage,
   fnCheckPageStatus,
-  fnCheckPageStatusAll
+  fnCheckPageStatusAll,
+  fnSendClientZoneStatus
 }

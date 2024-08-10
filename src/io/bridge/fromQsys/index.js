@@ -10,10 +10,11 @@ const { fnBarixRelayOff } = require('@api/barix')
 const {
   fnSendClientStatusAll,
   fnSendClientQsysData,
-  fnSendClientPageMessage,
-  fnSendQsysData
+  fnSendClientPageMessage
+  // fnSendQsysData
 } = require('@api/qsys')
 const { fnAmxRelayOff } = require('@api/amx')
+const { fnSendDeviceMuticast } = require('@multicast')
 
 module.exports = function (socket) {
   // IB02
@@ -34,7 +35,8 @@ module.exports = function (socket) {
     logInfo(`IB02 QSYS 연결 ${name} - ${ipaddress}: ${deviceId}`, 'SERVER')
     //5초후에 QSYS 데이터 가져오기 실행
     setTimeout(() => {
-      fnSendQsysData('zone:get:channels', deviceId)
+      // fnSendQsysData('zone:get:channels', deviceId)
+      fnSendDeviceMuticast('zone:get:channels', deviceId)
       logInfo(
         `IB02 QSYS 데이터 가져오기 실행 ${name} - ${ipaddress}: ${deviceId}`,
         'SERVER'

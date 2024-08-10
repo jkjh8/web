@@ -32,9 +32,6 @@ module.exports = async function () {
         case 'backupActive':
           gStatus.backupActive = item.valueBoolean
           break
-        case 'bridge':
-          gStatus.bridge.lastupdate = item.updatedAt
-          break
         case 'relayOnTime':
           gStatus.relayOnTime = item.valueNum
           break

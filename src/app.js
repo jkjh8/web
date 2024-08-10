@@ -84,3 +84,6 @@ require('@io').initIO(io)
 
 const { getAllDeviceStorage } = require('@api/qsys')
 getAllDeviceStorage()
+
+require('@multicast').fnInitQsysSocket()
+require('@multicast').fnInitScheduleSocket()

@@ -16,7 +16,8 @@ const {
 } = require('@db/schedule')
 // api
 const uniqueId = require('@api/utils/uniqueId.js')
-const { fnSendQsysData } = require('@api/qsys')
+// const { fnSendQsysData } = require('@api/qsys')
+const { fnSendDeviceMuticast } = require('@multicast')
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
@@ -106,7 +107,8 @@ router.put('/', async (req, res) => {
     await fnWaitRelayOnTime()
 
     // 방송 시작
-    fnSendQsysData('qsys:page:message', page)
+    // fnSendQsysData('qsys:page:message', page)
+    fnSendDeviceMuticast('qsys:page:message', page)
     // 로그 기록
     logInfo(
       `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.Base}`,

@@ -12,7 +12,8 @@ const { dbPageUpdate } = require('@db/page')
 // api
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
-const { fnSendQsysData } = require('@api/qsys')
+// const { fnSendQsysData } = require('@api/qsys')
+const { fnSendDeviceMuticast } = require('@multicast')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
 const {
   fnSetLive,
@@ -69,8 +70,8 @@ const fnInTimeScheduleRun = async (data) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-
-    fnSendQsysData('qsys:page:message', commands)
+    fnSendDeviceMuticast('qsys:page:message', commands)
+    // fnSendQsysData('qsys:page:message', commands)
     // 로그
     return
   } catch (error) {
