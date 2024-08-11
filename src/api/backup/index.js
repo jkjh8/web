@@ -17,7 +17,7 @@ function fnBackupRequest(addr, data, method) {
           method: method,
           data: data,
           httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-          timeout: 5000,
+          timeout: 10000,
           headers: {
             backupid: gStatus.backupId
           }

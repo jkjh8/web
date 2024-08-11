@@ -6,11 +6,7 @@ const { logError, logDebug } = require('@logger')
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
 const { dbQsys, dbQsysFindOne } = require('@db/qsys')
 // api
-// const { fnSendQsysData } = require('@api/qsys')
 const { fnSendDeviceMuticast } = require('@multicast')
-// io
-const io = require('@io')
-const { fn } = require('moment')
 
 let barixInterval = null
 

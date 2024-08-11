@@ -25,5 +25,13 @@ module.exports = {
         .status(403)
         .json({ result: false, user: null, message: '관리자 권한이 없습니다.' })
     })(req, res, next)
+  },
+  isScheduler: (req, res, next) => {
+    if (req.headers.authenticate === process.env.SCHEDULER_PASS) return next()
+    res.status(401).json({ result: false, message: 'Unauthorized' })
+  },
+  isBarix: (req, res, next) => {
+    if (req.headers.authenticate === process.env.BARIX_PASS) return next()
+    res.status(401).json({ result: false, message: 'Unauthorized' })
   }
 }

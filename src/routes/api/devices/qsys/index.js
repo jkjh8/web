@@ -13,7 +13,6 @@ const {
 const { fnSendAllStatusAll, fnSendQsysData } = require('@api/qsys')
 const { fnSendDeviceMuticast } = require('@multicast')
 const { fnGetBarixInfo } = require('@api/barix')
-const { fn } = require('moment')
 
 const router = express.Router()
 
@@ -129,7 +128,7 @@ router.put('/zoneupdate', async (req, res) => {
       `RQ06 QSYS 데이터 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
       email
     )
-    await fnSendAllStatusAll()
+    // await fnSendAllStatusAll()
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
@@ -299,6 +298,28 @@ router.put('/updatenames', async (req, res) => {
     res.status(500).json(error)
     // 로그
     logError(`RQ13 QSYS 방송구간 이름 및 스트림업데이트 ${error}`, email)
+  }
+})
+
+// RQ14 - 볼륨조정
+router.put('/volume', async (req, res) => {
+  const { email } = req.user
+  try {
+    const { deviceId, zone, volume, name } = req.body
+    // 데이터베이스 업데이트
+    await dbQsysUpdateBackup(
+      { deviceId, 'ZoneStatus.Zone': zone },
+      { 'ZoneStatus.$.volume': volume }
+    )
+    fnSendDeviceMuticast('qsys:volume', req.body)
+    // 로그
+    logInfo(`IC02 볼륨 ${name}-${deviceId} ${zone}: ${value}`, email)
+    // 송신
+    res.status(200).json({ result: true })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ14 QSYS 볼륨조정 ${error}`, email)
   }
 })
 

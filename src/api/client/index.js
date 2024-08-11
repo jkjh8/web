@@ -8,7 +8,16 @@ const fnSendGlobalStatus = () => {
   io.client.emit('setup:status', gStatus)
 }
 
+const fnSendSocket = (key, value) => {
+  try {
+    io.client.emit(key, value)
+  } catch (error) {
+    console.error('fnSendSocket error:', error)
+  }
+}
+
 module.exports = {
   fnSendPageMessage,
-  fnSendGlobalStatus
+  fnSendGlobalStatus,
+  fnSendSocket
 }

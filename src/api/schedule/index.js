@@ -1,8 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
-// io
-const io = require('@io')
 // logger
 const { logInfo, logEvent, logError } = require('@logger')
 // db
@@ -23,7 +21,7 @@ const {
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const { fnQsysDeleteFolder } = require('../qsys/files')
-const { dbPage, dbPageMake } = require('@db/page')
+const { fnSendScheduleMuticast } = require('@multicast')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
@@ -195,6 +193,16 @@ const fnCleanQsysScheduleTypeOnce = async () => {
   )
 }
 
+// S09 스케줄러가 오늘 스케줄을 찾아서 APP로 전송
+const fnSendMuticastSchedule = async () => {
+  try {
+    const schedules = await dbSchFindToday()
+    fnSendScheduleMuticast('schedules', schedules)
+  } catch (error) {
+    logError(`S09 오늘 스케줄 전송 오류 ${error}`, 'server')
+  }
+}
+
 module.exports = {
   fnMakePageFromSchedule,
   fnSendScheduleToAPP,
@@ -203,5 +211,6 @@ module.exports = {
   fnInTimeScheduleRun,
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP,
-  fnCleanQsysScheduleTypeOnce
+  fnCleanQsysScheduleTypeOnce,
+  fnSendMuticastSchedule
 }

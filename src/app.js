@@ -1,29 +1,25 @@
 /** @format */
 const path = require('node:path')
-const fs = require('node:fs')
-const MongoStore = require('connect-mongo')
-const information = require('../package.json')
 require('module-alias/register')
 require('dotenv').config()
 require('@db')
+// logger
+const { logInfo, logError } = require('@logger')
 
 // server
 const express = require('express')
-const https = require('node:https')
 const http = require('node:http')
 const cookieParser = require('cookie-parser')
 const { Server } = require('socket.io')
-
-const { logInfo, logError } = require('@logger')
+const { createAdapter } = require('@socket.io/cluster-adapter')
+const { setupWorker } = require('@socket.io/sticky')
 // start codes
 const app = express()
-
 // global settings
 global.gStatus = require('./defaultVal').gStatus
 require('@api/setup')()
 require('@api/setup/folders')(__dirname, app)
-global.gStatus.version = information.version
-
+global.gStatus.version = require('../package.json').version
 // 프로듀션 모드가 아닌 경우 로깅
 if (process.env.NODE_ENV === 'development') {
   app.use(require('morgan')('dev'))
@@ -55,6 +51,25 @@ app.use('/', require('@src/routes'))
 // 서버
 const httpServer = http.createServer(app)
 
+// io
+const io = new Server(httpServer, {
+  cors: {
+    origin: (origin, cb) => {
+      cb(null, origin)
+    },
+    credentials: true
+  },
+  maxHttpBufferSize: 1e8 // file transfer limit 100MB
+})
+require('@io').initIO(io)
+
+try {
+  io.adapter(createAdapter())
+  setupWorker(io)
+} catch (error) {
+  console.error('io error:', error)
+}
+
 // 서버 시작
 httpServer.listen(3000)
 
@@ -65,25 +80,9 @@ httpServer.on('error', (error) => {
   logError(`WEB HTTP 서버 오류 ${error}`, 'server')
 })
 
-// functions
-require('@api/barix').fnStartBarix()
-
-// io
-const io = new Server(httpServer, {
-  cors: {
-    origin: (origin, cb) => {
-      cb(null, origin)
-    },
-    credentials: true
-  },
-  maxHttpBufferSize: 1e8, // file transfer limit 100MB
-  allowedHeaders: ['auth']
-})
-
-require('@io').initIO(io)
-
-const { getAllDeviceStorage } = require('@api/qsys')
-getAllDeviceStorage()
-
+if (process.env.INSTANCE_ID === 0) {
+  const { getAllDeviceStorage } = require('@api/qsys')
+  getAllDeviceStorage()
+}
+// multicast socket
 require('@multicast').fnInitQsysSocket()
-require('@multicast').fnInitScheduleSocket()

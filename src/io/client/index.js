@@ -1,3 +1,12 @@
+// exports.initIO = (io) => {
+//   let client = io.of('/client')
+
+//   require('@io/client')(client)
+
+//   // return
+//   exports.io = io
+//   exports.client = client
+// }
 const { logInfo, logWarn, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
