@@ -36,11 +36,12 @@ const fnInitQsysSocket = () => {
     `디바이스 소켓 시작 포트 ${process.env.INSTANCE_ID} ${port}`,
     'SERVER'
   )
-
-  multicast.bind({
-    port: port,
-    exclusive: true
-  })
+  if (process.env.INSTANCE_ID === '3') {
+    multicast.bind({
+      port: 9908,
+      exclusive: true
+    })
+  }
 }
 
 // SK04
@@ -63,9 +64,15 @@ const fnSendScheduleMuticast = (key, value) => {
   })
 }
 
+// SK06
+const fnGetSchedulerSetup = () => {
+  fnSendScheduleMuticast('setup', {})
+}
+
 module.exports = {
   multicast,
   fnInitQsysSocket,
   fnSendDeviceMuticast,
-  fnSendScheduleMuticast
+  fnSendScheduleMuticast,
+  fnGetSchedulerSetup
 }

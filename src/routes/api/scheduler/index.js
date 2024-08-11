@@ -75,11 +75,10 @@ router.put('/mode', (req, res) => {
 })
 // SC04 스케중 이벤트
 router.put('/', async (req, res) => {
-  const { schedule } = req.body
   const { name, user, zones, file, idx, active } = schedule
   try {
     if (active == false) {
-      logWarning(`비활성화된 스케줄: ${name} ID: ${idx}`, user, zones)
+      logWarning(`비활성화된 스케줄: ${name ?? ''} ID: ${idx}`, user, zones)
       return
     }
     // 스케줄 방송 시작
@@ -88,7 +87,7 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
     // 로그 기록
     logEvent(
-      `스케줄 방송 시작: ${name} 파일: ${file.base} ID: ${idx}`,
+      `스케줄 방송 시작: ${name ?? ''} 파일: ${file.base} ID: ${idx}`,
       user,
       zones
     )
