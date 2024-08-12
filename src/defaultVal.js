@@ -3,8 +3,8 @@ module.exports = {
     version: '',
     ttsAddress: 'http://127.0.0.1:9998',
     scheduler: {
-      main: { connected: false, id: '', lastupdate: '' },
-      backup: { connected: false, id: '', lastupdate: '' },
+      main: '',
+      backup: '',
       active: 'main',
       auto: false
     },
@@ -20,6 +20,7 @@ module.exports = {
     voice: '',
     relayOnTime: 5,
     ttsMode: 'sapi',
-    backupFile: false
+    backupFile: false,
+    instanceId: ''
   }
 }

@@ -42,11 +42,12 @@ router.get('/', async (req, res) => {
 })
 
 // SC02 스케줄러 체크
-router.get('/check', (req, res) => {
+router.get('/check', async (req, res) => {
   try {
     const { mode } = req.query
-    gStatus.scheduler[mode].connected = true
-    gStatus.scheduler[mode].lastupdate = new Date()
+    gStatus.scheduler[mode] = new Date().toLocaleString()
+    await dbSetupUpdate({ key: 'scheduler' }, { ...gStatus.scheduler })
+
     res.status(200).json({
       mode: gStatus.mode,
       active: gStatus.activeMode,
@@ -73,8 +74,9 @@ router.put('/mode', (req, res) => {
     logError(`SC03 스케줄러 모드 변경 실패 ${error}`, 'server')
   }
 })
-// SC04 스케중 이벤트
+// SC04 스케줄 이벤트
 router.put('/', async (req, res) => {
+  const schedule = req.body
   const { name, user, zones, file, idx, active } = schedule
   try {
     if (active == false) {

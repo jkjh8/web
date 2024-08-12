@@ -30,13 +30,7 @@ multicast.on('listening', () => {
 })
 
 const fnInitQsysSocket = () => {
-  console.log(process.env.INSTANCE_ID)
-  const port = 9908 + Number(process.env.INSTANCE_ID)
-  logInfo(
-    `디바이스 소켓 시작 포트 ${process.env.INSTANCE_ID} ${port}`,
-    'SERVER'
-  )
-  if (process.env.INSTANCE_ID === '3') {
+  if (process.env.INSTANCE_ID == 0) {
     multicast.bind({
       port: 9908,
       exclusive: true
