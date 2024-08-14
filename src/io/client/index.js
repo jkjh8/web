@@ -37,10 +37,10 @@ module.exports = async (socketio) => {
       logError(`IC01 Socket Client 사용자 갱신`, 'server')
     }
     // const user = socket.request.user
-    logInfo(`IC01 Socket client 연결`, email)
+    console.log(`IC01 Socket client 연결 ${email}`)
     // 연결 해제
     socket.on('disconnect', (reason) => {
-      logWarn(`IC01 Socket client 연결해제`, email)
+      console.log(`IC01 Socket client 연결해제 ${email}`)
     })
     // 클라이언트 함수
     fromClient(socket)
