@@ -78,7 +78,6 @@ const fnSendClientStatusAll = async () => {
 const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
-    // io.bridge.emit('qsys:devices', data)
     fnSendDeviceMuticast('getAll', {})
     fnSendSocket('qsys:devices', data)
   } catch (error) {

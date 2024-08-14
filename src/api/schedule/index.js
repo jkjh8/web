@@ -22,6 +22,7 @@ const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const { fnQsysDeleteFolder } = require('../qsys/files')
 const { fnSendScheduleMuticast } = require('@multicast')
+const io = require('@io')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
@@ -43,7 +44,7 @@ const fnInTimeScheduleRun = async (data) => {
     if (active.length > 0) {
       await dbPageUpdate({ idx }, { dub: active })
       for (const item of active) {
-        logEvent(`스케줄 방송 중복 확인 ${item.name}}`, user, item.Zones)
+        logEvent(`스케줄 방송 중복 확인 ${item.name ?? ''}}`, user, item.Zones)
       }
     }
 

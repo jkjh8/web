@@ -10,6 +10,7 @@ const { logInfo, logError } = require('@logger')
 const express = require('express')
 const http = require('node:http')
 const cookieParser = require('cookie-parser')
+const cors = require('cors')
 const { Server } = require('socket.io')
 const { createAdapter } = require('@socket.io/cluster-adapter')
 const { setupWorker } = require('@socket.io/sticky')
@@ -36,7 +37,7 @@ app.use(passport.initialize())
 
 // cors
 app.use(
-  require('cors')({
+  cors({
     origin: (origin, cb) => {
       cb(null, origin)
     },
