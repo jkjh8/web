@@ -181,10 +181,6 @@ const fnCleanQsysScheduleTypeOnce = async () => {
               logInfo(`S08 QSYS 지난 스케줄 삭제 ${deviceId} ${idx}`, 'server')
             } catch (error) {
               console.log(error)
-              logError(
-                `S08 QSYS 지난 스케줄 파일삭제 ${deviceId} ${idx}`,
-                'server'
-              )
             }
           })
         )

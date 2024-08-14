@@ -9,7 +9,7 @@ const { dbSchUpdate } = require('@db/schedule')
 const { dbQsysFindOne, dbQsysFind, dbQsysUpdate } = require('../../../db/qsys')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // https 자체 인증서 우회
 // const api = axios.create({
@@ -158,7 +158,7 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
     await Promise.all(promises)
     return await dbSchUpdate({ idx }, { $set: { sync: true } })
   } catch (error) {
-    logError(`OF05 Q-SYS 스케줄 동기화`, 'server')
+    logError(`QF05 Q-SYS 스케줄 동기화`, 'server')
   }
 }
 
@@ -200,7 +200,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
       }
     })
   } catch (error) {
-    logError(`OF06 Q-SYS 스케줄 정리`, 'server')
+    logError(`QF06 Q-SYS 스케줄 정리`, 'server')
   }
 }
 
@@ -211,7 +211,7 @@ const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
       httpsAgent: new https.Agent({ rejectUnauthorized: false })
     })
   } catch (error) {
-    logError(`OF08 Q-SYS 폴더 삭제`, 'server')
+    return new Error(error)
   }
 }
 
@@ -230,9 +230,9 @@ const fnQsysDeleteLive = async (deviceId) => {
         httpsAgent: new https.Agent({ rejectUnauthorized: false })
       })
     })
-    logWarn(`OF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
+    logWarn(`QF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
   } catch (error) {
-    logError(`OF08 Q-SYS live 파일 삭제 ${error}`, 'server')
+    logError(`QF08 Q-SYS live 파일 삭제 ${error}`, 'server')
   }
 }
 
@@ -243,9 +243,9 @@ const fnQsysDeleteLiveAll = async () => {
     qsys.forEach(async (device) => {
       await fnQsysDeleteLive(device.deviceId)
     })
-    logWarn(`OF09 Q-SYS Live파일 전체 삭제`)
+    logWarn(`QF09 Q-SYS Live파일 전체 삭제`)
   } catch (error) {
-    logError(`OF09 Q-SYS Live파일 전체 삭제 ${error}`, 'server')
+    logError(`QF09 Q-SYS Live파일 전체 삭제 ${error}`, 'server')
   }
 }
 
@@ -259,7 +259,7 @@ const fnGetStrage = async (ipaddress) => {
       dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
     })
     .catch((err) => {
-      logError(`Q01 QSYS 저장소 정보 수집`, 'server')
+      logError(`Q10 QSYS 저장소 정보 수집`, 'server')
     })
 }
 

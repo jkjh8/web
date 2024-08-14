@@ -76,7 +76,7 @@ router.put('/mode', (req, res) => {
 })
 // SC04 스케줄 이벤트
 router.put('/', async (req, res) => {
-  const schedule = req.body
+  const { schedule } = req.body
   const { name, user, zones, file, idx, active } = schedule
   try {
     if (active == false) {

@@ -195,7 +195,11 @@ router.delete('/', async (req, res) => {
     const { idx } = schedule
     schedule.devices.forEach(async (device) => {
       const { deviceId, ipaddress } = device
-      await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
+      try {
+        await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
+      } catch (error) {
+        logError(`SH06 스케줄 디바이스 파일 삭제 ${error}`, req.user.email)
+      }
     })
   } catch (error) {
     //

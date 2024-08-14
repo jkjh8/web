@@ -26,7 +26,7 @@ multicast.on('listening', () => {
   multicast.setBroadcast(true)
   multicast.setMulticastTTL(0)
   multicast.addMembership(address)
-  logInfo('SK01 디바이스 소켓 시작 9908', 'SERVER')
+  logInfo(`SK01 디바이스 소켓 시작 ${process.env.INSTANCE_ID}`, 'SERVER')
 })
 
 const fnInitQsysSocket = () => {
