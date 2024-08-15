@@ -17,6 +17,7 @@ const { dbQsysFindOne, dbQsysFind, dbQsysUpdate } = require('../../../db/qsys')
 //     rejectUnauthorized: false
 //   })
 // })
+const Agent = new https.Agent({ rejectUnauthorized: false })
 
 // QF01 메시지 주소 생성
 const fnMakeAddr = (ipaddr) => {
@@ -35,7 +36,7 @@ const fnQsysCheckMediaFolder = async (device) => {
       {
         name: 'live'
       },
-      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+      { httpsAgent: Agent }
     )
     .then((res) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 LIVE`, 'server')
@@ -52,7 +53,7 @@ const fnQsysCheckMediaFolder = async (device) => {
       {
         name: 'schedule'
       },
-      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+      { httpsAgent: Agent }
     )
     .then((res) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 SCHEDULE`, 'server')
@@ -78,7 +79,7 @@ const fnQsysFileUpload = async (args) => {
       form,
       {
         headers: { ...form.getHeaders() },
-        httpsAgent: new https.Agent({ rejectUnauthorized: false })
+        httpsAgent: Agent
       }
     )
     // 파일 업로드 후 스토리지 정보 갱신
@@ -113,7 +114,7 @@ const fnQsysFileDelete = async (args) => {
   const { addr, ipaddress, file, deviceId, user } = args
   axios
     .delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`, {
-      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      httpsAgent: Agent
     })
     .then(async () => {
       await fnGetStrage(ipaddress)
@@ -128,7 +129,7 @@ const fnQsysFileDeleteAsync = async (args) => {
   const { addr, ipaddress, file, deviceId, user } = args
   try {
     await axios.delete(`${fnMakeAddr(ipaddress)}/${addr}/${file}`, {
-      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      httpsAgent: Agent
     })
     // 파일 삭제 후 스토리지 정보 갱신
     await fnGetStrage(ipaddress)
@@ -168,7 +169,7 @@ const fnQsysMakeFolderForSchedule = async (idx, deviceId, ipaddress) => {
     await axios.post(
       `${fnMakeAddr(ipaddress)}/schedule`,
       { name: idx },
-      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+      { httpsAgent: Agent }
     )
   } catch (error) {
     if (
@@ -190,7 +191,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
     }
     const { data } = await axios.get(
       `${fnMakeAddr(device.ipaddress)}/schedule`,
-      { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+      { httpsAgent: Agent }
     )
     //  data의 name중 schedules의 idx와 같은 것이 없는 것을 찾아서 삭제
     data.forEach(async (d) => {
@@ -208,7 +209,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
 const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
   try {
     return await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`, {
-      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      httpsAgent: Agent
     })
   } catch (error) {
     return new Error(error)
@@ -224,10 +225,12 @@ const fnQsysDeleteLive = async (deviceId) => {
     const find = ZoneStatus.find((z) => z.active === true)
     if (find) return
     // 아니면 qsys의 messages/live 폴더의 파일 목록을 가져와서 하나씩 삭제
-    const { data } = await axios.get(`${fnMakeAddr(device.ipaddress)}/live`)
+    const { data } = await axios.get(`${fnMakeAddr(device.ipaddress)}/live`, {
+      httpsAgent: Agent
+    })
     data.forEach(async (d) => {
       await axios.delete(`${fnMakeAddrDefault(device.ipaddress)}/${d.path}`, {
-        httpsAgent: new https.Agent({ rejectUnauthorized: false })
+        httpsAgent: Agent
       })
     })
     logWarn(`QF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
@@ -253,7 +256,7 @@ const fnQsysDeleteLiveAll = async () => {
 const fnGetStrage = async (ipaddress) => {
   axios
     .get(`https://${ipaddress}/api/v0/cores/self/media?meta=storage`, {
-      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      httpsAgent: Agent
     })
     .then((res) => {
       dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
