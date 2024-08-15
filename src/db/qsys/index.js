@@ -58,7 +58,7 @@ const dbQsysBulkWrite = async (arr) => {
 
 //DQ07
 const dbQsysUpdate = async (filer, value) => {
-  await Qsys.findOneAndUpdate(filer, value, {
+  return await Qsys.findOneAndUpdate(filer, value, {
     new: true,
     upsert: true
   })
@@ -71,14 +71,14 @@ const dbQsysExists = async (obj) => {
 }
 // DQ08
 const dbQsysUpdateBackup = async (filter, value) => {
-  await Qsys.findOneAndUpdate(filter, value, { new: true, upsert: true })
   fnBackupRequest('/backup/qsys', { filter, value }, 'PUT')
+  return await Qsys.findOneAndUpdate(filter, value, { new: true, upsert: true })
 }
 //DQ09
 const dbQsysRemove = async (id) => {
-  await Qsys.findByIdAndDelete(id)
   // backup
   fnBackupRequest('/backup/qsys', { data: { id } }, 'DELETE')
+  return await Qsys.findByIdAndDelete(id)
 }
 
 const dbQsysPageUpdate = async (devices, idx) => {
@@ -90,6 +90,10 @@ const dbQsysPageUpdate = async (devices, idx) => {
       )
     })
   )
+}
+//DQ10 UpdateOne
+const dbQsysUpdateOne = async (filter, value) => {
+  return await Qsys.findOneAndUpdate(filter, value)
 }
 
 module.exports = {
@@ -104,5 +108,6 @@ module.exports = {
   dbQsysUpdateBackup,
   dbQsysExists,
   dbQsysRemove,
-  dbQsysPageUpdate
+  dbQsysPageUpdate,
+  dbQsysUpdateOne
 }

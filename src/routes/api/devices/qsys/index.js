@@ -10,7 +10,11 @@ const {
   dbQsysRemove
 } = require('@db/qsys')
 
-const { fnSendAllStatusAll, fnSendQsys } = require('@api/qsys')
+const {
+  fnSendAllStatusAll,
+  fnSendQsys,
+  fnSendQsysDevices
+} = require('@api/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
 
 const router = express.Router()
@@ -97,6 +101,17 @@ router.put('/zoneupdate', async (req, res) => {
   const { email } = req.user
   try {
     const { deviceId, zone, destination, ipaddress, port } = req.body
+    // 데이터 베이스 업데이트
+    console.log(
+      await dbQsysUpdateBackup(
+        {
+          'deviceId': deviceId,
+          'ZoneStatus.Zone': zone
+        },
+        { 'ZoneStatus.$.destination': destination }
+      )
+    )
+    // await fnSendQsysDevices()
     fnSendQsys('qsys:device:str', {
       deviceId,
       zone,
@@ -107,13 +122,7 @@ router.put('/zoneupdate', async (req, res) => {
     // 5초후 바릭스 데이터 수집 요청
     setTimeout(() => fnGetBarixInfo(ipaddress), 5000)
     // 데이터 베이스 업데이트 및 송신
-    res.status(200).json({
-      result: true,
-      data: await dbQsysUpdateBackup(
-        { 'deviceId': deviceId, 'ZoneStatus.Zone': zone },
-        { 'ZoneStatus.$.destination': destination }
-      )
-    })
+    res.status(200).json({ result: true })
     // 로그
     logInfo(
       `RQ06 QSYS 데이터 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
@@ -312,6 +321,21 @@ router.put('/volume', async (req, res) => {
     res.status(500).json({ result: false, error })
     // 로그
     logError(`RQ14 QSYS 볼륨조정 ${error}`, email)
+  }
+})
+
+// RQ15 - 방송구간 전체 전송
+router.get('/all', async (req, res) => {
+  const { email } = req.user
+  try {
+    await fnSendAllStatusAll()
+    res.status(200).json({ result: true })
+    // 로그
+    logInfo(`RQ15 QSYS 전체 송신`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    // 로그
+    logError(`RQ15 QSYS 전체 송신 ${error}`, email)
   }
 })
 

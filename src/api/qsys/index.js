@@ -54,21 +54,22 @@ let sendClientStatusAll = null
 let timeoutSendClientStatusAll = false
 const fnSendClientStatusAll = async () => {
   try {
-    // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
-    if (sendClientStatusAll) {
-      timeoutSendClientStatusAll = true
-      return
-    }
+    io.client.broadcst.emit('qsys:devices', await dbQsysFindAll())
+    //   // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
+    //   if (sendClientStatusAll) {
+    //     timeoutSendClientStatusAll = true
+    //     return
+    //   }
 
-    const data = await dbQsysFindAll()
-    fnSendSocket('qsys:devices', data)
-    sendClientStatusAll = setTimeout(async () => {
-      if (timeoutSendClientStatusAll) {
-        timeoutSendClientStatusAll = false
-        fnSendSocket('qsys:devices', await dbQsysFindAll())
-      }
-      sendClientStatusAll = null
-    }, 1000)
+    //   const data = await dbQsysFindAll()
+    //   fnSendSocket('qsys:devices', data)
+    //   sendClientStatusAll = setTimeout(async () => {
+    //     if (timeoutSendClientStatusAll) {
+    //       timeoutSendClientStatusAll = false
+    //       fnSendSocket('qsys:devices', await dbQsysFindAll())
+    //     }
+    //     sendClientStatusAll = null
+    //   }, 1000)
   } catch (error) {
     logError(`Q04 QSYS 데이터 Client 송신 ${error}`, 'SERVER')
   }
@@ -78,8 +79,8 @@ const fnSendClientStatusAll = async () => {
 const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
-    fnSendQsys('qsys:devices', data)
-    fnSendSocket('qsys:devices', data)
+    fnSendQsys('qsys:devices', JSON.stringify(data))
+    fnSendSocket('qsys:devices', JSON.stringify(data))
   } catch (error) {
     logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'SERVER')
   }
@@ -128,6 +129,15 @@ const fnSendQsys = async (key, value) => {
   }
 }
 
+// Q11 Qsys 전체 데이터를 qsys 소켓으로 전송
+const fnSendQsysDevices = async () => {
+  try {
+    io.qsys.emit('qsys:devices', await dbQsysFindAll())
+  } catch (error) {
+    logError(`Q11 Qsys 전체 데이터 송신 ${error}`, 'SERVER')
+  }
+}
+
 module.exports = {
   getAllDeviceStorage,
   fnSendClientQsysData,
@@ -138,5 +148,6 @@ module.exports = {
   fnCheckPageStatus,
   fnCheckPageStatusAll,
   fnSendClientZoneStatus,
-  fnSendQsys
+  fnSendQsys,
+  fnSendQsysDevices
 }

@@ -9,7 +9,7 @@ const fnGetTtsInfo = async () => {
       resolve(JSON.parse(data.toString()))
     })
     python.stderr.on('data', (data) => {
-      console.log(data.toString())
+      // console.log(data.toString())
       reject(new Error(data))
     })
   })

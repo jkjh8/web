@@ -26,6 +26,9 @@ module.exports = {
       upsert: true
     })
   },
+  dbPageUpdateOne: async (filter, value) => {
+    return await Page.findOneAndUpdate(filter, value)
+  },
   dbPageRemove: async (id) => {
     return await Page.findByIdAndDelete(id)
   }
