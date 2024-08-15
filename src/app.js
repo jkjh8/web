@@ -82,11 +82,7 @@ httpServer.on('error', (error) => {
   logError(`WEB HTTP 서버 오류 ${error}`, 'server')
 })
 
-// multicast socket
-require('@multicast').fnInitQsysSocket()
-
 if (process.env.INSTANCE_ID == 0) {
   const { getAllDeviceStorage } = require('@api/qsys')
   getAllDeviceStorage()
-  require('@multicast').fnGetSchedulerSetup()
 }

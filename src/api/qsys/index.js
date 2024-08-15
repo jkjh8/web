@@ -6,8 +6,8 @@ const {
   dbQsysFindOne
 } = require('@db/qsys')
 const { fnGetStrage } = require('./files')
-const { fnSendDeviceMuticast } = require('@multicast')
 const { fnSendSocket } = require('@api/client')
+const io = require('@io')
 
 // Q01 전체 QSYS 저장소 정보 수집
 const getAllDeviceStorage = async () => {
@@ -17,7 +17,7 @@ const getAllDeviceStorage = async () => {
       await fnGetStrage(device.ipaddress)
     })
   } catch (error) {
-    logError(`Q01 전체 QSYS 저장소 정보 수집 ${error}`, 'server')
+    logError(`Q01 전체 QSYS 저장소 정보 수집 ${error}`, 'SERVER')
     throw error
   }
 }
@@ -28,7 +28,7 @@ const fnSendSocketStatusAll = async (socket) => {
     const qsys = await dbQsysFindAll()
     socket.emit('qsys:devices', qsys)
   } catch (error) {
-    logError(`Q02 QSYS 데이터 소켓 송신 ${error}`, 'server')
+    logError(`Q02 QSYS 데이터 소켓 송신 ${error}`, 'SERVER')
   }
 }
 
@@ -37,7 +37,7 @@ const fnSendClientQsysData = async (deviceId, obj) => {
   try {
     fnSendSocket('qsys:device', { deviceId, data: obj })
   } catch (error) {
-    logError(`Q03 QSYS 단일 데이터 Client 송신 ${error}`, 'server', 'qsys')
+    logError(`Q03 QSYS 단일 데이터 Client 송신 ${error}`, 'SERVER', 'qsys')
   }
 }
 
@@ -45,7 +45,7 @@ const fnSendClientZoneStatus = async (deviceId, ZoneStatus) => {
   try {
     fnSendSocket('qsys:ZoneStatus', { deviceId, ZoneStatus })
   } catch (error) {
-    logError(`Q03 QSYS 단일 지역 데이터 Client 송신 ${error}`, 'server', 'qsys')
+    logError(`Q03 QSYS 단일 지역 데이터 Client 송신 ${error}`, 'SERVER', 'qsys')
   }
 }
 
@@ -70,7 +70,7 @@ const fnSendClientStatusAll = async () => {
       sendClientStatusAll = null
     }, 1000)
   } catch (error) {
-    logError(`Q04 QSYS 데이터 Client 송신 ${error}`, 'server')
+    logError(`Q04 QSYS 데이터 Client 송신 ${error}`, 'SERVER')
   }
 }
 
@@ -78,10 +78,10 @@ const fnSendClientStatusAll = async () => {
 const fnSendAllStatusAll = async () => {
   try {
     const data = await dbQsysFindAll()
-    fnSendDeviceMuticast('getAll', {})
+    fnSendQsys('qsys:devices', data)
     fnSendSocket('qsys:devices', data)
   } catch (error) {
-    logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'server')
+    logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'SERVER')
   }
 }
 
@@ -90,7 +90,7 @@ const fnSendClientPageMessage = async (obj) => {
   try {
     fnSendSocket('qsys:page:message', obj)
   } catch (error) {
-    logError(`Q07 QSYS Page Message 전송 ${error}`, 'server')
+    logError(`Q07 QSYS Page Message 전송 ${error}`, 'SERVER')
   }
 }
 
@@ -103,7 +103,7 @@ const fnCheckPageStatus = async (deviceId) => {
       await dbQsysUpdate({ deviceId }, { PageStatus: [] })
     }
   } catch (error) {
-    logError(`Q08 QSYS Page Status 삭제 ${error}`, 'server')
+    logError(`Q08 QSYS Page Status 삭제 ${error}`, 'SERVER')
   }
 }
 
@@ -115,7 +115,16 @@ const fnCheckPageStatusAll = async () => {
       await fnCheckPageStatus(device.deviceId)
     })
   } catch (error) {
-    logError(`Q09 QSYS 전체 Page Status 삭제 오류 ${error}`, 'server')
+    logError(`Q09 QSYS 전체 Page Status 삭제 오류 ${error}`, 'SERVER')
+  }
+}
+
+//Q10 SendQsys
+const fnSendQsys = async (key, value) => {
+  try {
+    io.qsys.emit(key, value)
+  } catch (error) {
+    logError(`Q10 Qsys Socket ${error}`, 'SERVER')
   }
 }
 
@@ -128,5 +137,6 @@ module.exports = {
   fnSendClientPageMessage,
   fnCheckPageStatus,
   fnCheckPageStatusAll,
-  fnSendClientZoneStatus
+  fnSendClientZoneStatus,
+  fnSendQsys
 }

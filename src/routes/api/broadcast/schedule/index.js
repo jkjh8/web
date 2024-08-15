@@ -4,9 +4,7 @@ const fs = require('node:fs')
 // logger
 const { logError, logWarn, logInfo, logEvent } = require('@logger')
 // db
-const { dbPageMake } = require('@db/page')
 const { dbUserUpdate } = require('@db/user')
-const { dbQsysPageUpdate } = require('@db/qsys')
 const {
   dbSchMake,
   dbSchFind,
@@ -16,8 +14,6 @@ const {
 } = require('@db/schedule')
 // api
 const uniqueId = require('@api/utils/uniqueId.js')
-// const { fnSendQsysData } = require('@api/qsys')
-const { fnSendDeviceMuticast } = require('@multicast')
 const { fnMakeFolder, fnGetFile } = require('@api/files')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
@@ -26,11 +22,8 @@ const {
   fnQsysSyncFileSchedule
 } = require('@api/qsys/files')
 const {
-  fnCheckActive,
-  fnMakePageFromSchedule,
-  fnSendScheduleToAPP,
   fnCleanQsysScheduleFolder,
-  fnSendMuticastSchedule
+  fnSendScheduleToday
 } = require('@api/schedule')
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 
@@ -66,62 +59,12 @@ router.put('/active', async (req, res) => {
     } else {
       logWarn(`SH02스케줄 비활성화 ${name} - ${idx}`, req.user.email)
     }
-    await fnSendMuticastSchedule()
+    await fnSendScheduleToday()
   } catch (error) {
     logError(`SH02 스케줄 활성화 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
-
-// SH03
-// router.put('/', async (req, res) => {
-//   const { _id, email } = req.user
-//   try {
-//     const { idx, devices, name, file, zones } = req.body
-//     // page 명령 만들기
-//     const page = await fnMakePageFromSchedule(req.body)
-//     // 방송구간 중복 확인
-//     const exists = await fnCheckActive(devices)
-//     if (exists && exists.length) {
-//       logWarn(
-//         `SH03 스케줄 방송 구간 중복`,
-//         email,
-//         exists.map((e) => `${e.name}-${e.Zones.join(',')}`)
-//       )
-//     }
-//     // Page db 업데이트
-//     await dbPageMake({
-//       ...req.body,
-//       Mode: 'message',
-//       Station: 1,
-//       Priority: 3,
-//       devices: page
-//     })
-//     // Qsys db 업데이트
-//     await dbQsysPageUpdate(devices, idx)
-
-//     // 릴레이 구동
-//     await runRelays(devices)
-
-//     // 대기
-//     await fnWaitRelayOnTime()
-
-//     // 방송 시작
-//     // fnSendQsysData('qsys:page:message', page)
-//     fnSendDeviceMuticast('qsys:page:message', page)
-//     // 로그 기록
-//     logInfo(
-//       `스케줄 방송 송출 시작 ${name} - ${idx} - ${file.Base}`,
-//       email,
-//       zones
-//     )
-
-//     // 사용횟수 증가
-//     dbUserUpdate({ email }, { $inc: { numberOfScheduleCall: 1 } })
-//   } catch (error) {
-//     logError(`SH03 스케줄 동작 ${error}`, email)
-//   }
-// })
 
 // SH04
 router.post('/', async (req, res) => {
@@ -152,18 +95,18 @@ router.post('/', async (req, res) => {
     })
 
     // 리턴
+    // 스케줄 APP으로 전송
+    await fnSendScheduleToday()
+    // 사용자 사용회수 증가
+    dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
     res.status(200).json({
       result: schedule,
       idx,
       file: newFile
     })
-    // 스케줄 APP으로 전송
-    await fnSendMuticastSchedule()
-    // 사용자 사용회수 증가
-    dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
   } catch (error) {
-    res.status(500).json({ result: false, error })
     logError(`SH04 스케줄 추가 ${error}`, email)
+    res.status(500).json({ result: false, error })
   }
 })
 
@@ -210,7 +153,7 @@ router.delete('/', async (req, res) => {
     logWarn(`SH07 스케줄 삭제 ${schedule.name}`, req.user.email)
     res.status(200).json({ result: true })
     // 스케줄 APP으로 전송
-    await fnSendMuticastSchedule()
+    await fnSendScheduleToday()
   } catch (error) {
     logError(`SH07 스케줄 삭제 ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
@@ -251,7 +194,7 @@ router.delete('/user', async (req, res) => {
     await dbSchRemoveByUser(user)
     res.status(200).json({ result: true })
     logWarn(`SH10 스케줄 삭제 ${user}`, email)
-    await fnSendMuticastSchedule()
+    await fnSendScheduleToday()
   } catch (error) {
     res.status(500).json({ result: false, error })
     logError(`SH10 스케줄 삭제 ${error}`, email)

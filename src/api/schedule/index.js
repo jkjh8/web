@@ -10,8 +10,7 @@ const { dbPageUpdate } = require('@db/page')
 // api
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
-// const { fnSendQsysData } = require('@api/qsys')
-const { fnSendDeviceMuticast } = require('@multicast')
+const { fnSendQsys } = require('@api/qsys')
 const { fnQsysCheckScheduleFolder } = require('@api/qsys/files')
 const {
   fnSetLive,
@@ -21,7 +20,6 @@ const {
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnAmxesRelayOn } = require('@api/amx')
 const { fnQsysDeleteFolder } = require('../qsys/files')
-const { fnSendScheduleMuticast } = require('@multicast')
 const io = require('@io')
 
 // S01 스케줄 방송 시작 로직
@@ -69,8 +67,7 @@ const fnInTimeScheduleRun = async (data) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    fnSendDeviceMuticast('qsys:page:message', commands)
-    // fnSendQsysData('qsys:page:message', commands)
+    fnSendQsys('qsys:page:message', commands)
     // 로그
     return
   } catch (error) {
@@ -191,13 +188,18 @@ const fnCleanQsysScheduleTypeOnce = async () => {
 }
 
 // S09 스케줄러가 오늘 스케줄을 찾아서 APP로 전송
-const fnSendMuticastSchedule = async () => {
+const fnSendScheduleToday = async () => {
   try {
     const schedules = await dbSchFindToday()
-    fnSendScheduleMuticast('schedules', schedules)
+    io.scheduler.emit('schedules', JSON.stringify(schedules))
   } catch (error) {
     logError(`S09 오늘 스케줄 전송 오류 ${error}`, 'server')
   }
+}
+
+// S10 스케줄러로 전송
+const fnSendScheduler = (key, value) => {
+  io.scheduler.emit(key, value)
 }
 
 module.exports = {
@@ -209,5 +211,6 @@ module.exports = {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP,
   fnCleanQsysScheduleTypeOnce,
-  fnSendMuticastSchedule
+  fnSendScheduleToday,
+  fnSendScheduler
 }

@@ -46,7 +46,6 @@
     "@api": "src/api",
     "@clients": "src/io/clients",
     "@io": "src/io",
-    "@app": "src/app",
-    "@multicast": "src/multicast"
+    "@app": "src/app"
   }
 }

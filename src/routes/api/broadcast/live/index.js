@@ -7,7 +7,7 @@ const { dbUserUpdate } = require('@db/user')
 // api
 const { fnWaitRelayOnTime } = require('@api/broadcast')
 // const { fnSendQsysData } = require('@api/qsys')
-const { fnSendDeviceMuticast } = require('@multicast')
+const { fnSendQsys } = require('@api/qsys')
 const { fnBarixesRelayOn } = require('@api/barix')
 const { fnSetLive, fnSetZoneActive } = require('@api/qsys/broadcast')
 const uniqueId = require('@api/utils/uniqueId')
@@ -48,10 +48,11 @@ router.put('/', async (req, res) => {
     //////////////// 방송 시작 ////////////////
     // qsys page 시작
     // fnSendQsysData('qsys:page:live', await fnSetLive(idx, req.body, email))
-    fnSendDeviceMuticast(
-      'qsys:page:live',
-      await fnSetLive(idx, req.body, email)
-    )
+    // fnSendDeviceMuticast(
+    //   'qsys:page:live',
+    //   await fnSetLive(idx, req.body, email)
+    // )
+    fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, zones)
 
@@ -100,10 +101,11 @@ router.put('/message', async (req, res) => {
     //   'qsys:page:message',
     //   await fnSetLive(idx, req.body, user.email)
     // )
-    fnSendDeviceMuticast(
-      'qsys:page:message',
-      await fnSetLive(idx, req.body, user.email)
-    )
+    // fnSendDeviceMuticast(
+    //   'qsys:page:message',
+    //   await fnSetLive(idx, req.body, user.email)
+    // )
+    fnSendQsys('qsys:page:message', await fnSetLive(idx, req.body, email))
     logEvent(
       `메시지 방송 시작 모드:${Mode} 파일:${file.base} ID:${idx}`,
       email,
@@ -137,16 +139,16 @@ router.get('/stop', async (req, res) => {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      fnSendDeviceMuticast('qsys:page:stop', {
-        deviceId,
-        PageID: item.PageID,
-        idx
-      })
-      // fnSendQsysData('qsys:page:sstop', {
+      // fnSendDeviceMuticast('qsys:page:stop', {
       //   deviceId,
       //   PageID: item.PageID,
-      //   idx: item.idx
+      //   idx
       // })
+      fnSendQsys('qsys:page:sstop', {
+        deviceId,
+        PageID: item.PageID,
+        idx: item.idx
+      })
     }
     logEvent(`방송 중지`, req.user.email, [r.name])
     res.status(200).json({ result: true })
@@ -162,16 +164,16 @@ router.get('/cancel', async (req, res) => {
     const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      fnSendDeviceMuticast('qsys:page:cancel', {
-        deviceId,
-        PageID: item.PageID,
-        idx: item.idx
-      })
-      // fnSendQsysData('qsys:page:cancel', {
+      // fnSendDeviceMuticast('qsys:page:cancel', {
       //   deviceId,
       //   PageID: item.PageID,
       //   idx: item.idx
       // })
+      fnSendQsys('qsys:page:cancel', {
+        deviceId,
+        PageID: item.PageID,
+        idx: item.idx
+      })
     }
     logEvent(`방송 취소`, req.user.email, [r.name])
     res.status(200).json({ result: true })

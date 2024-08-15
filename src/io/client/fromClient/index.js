@@ -1,8 +1,7 @@
 // db
 const { dbQsysUpdateBackup } = require('@db/qsys')
 // api
-const { fnSendQsysData } = require('@api/qsys')
-const { fnSendDeviceMuticast } = require('@multicast')
+const { fnSendQsys } = require('@api/qsys')
 const { fnQsysCheckMediaFolder, fnQsysDeleteLive } = require('@api/qsys/files')
 const { fnGetBarixInfo } = require('@api/barix')
 // logger
@@ -19,7 +18,7 @@ module.exports = function (socket) {
       // DB 업데이트
       await dbQsysUpdateBackup(filter, update)
       // 소켓 전송
-      fnSendDeviceMuticast('qsys:volume', obj)
+      fnSendQsys('qsys:volume', obj)
       logInfo(`IC02 볼륨 ${name}-${deviceId} ${zone}: ${value}`, email)
     } catch (error) {
       logError(`IC02 볼륨 ${error}`, email)
@@ -34,7 +33,7 @@ module.exports = function (socket) {
       const filter = { deviceId, 'ZoneStatus.Zone': zone }
       const update = { 'ZoneStatus.$.mute': value }
       await dbQsysUpdateBackup(filter, update)
-      fnSendDeviceMuticast('qsys:mute', obj)
+      fnSendQsys('qsys:mute', obj)
       logInfo(`IC03 뮤트 장치: ${name}-${deviceId} ${zone}: ${value}`, email)
     } catch (error) {
       logError(`IC03 뮤트 ${error}`, email)
@@ -53,8 +52,7 @@ module.exports = function (socket) {
   socket.on('zone:set:channel', (obj) => {
     const { email } = socket.user
     try {
-      // fnSendQsysData('zone:set:channel', obj)
-      fnSendDeviceMuticast('zone:set:channel', obj)
+      fnSendQsys('zone:set:channel', obj)
     } catch (error) {
       logError(`IC05 채널 ${error}`, email)
     }
@@ -64,8 +62,7 @@ module.exports = function (socket) {
     const { email } = socket.user
     try {
       const { name, deviceId } = device
-      // fnSendQsysData('zone:set:device', deviceId)
-      fnSendDeviceMuticast('zone:set:device', deviceId)
+      fnSendQsys('zone:set:device', deviceId)
       fnQsysCheckMediaFolder(device)
       fnQsysDeleteLive(deviceId)
       logWarn(`IC06 장치 재설정 ${name}-${deviceId}`, email)
@@ -77,7 +74,7 @@ module.exports = function (socket) {
   socket.on('zone:get:active', (device) => {
     const { email } = socket.user
     try {
-      fnSendDeviceMuticast('zone:get:active', device.deviceId)
+      fnSendQsys('zone:get:active', device.deviceId)
       logInfo(`IC07 방송상태 갱신 ${device.name}-${device.deviceId}`, email)
     } catch (error) {
       logError(`IC07 방송상태 ${error}`, email)

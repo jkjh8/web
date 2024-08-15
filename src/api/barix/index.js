@@ -4,9 +4,8 @@ const { Worker } = require('worker_threads')
 const { logError, logDebug } = require('@logger')
 // db
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
-const { dbQsys, dbQsysFindOne } = require('@db/qsys')
+const { dbQsys, dbQsysFindOne, fnSendQsys } = require('@db/qsys')
 // api
-const { fnSendDeviceMuticast } = require('@multicast')
 
 let barixInterval = null
 
@@ -186,7 +185,7 @@ const fnBarixChangeQsys = async (obj) => {
     if (device) {
       const { deviceId, ZoneStatus } = device
       const idx = ZoneStatus.findIndex((item) => item.destination == _id)
-      fnSendDeviceMuticast('qsys:device:str', {
+      fnSendQsys('qsys:device:str', {
         deviceId,
         zone: idx + 1,
         destination: _id,
