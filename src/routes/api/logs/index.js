@@ -12,7 +12,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   const { email } = req.user
   try {
     let sort = {}
-    let { pagination, filter, level, start, end } = JSON.parse(
+    let { pagination, filter, level, start, end, devices } = JSON.parse(
       req.query.options
     )
     let { rowsPerPage, page, sortBy, descending } = pagination
@@ -31,6 +31,9 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       searchOptions.push({
         createdAt: { $lte: new Date(`${end} 23:59:59`) }
       })
+    }
+    if (devices) {
+      searchOptions.push({ zones: { $in: devices } })
     }
     if (filter) {
       // filter에서 글자에서 \가 있으면 삭제
