@@ -42,6 +42,11 @@ const fnQsysCheckMediaFolder = async (device) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 LIVE`, 'server')
     })
     .catch((err) => {
+      if (err.response.data.error.message === 'Directory already exists') {
+        return console.log(
+          `${device.name} ${device.ipaddress} LIVE Directory already exists`
+        )
+      }
       logError(
         `QF02 Q-SYS 기본 폴더 생성 LIVE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
         'server'
@@ -59,6 +64,11 @@ const fnQsysCheckMediaFolder = async (device) => {
       logInfo(`QF02 Q-SYS 기본 폴더 생성 SCHEDULE`, 'server')
     })
     .catch((err) => {
+      if (err.response.data.error.message === 'Directory already exists') {
+        return console.log(
+          `${device.name} ${device.ipaddress} SCHEDULE Directory already exists`
+        )
+      }
       logError(
         `QF02 Q-SYS 기본 폴더 생성 SCHEDULE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
         'server'

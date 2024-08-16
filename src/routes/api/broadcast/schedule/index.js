@@ -144,6 +144,7 @@ router.delete('/', async (req, res) => {
         logError(`SH06 스케줄 디바이스 파일 삭제 ${error}`, req.user.email)
       }
     })
+    fnSendScheduleToday()
   } catch (error) {
     //
   }
