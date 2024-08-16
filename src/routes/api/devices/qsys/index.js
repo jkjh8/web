@@ -7,15 +7,19 @@ const {
   dbQsysBulkWrite,
   dbQsysUpdateBackup,
   dbQsysExists,
-  dbQsysRemove
+  dbQsysRemove,
+  dbQsysFindOne,
+  dbQsysUpdateOne
 } = require('@db/qsys')
 
 const {
   fnSendAllStatusAll,
   fnSendQsys,
-  fnSendQsysDevices
+  fnCheckPageStatus
 } = require('@api/qsys')
 const { fnGetBarixInfo } = require('@api/barix')
+
+const { fnSendSocket } = require('@api/client')
 
 const router = express.Router()
 
@@ -102,16 +106,13 @@ router.put('/zoneupdate', async (req, res) => {
   try {
     const { deviceId, zone, destination, ipaddress, port } = req.body
     // 데이터 베이스 업데이트
-    console.log(
-      await dbQsysUpdateBackup(
-        {
-          'deviceId': deviceId,
-          'ZoneStatus.Zone': zone
-        },
-        { 'ZoneStatus.$.destination': destination }
-      )
+    const result = await dbQsysUpdateBackup(
+      {
+        'deviceId': deviceId,
+        'ZoneStatus.Zone': zone
+      },
+      { 'ZoneStatus.$.destination': destination }
     )
-    // await fnSendQsysDevices()
     fnSendQsys('qsys:device:str', {
       deviceId,
       zone,
@@ -119,20 +120,21 @@ router.put('/zoneupdate', async (req, res) => {
       ipaddress,
       port
     })
+    fnSendSocket('qsys:device', JSON.stringify(result))
     // 5초후 바릭스 데이터 수집 요청
     setTimeout(() => fnGetBarixInfo(ipaddress), 5000)
+
     // 데이터 베이스 업데이트 및 송신
-    res.status(200).json({ result: true })
+    res.status(200).json({ result: true, device: result })
     // 로그
     logInfo(
-      `RQ06 QSYS 데이터 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
+      `RQ06 QSYS 방송구간 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
       email
     )
-    // await fnSendAllStatusAll()
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ06 QSYS 데이터 업데이트 ${error}`, email)
+    logError(`RQ06 QSYS 방송구간 업데이트 ${error}`, email)
   }
 })
 
@@ -336,6 +338,18 @@ router.get('/all', async (req, res) => {
     res.status(500).json({ result: false, error })
     // 로그
     logError(`RQ15 QSYS 전체 송신 ${error}`, email)
+  }
+})
+
+//RQ16 - PGAE 리셋
+router.put('/pagereset', async (req, res) => {
+  const { email } = req.user
+  try {
+    fnCheckPageStatus(req.body.deviceId)
+    res.status(200).json({ result: true })
+  } catch (error) {
+    logError(`RQ16 QSYS PAGE 리셋 ${error}`, email)
+    res.status(500).json({ result: false, error })
   }
 })
 

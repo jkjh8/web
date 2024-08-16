@@ -80,23 +80,6 @@ const fnGetBarixes = async () => {
   })
 }
 
-//B03 barix 정보 수집 시작
-const fnStartBarix = () => {
-  barixInterval = setInterval(async () => {
-    try {
-      await fnGetBarixes()
-      await fnSendSocketBarixInfo()
-    } catch (error) {
-      logError(`B03 Barix 정보 시작 ${error}`, 'server')
-    }
-  }, gStatus.interval * 1000)
-}
-
-const fnRestartBarix = () => {
-  clearInterval(barixInterval)
-  fnStartBarix()
-}
-
 //B04 릴레이 제어
 // rc.cgi?{c}={value}
 const fnBarixRelayOff = async (device) => {
@@ -168,15 +151,6 @@ const fnBarixesRelayOff = async (devices) => {
   }
 }
 
-//B06 바릭스 정보 공유
-const fnSendSocketBarixInfo = async () => {
-  try {
-    io.client.emit('barix:devices', await dbBarixFind())
-  } catch (error) {
-    logError(`B06 Barix 정보 공유 ${error}`, 'server')
-  }
-}
-
 //B07 바릭스 채널 변경에 따른 Qsys 채널 재설정
 const fnBarixChangeQsys = async (obj) => {
   try {
@@ -201,12 +175,9 @@ const fnBarixChangeQsys = async (obj) => {
 module.exports = {
   fnGetBarixInfo,
   fnGetBarixes,
-  fnStartBarix,
-  fnRestartBarix,
   fnBarixRelayOn,
   fnBarixRelayOff,
   fnBarixesRelayOn,
   fnBarixesRelayOff,
-  fnSendSocketBarixInfo,
   fnBarixChangeQsys
 }

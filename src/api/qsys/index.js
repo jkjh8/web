@@ -22,59 +22,6 @@ const getAllDeviceStorage = async () => {
   }
 }
 
-// Q02 Q-SYS 전체 데이터를 Socket으로 전송
-const fnSendSocketStatusAll = async (socket) => {
-  try {
-    const qsys = await dbQsysFindAll()
-    socket.emit('qsys:devices', qsys)
-  } catch (error) {
-    logError(`Q02 QSYS 데이터 소켓 송신 ${error}`, 'SERVER')
-  }
-}
-
-// Q03 Q-SYS 단일 데이터를 Client로 전송
-const fnSendClientQsysData = async (deviceId, obj) => {
-  try {
-    fnSendSocket('qsys:device', { deviceId, data: obj })
-  } catch (error) {
-    logError(`Q03 QSYS 단일 데이터 Client 송신 ${error}`, 'SERVER', 'qsys')
-  }
-}
-
-const fnSendClientZoneStatus = async (deviceId, ZoneStatus) => {
-  try {
-    fnSendSocket('qsys:ZoneStatus', { deviceId, ZoneStatus })
-  } catch (error) {
-    logError(`Q03 QSYS 단일 지역 데이터 Client 송신 ${error}`, 'SERVER', 'qsys')
-  }
-}
-
-// Q04 Q-SYS 전체 데이터를 다수 호출시에도 1초에 1번만 전송
-let sendClientStatusAll = null
-let timeoutSendClientStatusAll = false
-const fnSendClientStatusAll = async () => {
-  try {
-    io.client.broadcst.emit('qsys:devices', await dbQsysFindAll())
-    //   // io로 data 전송, 1초이내에 호출이 있으면 1초에 1번만 전송
-    //   if (sendClientStatusAll) {
-    //     timeoutSendClientStatusAll = true
-    //     return
-    //   }
-
-    //   const data = await dbQsysFindAll()
-    //   fnSendSocket('qsys:devices', data)
-    //   sendClientStatusAll = setTimeout(async () => {
-    //     if (timeoutSendClientStatusAll) {
-    //       timeoutSendClientStatusAll = false
-    //       fnSendSocket('qsys:devices', await dbQsysFindAll())
-    //     }
-    //     sendClientStatusAll = null
-    //   }, 1000)
-  } catch (error) {
-    logError(`Q04 QSYS 데이터 Client 송신 ${error}`, 'SERVER')
-  }
-}
-
 // Q06 전체 데이터 송신
 const fnSendAllStatusAll = async () => {
   try {
@@ -83,15 +30,6 @@ const fnSendAllStatusAll = async () => {
     fnSendSocket('qsys:devices', JSON.stringify(data))
   } catch (error) {
     logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'SERVER')
-  }
-}
-
-// Q07 Page Message 전송
-const fnSendClientPageMessage = async (obj) => {
-  try {
-    fnSendSocket('qsys:page:message', obj)
-  } catch (error) {
-    logError(`Q07 QSYS Page Message 전송 ${error}`, 'SERVER')
   }
 }
 
@@ -129,25 +67,10 @@ const fnSendQsys = async (key, value) => {
   }
 }
 
-// Q11 Qsys 전체 데이터를 qsys 소켓으로 전송
-const fnSendQsysDevices = async () => {
-  try {
-    io.qsys.emit('qsys:devices', await dbQsysFindAll())
-  } catch (error) {
-    logError(`Q11 Qsys 전체 데이터 송신 ${error}`, 'SERVER')
-  }
-}
-
 module.exports = {
   getAllDeviceStorage,
-  fnSendClientQsysData,
-  fnSendSocketStatusAll,
-  fnSendClientStatusAll,
   fnSendAllStatusAll,
-  fnSendClientPageMessage,
   fnCheckPageStatus,
   fnCheckPageStatusAll,
-  fnSendClientZoneStatus,
-  fnSendQsys,
-  fnSendQsysDevices
+  fnSendQsys
 }

@@ -1,12 +1,3 @@
-// exports.initIO = (io) => {
-//   let client = io.of('/client')
-
-//   require('@io/client')(client)
-
-//   // return
-//   exports.io = io
-//   exports.client = client
-// }
 const { logInfo, logWarn, logError } = require('@logger')
 const fromClient = require('./fromClient')
 const { dbQsysFindAll } = require('@db/qsys')
@@ -44,12 +35,6 @@ module.exports = async (socketio) => {
     })
     // 클라이언트 함수
     fromClient(socket)
-    // 초기값 전송
-    try {
-      socket.emit('qsys:devices', await dbQsysFindAll())
-    } catch (error) {
-      logError(`IC01 client 초기값 전송 오류 ${error}`, 'server')
-    }
 
     socketio.on('connection_error', (error) => {
       logError(`IC01 Socket Client 연결 - ${error}`)

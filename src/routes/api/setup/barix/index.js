@@ -1,6 +1,5 @@
 const express = require('express')
 const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
-const { fnRestartBarix } = require('@api/barix')
 const { logInfo, logError } = require('@logger')
 
 const router = express.Router()
@@ -28,7 +27,6 @@ router.put('/interval', async (req, res) => {
     await dbSetupUpdate({ key: 'interval' }, { valueNum: newInterval })
     gStatus.interval = newInterval
     // restart barix
-    fnRestartBarix()
     res.status(200).json({ result: true })
     logInfo(`RS02 Barix 정보 수집 간격 조정 ${newInterval}`, email)
   } catch (error) {
