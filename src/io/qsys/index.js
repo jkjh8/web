@@ -66,7 +66,7 @@ module.exports = async (socketio) => {
         })
         // DB에서 deviceId로 해당 값을 찾은 후 ZoneStatus Array 중 Active, Gain, Mute 만 추출하여 업데이트
         const deviceData = await dbQsysFindOne({ deviceId })
-        ZoneStatus.forEach(({ Zone, Active, gain, mute }) => {
+        for (const { Zone, Active, gain, mute } of ZoneStatus) {
           const idx = deviceData.ZoneStatus.findIndex(
             (item) => item.Zone === Zone
           )
@@ -75,7 +75,7 @@ module.exports = async (socketio) => {
             deviceData.ZoneStatus[idx].gain = gain
             deviceData.ZoneStatus[idx].mute = mute
           }
-        })
+        }
         // DB 업데이트
         const update = await deviceData.save()
         // 소켓으로 업데이트 전송
@@ -143,13 +143,13 @@ module.exports = async (socketio) => {
     })
     // IQ12 QSYS EngineStatus
     socket.on('EngineStatus', async (obj) => {
+      const { deviceId, EngineStatus } = obj
       try {
-        const { deviceId, EngineStatus } = obj
         await dbQsysUpdate({ deviceId }, { EngineStatus })
-        fnSendSocket('qsys:device', { deviceId, EngineStatus })
       } catch (error) {
         logError(`IQ12 QSYS EngineStatus 에러: ${error}`, 'SERVER')
       }
+      fnSendSocket('qsys:device', { deviceId, EngineStatus })
     })
     // IQ13 QSYS ZoneStatusConfigure
     socket.on('ZoneStatusConfigure', async (obj) => {

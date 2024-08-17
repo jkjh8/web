@@ -21,7 +21,7 @@ const router = express.Router()
 // BL01 실시간 방송 시작
 router.put('/', async (req, res) => {
   const { email } = req.user
-  const { devices, zones } = req.body
+  const { devices, zones, Priority } = req.body
   const socketId = await fnGetSocketId(email)
   try {
     // 변수
@@ -54,7 +54,11 @@ router.put('/', async (req, res) => {
     // )
     fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
-    logEvent(`실시간 방송 송출 시작 ID:${idx}`, email, zones)
+    logEvent(
+      `${Priority ? '긴급' : '일반'} 실시간 방송 송출 시작 ID:${idx}`,
+      email,
+      zones
+    )
 
     // 방송 메시지 송출(연결된 사용자에게만)
     fnSendPageMessage(socketId, 'all', '실시간 방송 시작')
@@ -65,7 +69,11 @@ router.put('/', async (req, res) => {
     // 사용자 사용회수 증가
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
-    logError(`BL01 실시간 방송 ${error}`, email, zones)
+    logError(
+      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 ${error}`,
+      email,
+      zones
+    )
     res.status(500).json({ result: false, error })
   }
 })
@@ -73,7 +81,7 @@ router.put('/', async (req, res) => {
 // BL02 메세지 방송 시작
 router.put('/message', async (req, res) => {
   const { email } = req.user
-  const { Mode, devices, file, zones } = req.body
+  const { Mode, devices, file, zones, Priority } = req.body
   const socketId = await fnGetSocketId(email)
   try {
     // 변수
@@ -111,14 +119,22 @@ router.put('/message', async (req, res) => {
       email,
       zones
     )
-    logEvent(`메세지 방송 송출 시작 ID:${idx}`, email, zones)
+    logEvent(
+      `${Priority ? '긴급' : '일반'} 메세지 방송 송출 시작 ID:${idx}`,
+      email,
+      zones
+    )
     //////////////// 리턴 ////////////////
     res.status(200).json({ result: true, idx })
 
     // 사용자 사용회수 증가
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
-    logError(`BL02 메시지 방송 ${error}`, email, zones)
+    logError(
+      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 ${error}`,
+      email,
+      zones
+    )
     res.status(500).json({ result: false, error })
   }
 })
