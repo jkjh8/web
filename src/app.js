@@ -76,10 +76,10 @@ try {
 httpServer.listen(3000)
 
 httpServer.on('listening', () => {
-  logInfo('WEB 3000번 포트에서 HTTP 서버가 시작 되었습니다', 'server')
+  logInfo('APP WEB 3000번 포트에서 HTTP 서버가 시작 되었습니다', 'SERVER')
 })
 httpServer.on('error', (error) => {
-  logError(`WEB HTTP 서버 오류 ${error}`, 'server')
+  logError(`APP WEB HTTP 서버 오류 ${error}`, 'SERVER')
 })
 
 if (process.env.INSTANCE_ID == 0) {

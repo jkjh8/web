@@ -21,7 +21,10 @@ const fnAmxRelayOn = (device) => {
         device.amx,
         (error) => {
           if (error) {
-            logError(`A02 AMX 릴레이 켜기 ${device.name} - ${error}`, 'server')
+            logError(
+              `A02 AMX 릴레이 켜기 - ${device.name} - ${error}`,
+              'SERVER'
+            )
             reject(error)
           }
           udp.close()
@@ -44,14 +47,14 @@ const fnAmxRelayOff = async (device) => {
       const udp = dgram.createSocket('udp4')
       udp.send(`#off,${active.join(',')}!`, 9000, device.amx, (error) => {
         if (error) {
-          logError(`A03 AMX 릴레이 끄기 ${device.name} - ${error}`, 'server')
+          logError(`A03 AMX 릴레이 끄기 - ${device.name} - ${error}`, 'SERVER')
           throw error
         }
         udp.close()
       })
     }
   } catch (error) {
-    logError(`A03 AMX 릴레이 끄기 ${error}`, 'server')
+    logError(`A03 AMX 릴레이 끄기 - ${error}`, 'SERVER')
   }
 }
 

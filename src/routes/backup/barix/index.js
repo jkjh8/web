@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
       .status(200)
       .json({ result: true, data: await dbBarixMake({ ...req.body }) })
   } catch (error) {
-    logError(`BB01 바릭스 정보 동기화 ${error}`, 'SERVER')
+    logError(`BB01 BARIX 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -30,7 +30,7 @@ router.put('/', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BB02 바릭스 정보 동기화 ${error}`, 'SERVER')
+    logError(`BB02 BARIX 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -42,7 +42,7 @@ router.delete('/', async (req, res) => {
       .json({ result: true, data: await dbBarixRemoveById(req.body.id) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BB03 바릭스 정보 동기화 ${error}`, 'SERVER')
+    logError(`BB03 BARIX 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -56,10 +56,10 @@ router.post('/many', async (req, res) => {
     }
     res.status(200).json({ result: true })
 
-    logInfo('BB04 바릭스 정보 동기화 완료', 'SERVER')
+    logInfo('BB04 BARIX 정보 동기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BB04 바릭스 정보 동기화 ${error}`, 'SERVER')
+    logError(`BB04 BARIX 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -67,10 +67,10 @@ router.post('/many', async (req, res) => {
 router.delete('/reset', async (req, res) => {
   try {
     res.status(200).json({ result: true, data: await dbBarix.deleteMany({}) })
-    logInfo('BB05 바릭스 정보 초기화 완료', 'SERVER')
+    logInfo('BB05 BARIX 정보 초기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BB05 바릭스 정보 초기화 ${error}`, 'SERVER')
+    logError(`BB05 BARIX 정보 초기화 - ${error}`, 'SERVER')
   }
 })
 

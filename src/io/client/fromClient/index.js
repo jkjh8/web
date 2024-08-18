@@ -19,9 +19,12 @@ module.exports = function (socket) {
       await dbQsysUpdateBackup(filter, update)
       // 소켓 전송
       fnSendQsys('qsys:volume', obj)
-      logInfo(`IC02 볼륨 ${name}-${deviceId} ${zone}: ${value}`, email)
+      logInfo(
+        `IC02 볼륨 변경 - ${name} - ${zone}=${value} - ${deviceId}`,
+        email
+      )
     } catch (error) {
-      logError(`IC02 볼륨 ${error}`, email)
+      logError(`IC02 볼륨 변경 - ${error}`, email)
     }
   })
 
@@ -34,9 +37,12 @@ module.exports = function (socket) {
       const update = { 'ZoneStatus.$.mute': value }
       await dbQsysUpdateBackup(filter, update)
       fnSendQsys('qsys:mute', obj)
-      logInfo(`IC03 뮤트 장치: ${name}-${deviceId} ${zone}: ${value}`, email)
+      logInfo(
+        `IC03 볼륨 뮤트 변경 - ${name} - ${zone}=${value} - ${deviceId}`,
+        email
+      )
     } catch (error) {
-      logError(`IC03 뮤트 ${error}`, email)
+      logError(`IC03 볼륨 뮤트 변경 -  ${error}`, email)
     }
   })
   // IC04 소스
@@ -45,7 +51,7 @@ module.exports = function (socket) {
     try {
       fnGetBarixInfo(ipaddress)
     } catch (error) {
-      logError(`IC04 소스 ${error}`, email)
+      logError(`IC04 BARIX 정보수집 -  ${error}`, email)
     }
   })
   // IC05 채널
@@ -54,7 +60,7 @@ module.exports = function (socket) {
     try {
       fnSendQsys('zone:set:channel', obj)
     } catch (error) {
-      logError(`IC05 채널 ${error}`, email)
+      logError(`IC05 채널 재설정 - ${error}`, email)
     }
   })
   // IC06 장치
@@ -65,9 +71,9 @@ module.exports = function (socket) {
       fnSendQsys('zone:set:device', deviceId)
       fnQsysCheckMediaFolder(device)
       fnQsysDeleteLive(deviceId)
-      logWarn(`IC06 장치 재설정 ${name}-${deviceId}`, email)
+      logWarn(`IC06 장치 재설정 - ${name} - ${deviceId}`, email)
     } catch (error) {
-      logError(`IC06 장치 ${error}`, email)
+      logError(`IC06 장치 재성정 - ${error}`, email)
     }
   })
   // IC07 방송상태 갱신
@@ -75,9 +81,9 @@ module.exports = function (socket) {
     const { email } = socket.user
     try {
       fnSendQsys('zone:get:active', device.deviceId)
-      logInfo(`IC07 방송상태 갱신 ${device.name}-${device.deviceId}`, email)
+      logInfo(`IC07 방송상태 갱신 - ${device.name} - ${device.deviceId}`, email)
     } catch (error) {
-      logError(`IC07 방송상태 ${error}`, email)
+      logError(`IC07 방송상태 갱신 - ${error}`, email)
     }
   })
 }

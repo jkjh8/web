@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const { spawn } = require('child_process')
-const { logInfo, logError } = require('@logger')
 
 const fnMakeTtsFileVW = (args) => {
   return new Promise((resolve, reject) => {

@@ -39,7 +39,7 @@ router.put('/', async (req, res) => {
       fnSetZoneActive(device.deviceId, device.params.Zones)
     })
     // 로그
-    logEvent(`실시간 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
+    logEvent(`실시간 방송 릴레이 구동완료: ${idx}`, email, zones)
 
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
@@ -55,7 +55,7 @@ router.put('/', async (req, res) => {
     fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(
-      `${Priority ? '긴급' : '일반'} 실시간 방송 송출 시작 ID:${idx}`,
+      `${Priority ? '긴급' : '일반'} 실시간 방송 시작: ${idx}`,
       email,
       zones
     )
@@ -70,7 +70,7 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 ${error}`,
+      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 - ${error}`,
       email,
       zones
     )
@@ -98,7 +98,7 @@ router.put('/message', async (req, res) => {
       fnSetZoneActive(device.deviceId, device.params.Zones)
     })
     // 로그
-    logEvent(`메시지 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
+    logEvent(`메시지 방송 릴레이 구동완료: ${idx}`, email, zones)
 
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
@@ -115,12 +115,7 @@ router.put('/message', async (req, res) => {
     // )
     fnSendQsys('qsys:page:message', await fnSetLive(idx, req.body, email))
     logEvent(
-      `메시지 방송 시작 모드:${Mode} 파일:${file.base} ID:${idx}`,
-      email,
-      zones
-    )
-    logEvent(
-      `${Priority ? '긴급' : '일반'} 메세지 방송 송출 시작 ID:${idx}`,
+      `${Priority ? '긴급' : '일반'} 메세지 방송 시작: ${file.base} - ${idx}`,
       email,
       zones
     )
@@ -131,7 +126,7 @@ router.put('/message', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 ${error}`,
+      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 - ${error}`,
       email,
       zones
     )
@@ -144,7 +139,7 @@ router.delete('/message', async (req, res) => {
   try {
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL04 메시지 삭제 ${error}`, req.user.email)
+    logError(`BL04 메시지 삭제 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -169,7 +164,7 @@ router.get('/stop', async (req, res) => {
     logEvent(`방송 중지`, req.user.email, [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL04 방송 중지 ${error}`, req.user.email)
+    logError(`BL04 방송 중지 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })

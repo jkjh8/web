@@ -1,5 +1,4 @@
 const Qsys = require('@db/models/qsys')
-const { logError } = require('@logger')
 const { fnBackupRequest } = require('@api/backup')
 
 //DQ01

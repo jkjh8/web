@@ -14,7 +14,7 @@ router.get('/gainstep', async (req, res) => {
     }
     res.status(200).json({ result: true, value: gStatus.gainStep })
   } catch (error) {
-    logError(`RS03 볼륨 간격 조회 ${error}`), email
+    logError(`RS03 볼륨 간격 조회 - ${error}`), email
   }
 })
 
@@ -25,10 +25,10 @@ router.put('/gainstep', isAdmin, async (req, res) => {
     const { newGainStep } = req.body
     await dbSetupUpdate({ key: 'gainStep' }, { valueNum: newGainStep })
     // update global tts address
-    logInfo(`RS04볼륨 간격 변경 ${newGainStep}`, email)
+    logInfo(`RS04 볼륨 간격 변경 -${newGainStep}`, email)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`RS04 볼륨 간격 변경 ${error}`, email)
+    logError(`RS04 볼륨 간격 변경 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

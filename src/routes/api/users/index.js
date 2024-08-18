@@ -31,7 +31,7 @@ router.put('/', isAdmin, async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error: error })
     // 로그
-    logError(`RU02 사용자 권한 변경 ${error}`, email)
+    logError(`RU02 사용자 권한 변경 - ${error}`, email)
   }
 })
 
@@ -42,10 +42,10 @@ router.put('/admin', isAdmin, async (req, res) => {
     const { _id, email, isAdmin } = req.body
     await dbUserUpdate({ _id }, { isAdmin: !isAdmin })
     res.status(200).json({ result: true })
-    logInfo(`RU03 관리자 권한 변경 ${email}: ${!isAdmin}`, email)
+    logInfo(`RU03 관리자 권한 변경 - ${email} - ${!isAdmin}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RU03 관리자 권한 변경 ${error}`, email)
+    logError(`RU03 관리자 권한 변경 - ${error}`, email)
   }
 })
 
@@ -56,10 +56,10 @@ router.delete('/', isAdmin, async (req, res) => {
     const { _id, name, email } = req.body
     fnRemoveUserFolder(email)
     res.status(200).json({ result: true, data: await dbUserRemove(_id) })
-    logWarn(`RU04 사용자 삭제 ${name}:${req.body.email}`, email)
+    logWarn(`RU04 사용자 삭제 - ${name} - ${req.body.email}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RU04사용자 삭제 오류 ${error}`, email)
+    logError(`RU04사용자 삭제 - ${error}`, email)
   }
 })
 

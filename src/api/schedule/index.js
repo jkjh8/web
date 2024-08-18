@@ -42,7 +42,7 @@ const fnInTimeScheduleRun = async (data) => {
     if (active.length > 0) {
       await dbPageUpdate({ idx }, { dub: active })
       for (const item of active) {
-        logEvent(`스케줄 방송 중복 확인 ${item.name ?? ''}}`, user, item.Zones)
+        logEvent(`스케줄방송 중복확인: ${item.name ?? ''}}`, user, item.Zones)
       }
     }
 
@@ -58,7 +58,7 @@ const fnInTimeScheduleRun = async (data) => {
     })
     // 로그
     logEvent(
-      `스케줄 방송 릴레이 구동 완료:${name ?? ''} ID:${idx ?? ''}`,
+      `스케줄방송 릴레이 구동완료: ${name ?? ''} - ${idx ?? ''}`,
       user,
       zones
     )
@@ -116,7 +116,7 @@ const fnSendScheduleToAPP = async () => {
     const schedules = await dbSchFindToday()
     return io.scheduler.emit('today', schedules)
   } catch (error) {
-    logError(`S03 오늘 스케줄 전송 오류 ${error}`, 'server')
+    logError(`S03 오늘 스케줄 전송 - ${error}`, 'SERVER')
   }
 }
 
@@ -139,7 +139,7 @@ const fnCleanQsysScheduleFolder = async () => {
       await fnQsysCheckScheduleFolder(device, schedules)
     })
   )
-  logInfo(`S06 QSYS 스케줄 폴더 정리 완료`, 'server')
+  logInfo(`S06 QSYS 스케줄 폴더 정리완료`, 'SERVER')
 }
 
 // S07 gStatus.scheduleFolder를 확인해서 폴더 이름이 스케줄의 idx에 없으면 삭제
@@ -155,9 +155,9 @@ const fnCleanScheduleFolder = async () => {
         }
       })
     )
-    logInfo(`S07 스케줄 폴더 정리`, 'server')
+    logInfo(`S07 스케줄 폴더 정리`, 'SERVER')
   } catch (error) {
-    logError(`S07 스케줄 폴더 정리 ${error}`, 'server')
+    logError(`S07 스케줄 폴더 정리 - ${error}`, 'SERVER')
   }
 }
 
@@ -176,7 +176,7 @@ const fnCleanQsysScheduleTypeOnce = async () => {
             const { deviceId, ipaddress } = device
             try {
               await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
-              logInfo(`S08 QSYS 지난 스케줄 삭제 ${deviceId} ${idx}`, 'server')
+              logInfo(`S08 QSYS 지난 스케줄 삭제 ${deviceId} ${idx}`, 'SERVER')
             } catch (error) {
               console.log(error)
             }
@@ -193,7 +193,7 @@ const fnSendScheduleToday = async () => {
     const schedules = await dbSchFindToday()
     io.scheduler.emit('schedules', JSON.stringify(schedules))
   } catch (error) {
-    logError(`S09 오늘 스케줄 전송 오류 ${error}`, 'server')
+    logError(`S09 오늘 스케줄 전송 - ${error}`, 'SERVER')
   }
 }
 

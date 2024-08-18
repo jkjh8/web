@@ -7,7 +7,6 @@ const { dbTtsMake } = require('@db/tts')
 const { dbUserUpdate } = require('@db/user')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGetFile } = require('@api/files')
-const { fnMakeTtsFileVW } = require('@api/tts/voiceware')
 const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()
@@ -18,6 +17,7 @@ const {
   fnResetInfo,
   fnMakeTtsFile
 } = require('@api/tts/sapi')
+const { fnMakeTtsFileVW } = require('@api/tts/voiceware')
 let ttsProperty = {}
 
 // TT01
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
       res.status(200).json({ result: true, value: ttsProperty })
     }
   } catch (error) {
-    logError(`TT01 TTS 정보 확인 ${error}`, req.user.email)
+    logError(`TT01 TTS SAPI 정보 확인 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -58,7 +58,7 @@ router.put('/', async (req, res) => {
       }
     })
   } catch (error) {
-    logError(`TT02 TTS 생성 ${error}`, email)
+    logError(`TT02 TTS SAPI 생성 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -71,7 +71,7 @@ router.delete('/', (req, res) => {
     fs.unlinkSync(file.fullpath)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`TT03 TTS 파일 삭제 ${error}`, email)
+    logError(`TT03 TTS 파일 삭제 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -86,7 +86,7 @@ router.get('/voice', async (req, res) => {
     }
     res.status(200).json({ ...gStatus })
   } catch (error) {
-    logError(`TT04 TTS음성 ${error}`, email)
+    logError(`TT04 TTS SAPI 음성 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -103,10 +103,10 @@ router.put('/voice', async (req, res) => {
     await dbSetupUpdate({ key: 'voice' }, { value: newVoice })
     // update global tts voice
     gStatus.voice = newVoice
-    logInfo(`TT05 TTS 음성 변경 완료 ${newVoice}`, email)
+    logInfo(`TT05 TTS SAPI 음성 변경 완료 - ${newVoice}`, email)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`TT05 TTS음성 ${error}`, email)
+    logError(`TT05 TTS SAPI 음성 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -139,7 +139,7 @@ router.put('/vw', async (req, res) => {
     })
   } catch (error) {
     res.status(200).json({ result: false, error })
-    logError(`TT06 보이스웨어 TTS 생성 ${error}`, email)
+    logError(`TT06 보이스웨어 TTS 생성 - ${error}`, email)
   }
 })
 

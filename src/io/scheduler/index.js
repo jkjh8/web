@@ -6,13 +6,13 @@ module.exports = async (socketio) => {
   socketio.on('connection', async (socket) => {
     // const user = socket.request.user
     logInfo(
-      `IS01 Socket Scheduler 연결 ID:${process.env.INSTANCE_ID}`,
+      `IS01 SOCKET.IO SCHEDULER 연결 SERVER=${process.env.INSTANCE_ID}`,
       'SERVER'
     )
     // IS02 연결 해제
     socket.on('disconnect', (reason) => {
       logWarn(
-        `IS2 Socket Scheduler 연결해제 ID:${process.env.INSTANCE_ID}`,
+        `IS2 SOCKET.IO SCHEDULER 연결해제 SERVER=${process.env.INSTANCE_ID}`,
         'SERVER'
       )
     })
@@ -20,7 +20,7 @@ module.exports = async (socketio) => {
     // IS03 소켓 연결 에러
     socket.on('connection_error', (error) => {
       logError(
-        `IS03 Socket Scheduler 연결 ID:${process.env.INSTANCE_ID} - ${error}`
+        `IS03 SOCKET.IO SCHEDULER 연결 SERVER=${process.env.INSTANCE_ID} - ${error}, 'SERVER'`
       )
     })
 
@@ -29,6 +29,6 @@ module.exports = async (socketio) => {
     })
     socket.emit('setup', {})
 
-    logInfo(`IS01 Socket Scheduler 시작`, 'server')
+    logInfo(`IS01 SOCKET.IO SCHEDULER 시작`, 'SERVER')
   })
 }

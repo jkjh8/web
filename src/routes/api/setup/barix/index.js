@@ -15,7 +15,7 @@ router.get('/interval', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.interval })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RS01 Barix 정보 수집 간격 ${error}`), email
+    logError(`RS01 BARIX 정보 수집 간격 - ${error}`), email
   }
 })
 
@@ -28,10 +28,10 @@ router.put('/interval', async (req, res) => {
     gStatus.interval = newInterval
     // restart barix
     res.status(200).json({ result: true })
-    logInfo(`RS02 Barix 정보 수집 간격 조정 ${newInterval}`, email)
+    logInfo(`RS02 BARIX 정보 수집 간격 조정 - ${newInterval}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RS02 Barix 정보 수집 간격 조정 ${error}`, email)
+    logError(`RS02 BARIX 정보 수집 간격 조정 - ${error}`, email)
   }
 })
 

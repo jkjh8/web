@@ -7,6 +7,7 @@ const { logWarn, logError } = require('@logger')
 const { dbSchFind, dbSchFindOne } = require('@db/schedule')
 const { dbSchUpdate } = require('@db/schedule')
 const { dbQsysFindOne, dbQsysFind, dbQsysUpdate } = require('../../../db/qsys')
+const { fn } = require('moment')
 
 // 환경변수로 node에서 허가되지 않은 인증TLS통신을 거부하지 않겠다고 설정
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -29,51 +30,38 @@ const fnMakeAddrDefault = (ipaddr) => {
 }
 // QF02 qsys에 기본 폴더 생성
 const fnQsysCheckMediaFolder = async (device) => {
-  const url = `https://${device.ipaddress}/api/v0/cores/self/media/Messages`
-  axios
-    .post(
-      url,
-      {
-        name: 'live'
-      },
+  try {
+    fnMakeQsysMediaFolder(device, 'live')
+    fnMakeQsysMediaFolder(device, 'schedule')
+  } catch (error) {
+    logError(
+      `QF02 Q-SYS 기본폴더생성 ${device.name} - ${device.deviceId} - ${error}`,
+      'SERVER'
+    )
+  }
+}
+
+// QF02-1 qsys에 폴더 생성
+const fnMakeQsysMediaFolder = async (device, folder) => {
+  try {
+    await axios.post(
+      `https://${device.ipaddress}/api/v0/cores/self/media/Messages`,
+      { name: folder },
       { httpsAgent: Agent }
     )
-    .then((res) => {
-      logInfo(`QF02 Q-SYS 기본 폴더 생성 LIVE`, 'server')
-    })
-    .catch((err) => {
-      if (err.response.data.error.message === 'Directory already exists') {
-        return console.log(
-          `${device.name} ${device.ipaddress} LIVE Directory already exists`
-        )
-      }
-      logError(
-        `QF02 Q-SYS 기본 폴더 생성 LIVE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
-        'server'
+  } catch (error) {
+    if (error.response.data.error.message === 'Directory already exists') {
+      return console.log(
+        `${device.name} ${device.ipaddress} ${folder} Directory already exists`
       )
-    })
-  axios
-    .post(
-      url,
-      {
-        name: 'schedule'
-      },
-      { httpsAgent: Agent }
+    }
+    logError(
+      `QF02-1 Q-SYS 기본폴더생성 ${device.name} - ${
+        device.deviceId
+      } - ${folder.toUpperCase()} - ${error.response.data.error.message}`,
+      'SERVER'
     )
-    .then((res) => {
-      logInfo(`QF02 Q-SYS 기본 폴더 생성 SCHEDULE`, 'server')
-    })
-    .catch((err) => {
-      if (err.response.data.error.message === 'Directory already exists') {
-        return console.log(
-          `${device.name} ${device.ipaddress} SCHEDULE Directory already exists`
-        )
-      }
-      logError(
-        `QF02 Q-SYS 기본 폴더 생성 SCHEDULE ${device.name}-${device.deviceId} ${err.response.data.error.message}`,
-        'server'
-      )
-    })
+  }
 }
 
 // QF03 파일 업로드
@@ -102,7 +90,7 @@ const fnQsysFileUpload = async (args) => {
   } catch (error) {
     if (error.response && error.response.data) {
       logError(
-        `QF03 Q-SYS 파일 업로드 : ${deviceId} ${file.base} ${
+        `QF03 Q-SYS 파일업로드 - ${deviceId} - ${file.base} - ${
           error.response.data.error.message ?? ''
         }`,
         user
@@ -130,7 +118,7 @@ const fnQsysFileDelete = async (args) => {
       await fnGetStrage(ipaddress)
     })
     .catch((error) => {
-      logError(`QF04 Q-SYS 파일 삭제 : ${deviceId} ${file}`, user)
+      logError(`QF04 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${error}`, user)
     })
 }
 
@@ -144,7 +132,7 @@ const fnQsysFileDeleteAsync = async (args) => {
     // 파일 삭제 후 스토리지 정보 갱신
     await fnGetStrage(ipaddress)
   } catch (error) {
-    logError(`QF04-1 Q-SYS 파일 삭제 : ${deviceId} ${file}`, user)
+    logError(`QF04-1 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${error}`, user)
   }
 }
 
@@ -169,7 +157,7 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
     await Promise.all(promises)
     return await dbSchUpdate({ idx }, { $set: { sync: true } })
   } catch (error) {
-    logError(`QF05 Q-SYS 스케줄 동기화`, 'server')
+    logError(`QF05 Q-SYS 스케줄 동기화 ${error}`, 'SERVER')
   }
 }
 
@@ -211,7 +199,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
       }
     })
   } catch (error) {
-    logError(`QF06 Q-SYS 스케줄 정리`, 'server')
+    logError(`QF06 Q-SYS 스케줄 정리 ${error}`, 'SERVER')
   }
 }
 
@@ -243,9 +231,9 @@ const fnQsysDeleteLive = async (deviceId) => {
         httpsAgent: Agent
       })
     })
-    logWarn(`QF08 Q-SYS live 파일 삭제 ${device.name} - ${deviceId}`)
+    logWarn(`QF08 Q-SYS LIVE 파일삭제 - ${device.name} - ${deviceId}`)
   } catch (error) {
-    logError(`QF08 Q-SYS live 파일 삭제 ${error}`, 'server')
+    logError(`QF08 Q-SYS LIVE 파일삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -256,9 +244,9 @@ const fnQsysDeleteLiveAll = async () => {
     qsys.forEach(async (device) => {
       await fnQsysDeleteLive(device.deviceId)
     })
-    logWarn(`QF09 Q-SYS Live파일 전체 삭제`)
+    logWarn(`QF09 Q-SYS Live 파일전체삭제`)
   } catch (error) {
-    logError(`QF09 Q-SYS Live파일 전체 삭제 ${error}`, 'server')
+    logError(`QF09 Q-SYS Live 파일전체삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -272,7 +260,7 @@ const fnGetStrage = async (ipaddress) => {
       dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
     })
     .catch((err) => {
-      logError(`Q10 QSYS 저장소 정보 수집`, 'server')
+      logError(`Q10 Q-SYS 저장소 정보수집 ${err}`, 'SERVER')
     })
 }
 

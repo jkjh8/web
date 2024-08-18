@@ -7,7 +7,7 @@ const fnGetSocketId = async (email) => {
     const r = await dbUserFindOne({ email })
     return r.socketId
   } catch (error) {
-    logError(`US01 socketId 조회 실패 ${error}`, 'server')
+    logError(`US01 SOCKET.IO 조회 - ${error}`, 'SERVER')
   }
 }
 

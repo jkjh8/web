@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
       relayOnTime: gStatus.relayOnTime
     })
   } catch (error) {
-    logError(`SC01 스케줄러 조회 실패 ${error}`, 'server')
+    logError(`SC01 스케줄러 조회 실패 - ${error}`, 'SERVER')
     res.status(500).json({
       result: false,
       mode: gStatus.mode,
@@ -57,7 +57,7 @@ router.get('/check', async (req, res) => {
     fnSendGlobalStatus()
   } catch (error) {
     res.status(500).send('FAIL')
-    logError(`SC02 스케줄러 체크 실패 ${error}`, 'server')
+    logError(`SC02 스케줄러 체크 - ${error}`, 'SERVER')
   }
 })
 
@@ -68,10 +68,10 @@ router.put('/mode', (req, res) => {
     gStatus.activeMode = mode
     dbSetupUpdate({ key: 'activeMode' }, { value: mode })
     res.status(200).json({ result: true, mode })
-    logInfo(`스케줄러 동작이 변경되었습니다. ${mode}`, 'scheduler')
+    logInfo(`SC03 스케줄러 모드 변경 - ${mode}`, 'SCHEDULER')
   } catch (error) {
     res.status(500).send('FAIL')
-    logError(`SC03 스케줄러 모드 변경 실패 ${error}`, 'server')
+    logError(`SC03 스케줄러 모드 변경 - ${error}`, 'SERVER')
   }
 })
 // SC04 스케줄 이벤트
@@ -80,7 +80,7 @@ router.put('/', async (req, res) => {
   const { name, user, zones, file, idx, active } = schedule
   try {
     if (active == false) {
-      logWarning(`비활성화된 스케줄: ${name ?? ''} ID: ${idx}`, user, zones)
+      logWarning(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
       return
     }
     // 스케줄 방송 시작
@@ -89,14 +89,14 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
     // 로그 기록
     logEvent(
-      `스케줄 방송 시작: ${name ?? ''} 파일: ${file.base} ID: ${idx}`,
+      `스케줄 방송 시작: ${name ?? ''} - ${file.base} - ${idx}`,
       user,
       zones
     )
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC04 스케줄 방송 시작 ${error}`, user, zones)
+    logError(`SC04 스케줄 방송 시작 - ${error}`, user, zones)
   }
 })
 
@@ -120,7 +120,7 @@ router.get('/clean', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC05 스케줄러 폴더 정리 실패 ${error}`, 'server')
+    logError(`SC05 스케줄러 폴더 정리 - ${error}`, 'SERVER')
   }
 })
 
@@ -131,7 +131,7 @@ router.get('/relay', (req, res) => {
     res.status(200).json({ result: true, relayOnTime })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC06 relayOnTime 조회 실패 ${error}`, 'server')
+    logError(`SC06 relayOnTime 조회 - ${error}`, 'SERVER')
   }
 })
 

@@ -5,6 +5,7 @@ const fs = require('fs')
 const multer = require('multer')
 const { logInfo, logError } = require('@logger')
 
+// BF01 파일 목록 조회
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folder = decodeURIComponent(req.headers.folder)
@@ -16,34 +17,35 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     logInfo(
-      `파일 업로드(백업): ${file.originalname.toString('utf8')}`,
-      'backup',
-      'files'
+      `BF01 파일 업로드(백업): ${file.originalname.toString('utf8')}`,
+      'SERVER'
     )
     cb(null, file.originalname.toString('utf8'))
   }
 })
 
+// BF02 파일 업로드
 router.post('/', (req, res) => {
   multer({ storage }).any()(req, res, (error) => {
     if (error) {
-      logError(`RF05 파일 업로드 ${error}`, 'backup')
+      logError(`BF02 파일 업로드 - ${error}`, 'backup')
       return res.status(500).json({ result: false, error })
     }
     res.status(200).json({ result: true })
     // 로그
     logInfo(
-      `RF05 파일 업로드 완료 ${decodeURIComponent(req.headers.folder).replace(
+      `BF02 파일 업로드 완료 - ${decodeURIComponent(req.headers.folder).replace(
         gStatus.mediaFolder,
         ''
       )}`,
-      'backup'
+      'SERVER'
     )
     // 업로드 된 파일을 백업 서버로도 전송
     // fnBackupRequest('/backup/files', req.files, 'POST', email)
   })
 })
 
+// BF03 파일 삭제
 router.delete('/', (req, res) => {
   try {
     const { list } = req.body
@@ -60,6 +62,7 @@ router.delete('/', (req, res) => {
     }
     res.status(200).json({ result: true })
   } catch (error) {
+    logError(`BF03 파일 삭제 - ${error}`, 'SERVER')
     res.status(500).json({ result: false, error })
   }
 })

@@ -26,8 +26,8 @@ module.exports = async (defaultFolder, app = null) => {
     if (app) {
       app.use('/media', express.static(gStatus.mediaFolder))
     }
-    logInfo(`SU01 서버 미디어 폴더가 활성화 ${gStatus.mediaFolder}`, 'server')
+    logInfo(`SU01 서버 미디어 폴더가 활성화 - ${gStatus.mediaFolder}`, 'SERVER')
   } catch (error) {
-    logError(`SU01 미디어 폴더 활성화 ${error}`, 'server')
+    logError(`SU01 미디어 폴더 활성화 - ${error}`, 'SERVER')
   }
 }

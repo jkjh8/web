@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
   try {
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
   } catch (error) {
-    logError(`RQ01 Qsys 장치 검색 오류 ${error}`, email)
+    logError(`RQ01 Q-SYS 장치 검색 - ${error}`, email)
   }
 })
 
@@ -44,11 +44,14 @@ router.post('/', async (req, res) => {
     await fnSendAllStatusAll()
     res.status(200).json({ result: true, data })
     // 로그
-    logInfo(`RQ02 QSYS 장치 추가 ${name}:${ipaddress}-${deviceId}`, email)
+    logInfo(
+      `RQ02 Q-SYS 장치 추가 - ${name} - ${ipaddress} - ${deviceId}`,
+      email
+    )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`QSYS 장치 추가 오류: ${error}`, email)
+    logError(`RQ02 Q-SYS 장치 추가 - ${error}`, email)
   }
 })
 
@@ -66,11 +69,14 @@ router.put('/edit', async (req, res) => {
     await fnSendAllStatusAll()
     res.status(200).json({ result: true, data })
     // 로그
-    logInfo(`RQ03 QSYS 장치 수정 ${name}:${ipaddress}-${deviceId}`, email)
+    logInfo(
+      `RQ03 Q-SYS 장치 수정 - ${name} - ${ipaddress} - ${deviceId}`,
+      email
+    )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ03 QSYS 장치 수정 ${error}`, email)
+    logError(`RQ03 Q-SYS 장치 수정 - ${error}`, email)
   }
 })
 
@@ -83,11 +89,14 @@ router.delete('/', async (req, res) => {
     // 전체 데이터 송신
     await fnSendAllStatusAll()
     // 로그
-    logInfo(`RQ04 QSYS 장치 제거 ${name}:${ipaddress}-${deviceId}`, email)
+    logInfo(
+      `RQ04 Q-SYS 장치 제거 - ${name} - ${ipaddress} - ${deviceId}`,
+      email
+    )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ04 QSYS 장치 제거 ${error}`, email)
+    logError(`RQ04 Q-SYS 장치 제거 - ${error}`, email)
   }
 })
 
@@ -128,13 +137,13 @@ router.put('/zoneupdate', async (req, res) => {
     res.status(200).json({ result: true, device: result })
     // 로그
     logInfo(
-      `RQ06 QSYS 방송구간 업데이트 ${deviceId} ${zone} ${destination} ${ipaddress}`,
+      `RQ06 Q-SYS 방송구간 업데이트 - ${zone} - ${destination} - ${ipaddress} - ${deviceId} `,
       email
     )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ06 QSYS 방송구간 업데이트 ${error}`, email)
+    logError(`RQ06 Q-SYS 방송구간 업데이트 - ${error}`, email)
   }
 })
 
@@ -152,7 +161,7 @@ router.get('/existszone', async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: false, error })
     // 로그
-    logError(`RQ07 QSYS 방송 지역 검색 ${error}`, email)
+    logError(`RQ07 Q-SYS 방송 지역 검색 - ${error}`, email)
   }
 })
 
@@ -171,7 +180,7 @@ router.get('/existszones', async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: false, error })
     // 로그
-    logError(`RQ08 QSYS 방송 지역 검색 ${error}`, email)
+    logError(`RQ08 Q-SYS 방송 지역 검색 - ${error}`, email)
   }
 })
 
@@ -189,13 +198,13 @@ router.put('/modifiedzonename', async (req, res) => {
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
     // 로그
     logInfo(
-      `RQ09 QSYS 장치ID: ${deviceId} 방송구간 이름변경 ${zone}: ${name}`,
+      `RQ09 Q-SYS 방송구간 이름변경 - ${zone} - ${name} - ${deviceId}`,
       email
     )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ09 QSYS 방송구간 이름변경: ${error}`, email)
+    logError(`RQ09 Q-SYS 방송구간 이름변경 - ${error}`, email)
   }
 })
 
@@ -208,10 +217,10 @@ router.get('/gtrs', (req, res) => {
     // fnSendDeviceMuticast('qsys:device:gtrs', { deviceId })
     res.status(200).json({ result: true })
     // 로그
-    logInfo(`RQ10 QSYS 장치ID: ${deviceId} 스트림 채널 정보 수집`, email)
+    logInfo(`RQ10 Q-SYS 스트림 채널 정보 수집 - ${deviceId}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`QSYS 스트림 채널 재수집 오류 ${error}`, email)
+    logError(`Q-SYS 스트림 채널 재수집 - ${error}`, email)
   }
 })
 
@@ -225,13 +234,13 @@ router.put('/strs', (req, res) => {
     res.status(200).json({ result: true })
     // 로그
     logInfo(
-      `RQ11 QSYS 스트림 재설정 ${device.name}, ${device.ipaddress}`,
+      `RQ11 Q-SYS 스트림 재설정 - ${device.name} - ${device.ipaddress}`,
       email
     )
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ11 QSYS 스트림 재설정 ${error}`, email)
+    logError(`RQ11 Q-SYS 스트림 재설정 - ${error}`, email)
   }
 })
 
@@ -244,14 +253,17 @@ router.get('/cancel', (req, res) => {
 
       fnSendQsys(`qsys:page:cancelAll`, deviceId)
       // fnSendDeviceMuticast(`qsys:page:cancelAll`, deviceId)
-      logWarn(`Qsys ${name} ${deviceId} ${ipaddress} 방송 취소`, email)
+      logWarn(
+        `RQ12 Q-SYS ${name} - ${deviceId} - ${ipaddress} 방송 취소`,
+        email
+      )
       return res.status(200).json({ result: true })
     }
     res.status(401).json({ result: false, message: 'Invaild Auth' })
   } catch (error) {
     res.status(500).json(error)
     // 로그
-    logError(`RQ12 Qsys 방송 취소 ${error}`, email)
+    logError(`RQ12 Q-SYS 방송 취소 - ${error}`, email)
   }
 })
 
@@ -295,11 +307,11 @@ router.put('/updatenames', async (req, res) => {
       }
     })
     // 로그 기록
-    logInfo(`RQ13 QSYS 방송구간 이름 및 스트림 업데이트 ID: ${deviceId}`, email)
+    logInfo(`RQ13 Q-SYS 방송구간 이름 및 스트림 업데이트 - ${deviceId}`, email)
   } catch (error) {
     res.status(500).json(error)
     // 로그
-    logError(`RQ13 QSYS 방송구간 이름 및 스트림업데이트 ${error}`, email)
+    logError(`RQ13 Q-SYS 방송구간 이름 및 스트림 업데이트 - ${error}`, email)
   }
 })
 
@@ -316,13 +328,16 @@ router.put('/volume', async (req, res) => {
     // fnSendDeviceMuticast('qsys:volume', req.body)
     fnSendQsys('qsys:volume', req.body)
     // 로그
-    logInfo(`IC02 볼륨 ${name}-${deviceId} ${zone}: ${value}`, email)
+    logInfo(
+      `IC02 Q-SYS 볼륨 - ${name} - ${zone} - ${value} -${deviceId}`,
+      email
+    )
     // 송신
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ14 QSYS 볼륨조정 ${error}`, email)
+    logError(`RQ14 Q-SYS 볼륨조정 - ${error}`, email)
   }
 })
 
@@ -333,11 +348,11 @@ router.get('/all', async (req, res) => {
     await fnSendAllStatusAll()
     res.status(200).json({ result: true })
     // 로그
-    logInfo(`RQ15 QSYS 전체 송신`, email)
+    logInfo(`RQ15 Q-SYS 전체 송신`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ15 QSYS 전체 송신 ${error}`, email)
+    logError(`RQ15 Q-SYS 전체 송신 - ${error}`, email)
   }
 })
 
@@ -348,7 +363,7 @@ router.put('/pagereset', async (req, res) => {
     fnCheckPageStatus(req.body.deviceId)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`RQ16 QSYS PAGE 리셋 ${error}`, email)
+    logError(`RQ16 Q-SYS PAGE 리셋 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

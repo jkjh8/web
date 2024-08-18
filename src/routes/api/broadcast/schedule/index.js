@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
       })
     }
   } catch (error) {
-    logError(`SH01 스케줄 찾기 ${error}`, req.user.email)
+    logError(`SH01 스케줄 찾기 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -55,13 +55,13 @@ router.put('/active', async (req, res) => {
     await dbSchUpdate({ _id }, { active })
     res.status(200).json({ result: true })
     if (active) {
-      logInfo(`SH02 스케줄 활성화 ${name} - ${idx}`, req.user.email)
+      logInfo(`SH02 스케줄 활성화 - ${name} - ${idx}`, req.user.email)
     } else {
-      logWarn(`SH02스케줄 비활성화 ${name} - ${idx}`, req.user.email)
+      logWarn(`SH02스케줄 비활성화 - ${name} - ${idx}`, req.user.email)
     }
     await fnSendScheduleToday()
   } catch (error) {
-    logError(`SH02 스케줄 활성화 ${error}`, req.user.email)
+    logError(`SH02 스케줄 활성화 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -105,7 +105,7 @@ router.post('/', async (req, res) => {
       file: newFile
     })
   } catch (error) {
-    logError(`SH04 스케줄 추가 ${error}`, email)
+    logError(`SH04 스케줄 추가 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -121,7 +121,7 @@ router.get('/exists', async (req, res) => {
       })
     })
   } catch (error) {
-    logError(`SH05 스케줄 중복 확인 ${error}`, req.user.email)
+    logError(`SH05 스케줄 중복 확인 - ${error}`, req.user.email)
   }
 })
 
@@ -141,7 +141,7 @@ router.delete('/', async (req, res) => {
       try {
         await fnQsysDeleteFolder(deviceId, ipaddress, `schedule/${idx}`)
       } catch (error) {
-        logError(`SH06 스케줄 디바이스 파일 삭제 ${error}`, req.user.email)
+        logError(`SH06 스케줄 장치 파일 삭제 - ${error}`, req.user.email)
       }
     })
     fnSendScheduleToday()
@@ -151,12 +151,12 @@ router.delete('/', async (req, res) => {
   // SH07 db 삭제
   try {
     await dbSchRemoveById(schedule._id)
-    logWarn(`SH07 스케줄 삭제 ${schedule.name}`, req.user.email)
+    logWarn(`SH07 스케줄 삭제 - ${schedule.name}`, req.user.email)
     res.status(200).json({ result: true })
     // 스케줄 APP으로 전송
     await fnSendScheduleToday()
   } catch (error) {
-    logError(`SH07 스케줄 삭제 ${error}`, req.user.email)
+    logError(`SH07 스케줄 삭제 - ${error}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -168,9 +168,9 @@ router.get('/sync', async (req, res) => {
   try {
     await fnQsysSyncFileSchedule(idx, email)
     res.status(200).json({ result: true })
-    logInfo(`SH08 스케줄 파일 동기화 ${idx}`, email)
+    logInfo(`SH08 스케줄 파일 동기화 - ${idx}`, email)
   } catch (error) {
-    logError(`SH08 스케줄 파일 동기화 ${error}`, email)
+    logError(`SH08 스케줄 파일 동기화 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -183,7 +183,7 @@ router.get('/clean', async (req, res) => {
     logInfo(`SH09 스케줄 폴더 정리`, req.user.email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SH09 스케줄 폴더 정리 ${error}`, req.user.email)
+    logError(`SH09 스케줄 폴더 정리 - ${error}`, req.user.email)
   }
 })
 
@@ -198,7 +198,7 @@ router.delete('/user', async (req, res) => {
     await fnSendScheduleToday()
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SH10 스케줄 삭제 ${error}`, email)
+    logError(`SH10 스케줄 삭제 - ${error}`, email)
   }
 })
 
@@ -206,15 +206,15 @@ module.exports = router
 
 // Helper functions
 
-async function runRelays(devices) {
-  // amx 릴레이 구동
-  await fnAmxesRelayOn(devices)
-  // Barix 릴레이 구동
-  await fnBarixesRelayOn(devices)
-  // 로그
-  logEvent(`스케줄 방송 릴레이 구동 완료 ID:${idx}`, email, zones)
-}
+// async function runRelays(devices) {
+//   // amx 릴레이 구동
+//   await fnAmxesRelayOn(devices)
+//   // Barix 릴레이 구동
+//   await fnBarixesRelayOn(devices)
+//   // 로그
+//   logEvent(`스케줄 방송 릴레이 구동 완료: ${idx}`, email, zones)
+// }
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+// function wait(ms) {
+//   return new Promise((resolve) => setTimeout(resolve, ms))
+// }

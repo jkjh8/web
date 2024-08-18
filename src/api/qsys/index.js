@@ -17,7 +17,7 @@ const getAllDeviceStorage = async () => {
       await fnGetStrage(device.ipaddress)
     })
   } catch (error) {
-    logError(`Q01 전체 QSYS 저장소 정보 수집 ${error}`, 'SERVER')
+    logError(`Q01 전체 Q-SYS 저장소 정보수집 - ${error}`, 'SERVER')
     throw error
   }
 }
@@ -29,7 +29,7 @@ const fnSendAllStatusAll = async () => {
     fnSendQsys('qsys:devices', JSON.stringify(data))
     fnSendSocket('qsys:devices', JSON.stringify(data))
   } catch (error) {
-    logError(`Q06 QSYS 데이터 전체 송신 ${error}`, 'SERVER')
+    logError(`Q06 Q-SYS 데이터 전체송신 - ${error}`, 'SERVER')
   }
 }
 
@@ -42,7 +42,7 @@ const fnCheckPageStatus = async (deviceId) => {
       await dbQsysUpdate({ deviceId }, { PageStatus: [] })
     }
   } catch (error) {
-    logError(`Q08 QSYS Page Status 삭제 ${error}`, 'SERVER')
+    logError(`Q08 Q-SYS PAGESTATUS 삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -54,7 +54,7 @@ const fnCheckPageStatusAll = async () => {
       await fnCheckPageStatus(device.deviceId)
     })
   } catch (error) {
-    logError(`Q09 QSYS 전체 Page Status 삭제 오류 ${error}`, 'SERVER')
+    logError(`Q09 Q-SYS 전체 PAGESTATUS 삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -63,7 +63,7 @@ const fnSendQsys = async (key, value) => {
   try {
     io.qsys.emit(key, value)
   } catch (error) {
-    logError(`Q10 Qsys Socket ${error}`, 'SERVER')
+    logError(`Q10 Q-SYS SOCKET - ${error}`, 'SERVER')
   }
 }
 

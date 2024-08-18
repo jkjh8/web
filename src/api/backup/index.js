@@ -65,7 +65,7 @@ const fnBackupUploader = (file, folder) => {
         // console.log(res)
       })
       .catch((error) => {
-        logError(`BK03 백업 파일 업로드`)
+        logError(`BK03 백업 파일업로드 - ${error}`, 'SERVER')
       })
   }
 }
@@ -86,7 +86,7 @@ const fnBackupFileFolderDelete = (list) => {
         // console.log(res)
       })
       .catch((error) => {
-        logError(`BK04 백업 파일 삭제`)
+        logError(`BK04 백업 파일삭제 - ${error}`, 'SERVER')
       })
   }
 }

@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     logInfo(
-      `파일 업로드: ${file.fieldname.toString('utf8')}`,
+      `파일 업로드 - ${file.fieldname.toString('utf8')}`,
       req.user.email,
       'files'
     )

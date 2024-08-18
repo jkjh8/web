@@ -59,7 +59,7 @@ router.post('/signup', async (req, res) => {
         isAdmin: true,
         folder: uniqueId(16)
       })
-      logInfo('슈퍼 사용자 생성', 'server')
+      logInfo('AH03 슈퍼 사용자 생성', 'SERVER')
     } else {
       // 일반 사용자 생성
       await dbUserMake({
@@ -68,13 +68,13 @@ router.post('/signup', async (req, res) => {
         userPassword: bcrypt.hashSync(userPassword, salt),
         folder: uniqueId(16)
       })
-      logInfo(`사용자 계정 생성: ${email}`, 'server')
+      logInfo(`AH03 사용자 계정 생성: ${email}`, 'SERVER')
     }
     // 사용자 생성 성공 시 200 상태 코드와 결과를 응답
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`AH03 사용자 계정 생성 ${error}`, 'server')
-    res.status(500).json(error)
+    logError(`AH03 사용자 계정 생성 ${error}`, 'SERVER')
+    res.status(500).json({ result: false, error })
   }
 })
 
@@ -83,9 +83,9 @@ router.get('/exists_email', async (req, res) => {
   try {
     const { email } = req.query
     res.status(200).json({ result: true, user: await dbUserExists({ email }) })
-  } catch (err) {
-    logError(`AH04 이메일 중복 체크 ${err}`, 'server')
-    res.status(500).json(err)
+  } catch (error) {
+    logError(`AH04 이메일 중복 체크 - ${error}`, 'SERVER')
+    res.status(500).json({ return: false, error })
   }
 })
 
@@ -102,7 +102,7 @@ router.get('/signout', isLoggedIn, async (req, res) => {
       res.status(401).json({ error: '잘못된 토큰' })
     }
   } catch (error) {
-    logError(`AH05 사용자 로그아웃 ${req.user.email} ${err}`, 'server')
+    logError(`AH05 사용자 로그아웃 - ${req.user.email} - ${error}`, 'SERVER')
   }
 })
 

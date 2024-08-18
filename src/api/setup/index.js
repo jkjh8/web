@@ -63,11 +63,8 @@ module.exports = async function () {
           break
       }
     }
-    logInfo('SU02 서버 기본 세팅 데이터가 업데이트(from DB)', 'server')
+    logInfo('SU02 서버 기본 세팅 데이터 업데이트(from DB)', 'SERVER')
   } catch (error) {
-    logError(
-      `SU02 서버 기본 세팅 데이터가 업데이트(from DB) ${JSON.stringify(error)}`,
-      'server'
-    )
+    logError(`SU02 서버 기본 세팅 데이터 업데이트(from DB) ${error}`, 'SERVER')
   }
 }
