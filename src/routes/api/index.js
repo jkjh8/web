@@ -1,5 +1,5 @@
 const express = require('express')
-const { isLoggedIn, isScheduler, isBarix } = require('@api/user')
+const { isLoggedIn, isScheduler } = require('@api/user')
 const router = express.Router()
 
 // use router
@@ -14,5 +14,6 @@ router.use('/broadcast', isLoggedIn, require('./broadcast'))
 router.use('/amx', require('./amx'))
 router.use('/app', require('./app'))
 router.use('/scheduler', isScheduler, require('./scheduler'))
+router.use('/barix', require('./barix'))
 
 module.exports = router

@@ -1,26 +1,27 @@
 module.exports = {
   gStatus: {
     version: '',
-    ttsAddress: 'http://127.0.0.1:9998',
     scheduler: {
       main: '',
       backup: '',
       active: 'main',
       auto: false
     },
-    defaultFolder: __dirname,
-    mediaFolder: '',
-    interval: 50,
-    gainStep: 2,
-    mode: 'Normal',
     activeMode: 'main',
+    backupFile: false,
     backupId: '',
     backupAddress: '',
     backupActive: false,
-    voice: '',
+    barix: '',
+    defaultFolder: __dirname,
+    interval: 50,
+    instanceId: '',
+    mediaFolder: '',
+    mode: 'Normal',
+    qsys: '',
+    qsysConnected: false,
     relayOnTime: 5,
     ttsMode: 'sapi',
-    backupFile: false,
-    instanceId: ''
+    voice: ''
   }
 }

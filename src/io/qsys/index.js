@@ -14,6 +14,7 @@ const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { fnAmxRelayOff } = require('@api/amx')
 const { fnBarixRelayOff } = require('@api/barix')
 const { log } = require('winston')
+const { gStatus } = require('../../defaultVal')
 
 module.exports = async (socketio) => {
   // IQ01 클라이언트 소켓 연결
@@ -23,12 +24,18 @@ module.exports = async (socketio) => {
       `IQ01 SOCKET.IO Q-SYS 연결 SERVER=${process.env.INSTANCE_ID}`,
       'SERVER'
     )
+    // 연결 상태 업데이트
+    gStatus.qsys = new Date().toLocaleString()
+    gStatus.qsysConnected = true
     // IQ02 연결 해제
     socket.on('disconnect', (reason) => {
       logWarn(
         `IQ2 SOCKET.IO Q-SYS 연결해제 SERVER=${process.env.INSTANCE_ID}`,
         'SERVER'
       )
+      // 연결 상태 업데이트
+      gStatus.qsysConnected = false
+      gStatus.qsys = new Date().toLocaleString()
     })
 
     // IQ03 소켓 연결 에러
