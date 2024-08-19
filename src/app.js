@@ -14,6 +14,11 @@ const cors = require('cors')
 const { Server } = require('socket.io')
 const { createAdapter } = require('@socket.io/cluster-adapter')
 const { setupWorker } = require('@socket.io/sticky')
+
+// app install
+// npm install @socket.io/cluster-adapter @socket.io/sticky -g
+// npm install @socket.io/pm2 -g
+
 // start codes
 const app = express()
 // global settings
