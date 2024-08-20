@@ -1,6 +1,5 @@
 const { logInfo, logWarn, logError } = require('@logger')
 const fromClient = require('./fromClient')
-const { dbQsysFindAll } = require('@db/qsys')
 const { dbUserUpdate } = require('@db/user')
 
 const jwt = require('jsonwebtoken')
@@ -24,6 +23,9 @@ module.exports = async (socketio) => {
     // 사용자 소켓 아이디 갱신
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
+      // 전체 상태 전송
+      // require('@api/setup')()
+      // socket.emit('setup:status', gStatus)
     } catch (error) {
       logError(`IC01 SOCKET.IO CLIENT 사용자갱신 - ${error}`, 'SERVER')
     }

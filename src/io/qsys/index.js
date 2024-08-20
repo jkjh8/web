@@ -1,5 +1,5 @@
+const moment = require('moment')
 const { logInfo, logWarn, logError, logEvent } = require('@logger')
-
 const {
   dbQsysUpdate,
   dbQsysUpdateOne,
@@ -9,12 +9,11 @@ const {
 } = require('@db/qsys')
 const { dbBarixFindOne } = require('@db/barix')
 const { dbPageUpdateOne, dbPageFindOne } = require('@db/page')
+const { dbSetupUpdate } = require('@db/setup')
 const { fnSendSocket } = require('@api/client')
 const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { fnAmxRelayOff } = require('@api/amx')
 const { fnBarixRelayOff } = require('@api/barix')
-const { log } = require('winston')
-const { gStatus } = require('../../defaultVal')
 
 module.exports = async (socketio) => {
   // IQ01 클라이언트 소켓 연결
@@ -25,17 +24,25 @@ module.exports = async (socketio) => {
       'SERVER'
     )
     // 연결 상태 업데이트
-    gStatus.qsys = new Date().toLocaleString()
+    let timeString = moment().format('YYYY-MM-DD HH:mm:ss')
+    gStatus.qsys = timeString
     gStatus.qsysConnected = true
+    // DB에 업데이트
+    await dbSetupUpdate({ key: 'qsys' }, { value: timeString })
+    await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: true })
     // IQ02 연결 해제
-    socket.on('disconnect', (reason) => {
+    socket.on('disconnect', async (reason) => {
       logWarn(
         `IQ2 SOCKET.IO Q-SYS 연결해제 SERVER=${process.env.INSTANCE_ID}`,
         'SERVER'
       )
       // 연결 상태 업데이트
+      let timeString = moment().format('YYYY-MM-DD HH:mm:ss')
       gStatus.qsysConnected = false
-      gStatus.qsys = new Date().toLocaleString()
+      gStatus.qsys = timeString
+      // DB에 업데이트
+      await dbSetupUpdate({ key: 'qsys' }, { value: timeString })
+      await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: false })
     })
 
     // IQ03 소켓 연결 에러

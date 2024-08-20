@@ -13,6 +13,7 @@ const setupSchema = new mongoose.Schema(
     valueNum: Number,
     valueBoolean: Boolean,
     valueArr: Array,
+    valueObj: Object,
     main: {
       connected: Boolean,
       id: String,

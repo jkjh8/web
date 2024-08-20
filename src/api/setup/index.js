@@ -36,18 +36,7 @@ module.exports = async function () {
           gStatus.relayOnTime = item.valueNum
           break
         case 'scheduler':
-          if (item.auto) {
-            gStatus.scheduler.auto = item.auto
-          }
-          if (item.active) {
-            gStatus.scheduler.active = item.active
-          }
-          if (item.main && item.main.lastupdate) {
-            gStatus.scheduler.main.lastupdate = item.lastupdate
-          }
-          if (item.backup && item.backup.lastupdate) {
-            gStatus.scheduler.backup.lastupdate = item.lastupdate
-          }
+          gStatus.scheduler = item.valueObj
           break
         case 'ttsMode':
           gStatus.ttsMode = item.value
@@ -61,9 +50,18 @@ module.exports = async function () {
         case 'activeMode':
           gStatus.activeMode = item.value
           break
+        case 'qsys':
+          gStatus.qsys = item.value
+          break
+        case 'qsysConnected':
+          gStatus.qsysConnected = item.valueBoolean
+          break
+        case 'barix':
+          gStatus.barix = item.value
+          break
       }
     }
-    logInfo('SU02 서버 기본 세팅 데이터 업데이트(from DB)', 'SERVER')
+    // logInfo('SU02 서버 기본 세팅 데이터 업데이트(from DB)', 'SERVER')
   } catch (error) {
     logError(`SU02 서버 기본 세팅 데이터 업데이트(from DB) ${error}`, 'SERVER')
   }

@@ -18,7 +18,7 @@ router.use('/qsys', require('./qsys'))
 router.get('/', async (req, res) => {
   const { email } = req.user
   try {
-    // await initSetup()
+    await initSetup()
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })

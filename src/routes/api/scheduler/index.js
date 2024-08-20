@@ -1,4 +1,5 @@
 const express = require('express')
+const moment = require('moment')
 const { logInfo, logError, logEvent } = require('@logger')
 // db
 const { dbSchFindToday, dbSchFind } = require('@db/schedule')
@@ -45,8 +46,12 @@ router.get('/', async (req, res) => {
 router.get('/check', async (req, res) => {
   try {
     const { mode } = req.query
-    gStatus.scheduler[mode] = new Date().toLocaleString()
+    gStatus.scheduler[mode] = moment().format('YYYY-MM-DD HH:mm:ss')
     await dbSetupUpdate({ key: 'scheduler' }, { ...gStatus.scheduler })
+    await dbSetupUpdate(
+      { key: 'scheduler' },
+      { valueObj: { ...gStatus.scheduler } }
+    )
 
     res.status(200).json({
       mode: gStatus.mode,
