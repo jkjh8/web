@@ -81,7 +81,10 @@ try {
 httpServer.listen(3000)
 
 httpServer.on('listening', () => {
-  logInfo('APP WEB 3000번 포트에서 HTTP 서버가 시작 되었습니다', 'SERVER')
+  logInfo(
+    `APP WEB 3000번 포트에서 HTTP 서버${process.env.INSTANCE_ID}이 시작 되었습니다`,
+    'SERVER'
+  )
 })
 httpServer.on('error', (error) => {
   logError(`APP WEB HTTP 서버 오류 ${error}`, 'SERVER')
