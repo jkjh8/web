@@ -29,9 +29,7 @@ module.exports = async (socketio) => {
     gStatus.qsysConnected = true
     // DB에 업데이트
     await dbSetupUpdate({ key: 'qsys' }, { value: timeString })
-    console.log(
-      await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: true })
-    )
+    await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: true })
     // IQ02 연결 해제
     socket.on('disconnect', async (reason) => {
       logWarn(
