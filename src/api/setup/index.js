@@ -36,7 +36,20 @@ module.exports = async function () {
           gStatus.relayOnTime = item.valueNum
           break
         case 'scheduler':
-          gStatus.scheduler = item.valueObj
+          if (item.valueObj) {
+            if (Object.keys(item.valueObj).includes('main')) {
+              gStatus.scheduler.main = item.valueObj.main
+            }
+            if (Object.keys(item.valueObj).includes('backup')) {
+              gStatus.scheduler.backup = item.valueObj.backup
+            }
+            if (Object.keys(item.valueObj).includes('active')) {
+              gStatus.scheduler.relay = item.valueObj.active
+            }
+            if (Object.keys(item.valueObj).includes('auto')) {
+              gStatus.scheduler.auto = item.valueObj.auto
+            }
+          }
           break
         case 'ttsMode':
           gStatus.ttsMode = item.value

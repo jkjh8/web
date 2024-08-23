@@ -71,7 +71,7 @@ const fnInTimeScheduleRun = async (data) => {
     // 로그
     return
   } catch (error) {
-    throw error
+    logError(`S01 스케줄방송 시작 - ${JSON.stringify(error)}`, user, zones)
   }
 }
 

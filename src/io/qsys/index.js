@@ -73,37 +73,75 @@ module.exports = async (socketio) => {
     // IQ06 QSYS ZoneStatus
     socket.on('ZoneStatus', async (obj) => {
       try {
-        const { deviceId, ZoneStatus } = obj
-        // ZoneStatus Array에서 Active, gain, mute 만 추출하여 소켓으로 전송
-        fnSendSocket('qsys:ZoneStatus', {
-          deviceId,
-          ZoneStatus: ZoneStatus.map(({ Zone, Active, gain, mute }) => ({
+        const { deviceId } = obj
+        const update = obj.ZoneStatus
+
+        let device = await dbQsysFindOne({ deviceId })
+        let ZoneStatus = device.ZoneStatus
+
+        if (ZoneStatus.length > update.length) {
+          ZoneStatus = ZoneStatus.slice(0, update.length - 1)
+        }
+        if (ZoneStatus.length === 0) {
+          ZoneStatus = update
+        } else {
+          for (const {
             Zone,
             Active,
             gain,
-            mute
-          }))
-        })
-        // DB에서 deviceId로 해당 값을 찾은 후 ZoneStatus Array 중 Active, Gain, Mute 만 추출하여 업데이트
-        const deviceData = await dbQsysFindOne({ deviceId })
-        for (const { Zone, Active, gain, mute } of ZoneStatus) {
-          const idx = deviceData.ZoneStatus.findIndex(
-            (item) => item.Zone === Zone
-          )
-          if (idx !== -1) {
-            deviceData.ZoneStatus[idx].Active = Active
-            deviceData.ZoneStatus[idx].gain = gain
-            deviceData.ZoneStatus[idx].mute = mute
+            mute,
+            Priority,
+            PriorityName,
+            Station,
+            Squelch,
+            PageID
+          } of update) {
+            const idx = ZoneStatus.findIndex((item) => item.Zone === Zone)
+            if (Zone && idx !== -1) {
+              ZoneStatus[idx].Active = Active
+              ZoneStatus[idx].gain = gain
+              ZoneStatus[idx].mute = mute
+              if (Priority) ZoneStatus[idx].Priority = Priority
+              if (PriorityName) ZoneStatus[idx].PriorityName = PriorityName
+              if (Station) ZoneStatus[idx].Station = Station
+              if (Squelch) ZoneStatus[idx].Squelch = Squelch
+              if (PageID) ZoneStatus[idx].PageID = PageID
+            } else {
+              if (Zone && ZoneStatus.length < Zone) {
+                for (let i = 0, len = Zone - ZoneStatus.length; i < len; i++) {
+                  ZoneStatus.push({
+                    Zone: ZoneStatus.length + 1,
+                    Active: false,
+                    gain: 0,
+                    mute: false,
+                    Priority: 0,
+                    PriorityName: '',
+                    Station: '',
+                    Squelch: false,
+                    PageID: 0
+                  })
+                }
+              }
+            }
           }
         }
-        // DB 업데이트
-        const update = await deviceData.save()
+
+        const dbupdate = await device.save()
+        fnSendSocket(
+          'qsys:ZoneStatus',
+          JSON.stringify({ deviceId, ZoneStatus: update })
+        )
         // 소켓으로 업데이트 전송
-        socket.emit('device', { ...update })
+        socket.emit('qsys:device', { ...dbupdate })
       } catch (error) {
-        logError(`IQ06 Q-SYS ZoneStatus 에러: ${error}`, 'SERVER')
+        logError(
+          `IQ06 Q-SYS ZoneStatus 에러: ${JSON.stringify(error)}`,
+
+          'SERVER'
+        )
       }
     })
+
     // IQ07 QSYS VolumeMute
     socket.on('VolumeMute', async (deviceId) => {
       try {
@@ -197,6 +235,7 @@ module.exports = async (socketio) => {
         logError(`IQ14 QSYS PAGE - ${error}`, 'SERVER')
       }
     })
+
     // IQ15 QSYS page:status
     socket.on('page:status', async (obj) => {
       try {

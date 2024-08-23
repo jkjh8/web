@@ -58,13 +58,31 @@ const fnCheckPageStatusAll = async () => {
   }
 }
 
+let queue = []
+let commandIV = null
+
 //Q10 SendQsys
 const fnSendQsys = async (key, value) => {
   try {
-    io.qsys.emit(key, value)
+    queue.push({ key, value })
+    if (!commandIV) {
+      commandProcess()
+    }
   } catch (error) {
     logError(`Q10 Q-SYS SOCKET - ${error}`, 'SERVER')
   }
+}
+
+const commandProcess = () => {
+  commandIV = setInterval(() => {
+    if (queue.length > 0) {
+      let { key, value } = queue.shift()
+      io.qsys.emit(key, value)
+    } else {
+      clearInterval(commandIV)
+      commandIV = null
+    }
+  }, 0)
 }
 
 module.exports = {

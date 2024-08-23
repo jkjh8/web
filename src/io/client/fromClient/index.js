@@ -6,6 +6,7 @@ const { fnQsysCheckMediaFolder, fnQsysDeleteLive } = require('@api/qsys/files')
 const { fnGetBarixInfo } = require('@api/barix')
 // logger
 const { logInfo, logError, logWarn } = require('@logger')
+const { set } = require('mongoose')
 
 module.exports = function (socket) {
   // IC02 볼륨
@@ -13,12 +14,16 @@ module.exports = function (socket) {
     const { email } = socket.user
     try {
       const { deviceId, zone, value, name } = obj
+      let current = Number(value)
+      if (current < -50) current = -50
+      if (current > 10) current = 10
+
       const filter = { deviceId, 'ZoneStatus.Zone': zone }
-      const update = { 'ZoneStatus.$.gain': value }
+      const update = { 'ZoneStatus.$.gain': current }
       // DB 업데이트
       await dbQsysUpdateBackup(filter, update)
       // 소켓 전송
-      fnSendQsys('qsys:volume', obj)
+      fnSendQsys('qsys:volume', { ...obj, value: current })
       logInfo(
         `IC02 볼륨 변경 - ${name} - ${zone}=${value} - ${deviceId}`,
         email
@@ -68,10 +73,14 @@ module.exports = function (socket) {
     const { email } = socket.user
     try {
       const { name, deviceId } = device
-      fnSendQsys('zone:set:device', deviceId)
-      fnQsysCheckMediaFolder(device)
-      fnQsysDeleteLive(deviceId)
-      logWarn(`IC06 장치 재설정 - ${name} - ${deviceId}`, email)
+      fnSendQsys('qsys:device', device)
+      console.log(device)
+      setTimeout(() => {
+        fnSendQsys('zone:set:device', deviceId)
+        fnQsysCheckMediaFolder(device)
+        fnQsysDeleteLive(deviceId)
+        logWarn(`IC06 장치 재설정 - ${name} - ${deviceId}`, email)
+      }, 1000)
     } catch (error) {
       logError(`IC06 장치 재성정 - ${error}`, email)
     }
