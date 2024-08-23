@@ -14,9 +14,6 @@ const {
   fnGetFileSize,
   fnRFAF
 } = require('@api/files')
-const { fn } = require('moment')
-const { default: axios } = require('axios')
-const { gStatus } = require('../../../defaultVal')
 
 const router = express.Router()
 

@@ -53,13 +53,15 @@ router.put('/admin', isAdmin, async (req, res) => {
 router.delete('/', isAdmin, async (req, res) => {
   const { email } = req.user
   try {
-    const { _id, name, email } = req.body
-    fnRemoveUserFolder(email)
-    res.status(200).json({ result: true, data: await dbUserRemove(_id) })
+    const { _id, name } = req.body
+    fnRemoveUserFolder(req.body.email)
+    await dbUserRemove(_id)
     logWarn(`RU04 사용자 삭제 - ${name} - ${req.body.email}`, email)
+    res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RU04사용자 삭제 - ${JSON.stringify(error)}`, email)
+    console.log(error)
+    logError(`RU04 사용자 삭제 - ${JSON.stringify(error)}`, email)
   }
 })
 

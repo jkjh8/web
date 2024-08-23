@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const { dbUserMake, dbUserFindOneNonePass, dbUserExists } = require('@db/user')
 const uniqueId = require('@api/utils/uniqueId')
 const { isLoggedIn } = require('@api/user')
-
+const { fnMakeFolder } = require('@api/files')
 const { logInfo, logError } = require('@logger')
 
 const router = express.Router()
@@ -70,6 +70,8 @@ router.post('/signup', async (req, res) => {
       })
       logInfo(`AH03 사용자 계정 생성: ${email}`, 'SERVER')
     }
+    // 사용자 폴더 생성
+    fnMakeFolder(email)
     // 사용자 생성 성공 시 200 상태 코드와 결과를 응답
     res.status(200).json({ result: true })
   } catch (error) {

@@ -42,9 +42,9 @@ module.exports = {
   },
   // DU06
   dbUserRemove: async (id) => {
-    await User.findByIdAndDelete(id)
-    // backup
     fnBackupRequest('/backup/user', { data: { id } }, 'DELETE')
+    return await User.findByIdAndDelete(id)
+    // backup
   },
   dbUserExists: async (obj) => {
     return await User.exists(obj)

@@ -1,3 +1,4 @@
+const { logWarn, logError } = require('@logger')
 const fs = require('fs')
 const path = require('path')
 
@@ -122,8 +123,15 @@ const fnRFAF = (list) => {
 
 // F08 사용자 폴더 삭제
 const fnRemoveUserFolder = (email) => {
-  const folder = path.resolve(gStatus.mediaFolder, email)
-  fs.rmdirSync(folder, { recursive: true })
+  try {
+    const folder = path.resolve(gStatus.mediaFolder, email)
+    if (!fs.existsSync(folder)) {
+      return logWarn(`F08 사용자 폴더 없음 - ${folder}`, email)
+    }
+    fs.rmSync(folder, { recursive: true })
+  } catch (error) {
+    logError(`F08 사용자 폴더 삭제 - ${JSON.stringify(error)}`, email)
+  }
 }
 
 module.exports = {
