@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS01 서버설정 가져오기 - ${error}`, email)
+    logError(`SS01 서버설정 가져오기 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -33,7 +33,7 @@ router.get('/reload', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS01-1 서버설정 가져오기 - ${error}`, email)
+    logError(`SS01-1 서버설정 가져오기 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -52,7 +52,7 @@ router.get('/servermode', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
     // 로그
-    logError(`SS02 서버모드 조회 - ${error}`, email)
+    logError(`SS02 서버모드 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -68,7 +68,7 @@ router.put('/servermode', async (req, res) => {
     logInfo(`SS03 서버모드 변경 - ${mode}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS03 서버모드 변경 - ${error}`, email)
+    logError(`SS03 서버모드 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -84,7 +84,7 @@ router.put('/backupaddress', async (req, res) => {
     logInfo(`SS04 백업서버 주소 변경 - ${backupAddress}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS04 백업서버 주소 변경 - ${error}`, email)
+    logError(`SS04 백업서버 주소 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -95,7 +95,7 @@ router.get('/backupactive', async (req, res) => {
     res.status(200).json({ result: true, active: gStatus.backupActive })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS05 백업 활성화 조회 - ${error}`, email)
+    logError(`SS05 백업 활성화 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -112,7 +112,7 @@ router.put('/backupactive', async (req, res) => {
     // 백업 활성화가 true일 경우 사용자 정보를 백업합니다.
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS06 백업 활성화 변경 - ${error}`, email)
+    logError(`SS06 백업 활성화 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -130,7 +130,7 @@ router.put('/scheduleactive', async (req, res) => {
     logInfo(`SS07 스케줄러 동작 변경 - ${active}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS07 스케줄러 동작 변경 - ${error}`, email)
+    logError(`SS07 스케줄러 동작 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -148,7 +148,7 @@ router.put('/scheduleauto', async (req, res) => {
     logInfo(`SS08 스케줄러 자동 전환 변경 - ${auto}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS08 스케줄러 자동 전환 변경 - ${error}`, email)
+    logError(`SS08 스케줄러 자동 전환 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -163,7 +163,7 @@ router.put('/backupid', async (req, res) => {
     logInfo(`SS09 백업 ID 변경 - ${backupId}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
-    logError(`SS09 백업 ID 변경 - ${error}`, email)
+    logError(`SS09 백업 ID 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -174,7 +174,7 @@ router.get('/relayontime', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.relayOnTime })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS10 릴레이 동작 시간 조회 - ${error}`, email)
+    logError(`SS10 릴레이 동작 시간 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -199,7 +199,7 @@ router.get('/ttsmode', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.ttsMode })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS12 TTS Mode 조회 - ${error}`, email)
+    logError(`SS12 TTS Mode 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -214,7 +214,7 @@ router.put('/ttsmode', async (req, res) => {
     logInfo(`SS13 TTS Mode 변경 - ${gStatus.ttsMode}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS13 TTS Mode 변경 - ${error}`, email)
+    logError(`SS13 TTS Mode 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -225,7 +225,7 @@ router.get('/voicewarevoice', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS14 TTS Voiceware voice 조회 - ${error}`, email)
+    logError(`SS14 TTS Voiceware voice 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -239,7 +239,7 @@ router.put('/voicewarevoice', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
   } catch (error) {
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
-    logError(`SS15 TTS Voiceware voice 변경 - ${error}`, email)
+    logError(`SS15 TTS Voiceware voice 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -250,7 +250,7 @@ router.get('/backupfile', async (req, res) => {
     res.status(200).json({ result: true, value: gStatus.backupFile })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS16 백업 파일 조회 - ${error}`, email)
+    logError(`SS16 백업 파일 조회 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -265,7 +265,7 @@ router.put('/backupfile', async (req, res) => {
     logInfo(`SS17 백업 파일 변경 - ${gStatus.backupFile}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS17 백업 파일 변경 - ${error}`, email)
+    logError(`SS17 백업 파일 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -279,7 +279,7 @@ router.get('/backupnow', async (req, res) => {
     logInfo(`SS18 지금 파일 백업`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`SS18 지금 파일 백업 - ${error}`, email)
+    logError(`SS18 지금 파일 백업 - ${JSON.stringify(error)}`, email)
   }
 })
 

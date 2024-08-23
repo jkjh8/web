@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RB01 BARIX 데이터 수집 - ${error}`, email)
+    logError(`RB01 BARIX 데이터 수집 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -42,7 +42,7 @@ router.get('/ip', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RB01-1 BARIX 장치 검색 - ${error}`, email)
+    logError(`RB01-1 BARIX 장치 검색 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RB02 BARIX 장치 추가 - ${error}`, email)
+    logError(`RB02 BARIX 장치 추가 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -82,7 +82,7 @@ router.put('/', async (req, res) => {
     fnBarixChangeQsys({ _id, ipaddress, port })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RB03 BARIX 장치 수정 - ${error}`, email)
+    logError(`RB03 BARIX 장치 수정 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -98,7 +98,7 @@ router.delete('/', async (req, res) => {
     )
     // await qsysDeviceSend('devices')
   } catch (error) {
-    logError(`RB04 BARIX 장치 삭제 - ${error}`, email)
+    logError(`RB04 BARIX 장치 삭제 - ${JSON.stringify(error)}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -112,7 +112,7 @@ router.get('/exists', async (req, res) => {
       .json({ result: await dbBarixExists({ ...req.query.value }) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RB05 BARIX 확인 - ${error}`, email)
+    logError(`RB05 BARIX 확인 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -124,7 +124,7 @@ router.put('/refresh', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RB06 BARIX 상태 갱신 - ${error}`, email)
+    logError(`RB06 BARIX 상태 갱신 - ${JSON.stringify(error)}`, email)
   }
 })
 

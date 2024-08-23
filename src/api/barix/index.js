@@ -44,7 +44,7 @@ const fnGetBarixInfo = async (device) => {
     })
     // 발생시
     worker.on('error', async (error) => {
-      logError(`B01 BARIX 정보 수집 - ${error}`, 'SERVER')
+      logError(`B01 BARIX 정보 수집 - ${JSON.stringify(error)}`, 'SERVER')
       worker.terminate()
     })
 
@@ -55,7 +55,7 @@ const fnGetBarixInfo = async (device) => {
       }
     })
   } catch (error) {
-    logError(`B01 BARIX 정보 수집 - ${error}`, 'SERVER')
+    logError(`B01 BARIX 정보 수집 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -68,14 +68,14 @@ const fnGetBarixes = async () => {
       fnGetBarixInfo(device)
     }
   } catch (error) {
-    logError(`B02 BARIX DB 정보 조회 - ${error}`, 'SERVER')
+    logError(`B02 BARIX DB 정보 조회 - ${JSON.stringify(error)}`, 'SERVER')
   }
 
   devices.forEach(async (element) => {
     try {
       fnGetBarixInfo(element)
     } catch (error) {
-      logError(`B02 BARIX 정보 수집 - ${error}`, 'SERVER')
+      logError(`B02 BARIX 정보 수집 - ${JSON.stringify(error)}`, 'SERVER')
     }
   })
 }
@@ -101,11 +101,11 @@ const fnBarixRelayOff = async (device) => {
       try {
         await axios.get(`http://${ipaddress}/rc.cgi?R=0`, { timeout: 5000 })
       } catch (error) {
-        logError(`B04 BARIX 릴레이 끄기 - ${error}`, 'SERVER')
+        logError(`B04 BARIX 릴레이 끄기 - ${JSON.stringify(error)}`, 'SERVER')
       }
     }
   } catch (error) {
-    logError(`B04 BARIX 릴레이 끄기 - ${error}`, 'SERVER')
+    logError(`B04 BARIX 릴레이 끄기 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -125,12 +125,12 @@ const fnBarixRelayOn = async (arr) => {
         try {
           await axios.get(`http://${ipaddress}/rc.cgi?R=1`, { timeout: 5000 })
         } catch (error) {
-          logError(`B04 BARIX 릴레이 켜기 - ${error}`, 'SERVER')
+          logError(`B04 BARIX 릴레이 켜기 - ${JSON.stringify(error)}`, 'SERVER')
         }
       })
     )
   } catch (error) {
-    logError(`B04 BARIX 릴레이 켜기 - ${error}`, 'SERVER')
+    logError(`B04 BARIX 릴레이 켜기 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -139,7 +139,7 @@ const fnBarixesRelayOn = async (devices) => {
   try {
     return await Promise.all(devices.map((zone) => fnBarixRelayOn(zone.barix)))
   } catch (error) {
-    logError(`B05 BARIX 릴레이 켜기 - ${error}`, 'SERVER')
+    logError(`B05 BARIX 릴레이 켜기 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -147,7 +147,7 @@ const fnBarixesRelayOff = async (devices) => {
   try {
     return await Promise.all(devices.map((zone) => fnBarixRelayOff(zone.barix)))
   } catch (error) {
-    logError(`B05 BARIX 릴레이 끄기 - ${error}`, 'SERVER')
+    logError(`B05 BARIX 릴레이 끄기 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -168,7 +168,7 @@ const fnBarixChangeQsys = async (obj) => {
       })
     }
   } catch (error) {
-    logError(`B07 BARIX 채널 변경 - ${error}`, 'SERVER')
+    logError(`B07 BARIX 채널 변경 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 

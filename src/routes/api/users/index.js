@@ -31,7 +31,7 @@ router.put('/', isAdmin, async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error: error })
     // 로그
-    logError(`RU02 사용자 권한 변경 - ${error}`, email)
+    logError(`RU02 사용자 권한 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -45,7 +45,7 @@ router.put('/admin', isAdmin, async (req, res) => {
     logInfo(`RU03 관리자 권한 변경 - ${email} - ${!isAdmin}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RU03 관리자 권한 변경 - ${error}`, email)
+    logError(`RU03 관리자 권한 변경 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -59,7 +59,7 @@ router.delete('/', isAdmin, async (req, res) => {
     logWarn(`RU04 사용자 삭제 - ${name} - ${req.body.email}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RU04사용자 삭제 - ${error}`, email)
+    logError(`RU04사용자 삭제 - ${JSON.stringify(error)}`, email)
   }
 })
 

@@ -18,7 +18,6 @@ const { fnBarixRelayOff } = require('@api/barix')
 module.exports = async (socketio) => {
   // IQ01 클라이언트 소켓 연결
   socketio.on('connection', async (socket) => {
-    // const user = socket.request.user
     logInfo(
       `IQ01 SOCKET.IO Q-SYS 연결 SERVER=${process.env.INSTANCE_ID}`,
       'SERVER'
@@ -48,7 +47,9 @@ module.exports = async (socketio) => {
     // IQ03 소켓 연결 에러
     socket.on('connection_error', (error) => {
       logError(
-        `IQ03 SOCKET.IO Q-SYS 연결 SERVER=${process.env.INSTANCE_ID} - ${error}`,
+        `IQ03 SOCKET.IO Q-SYS 연결 SERVER=${
+          process.env.INSTANCE_ID
+        } - ${JSON.stringify(error)}`,
         'SERVER'
       )
     })
@@ -129,7 +130,7 @@ module.exports = async (socketio) => {
         const dbupdate = await device.save()
         fnSendSocket(
           'qsys:ZoneStatus',
-          JSON.stringify({ deviceId, ZoneStatus: update })
+          JSON.stringify({ deviceId, ZoneStatus: dbupdate.ZoneStatus })
         )
         // 소켓으로 업데이트 전송
         socket.emit('qsys:device', { ...dbupdate })
@@ -151,7 +152,7 @@ module.exports = async (socketio) => {
         )
         fnSendSocket('qsys:ZoneStatus', { deviceId, ZoneStatus })
       } catch (error) {
-        logError(`IQ07 Q-SYS VolumeMute - ${error}`, 'SERVER')
+        logError(`IQ07 Q-SYS VolumeMute - ${JSON.stringify(error)}`, 'SERVER')
       }
     })
     // IQ08 QSYS 방송구간 확인
@@ -167,7 +168,10 @@ module.exports = async (socketio) => {
           )
         )
       } catch (error) {
-        logError(`IQ08 Q-SYS 방송구간 확인 - ${error}`, 'SERVER')
+        logError(
+          `IQ08 Q-SYS 방송구간 확인 - ${JSON.stringify(error)}`,
+          'SERVER'
+        )
       }
     })
 
@@ -177,17 +181,16 @@ module.exports = async (socketio) => {
         const { deviceId, data } = obj
         fnSendSocket('qsys:device', { deviceId, data })
       } catch (error) {
-        logError(`IQ09 QSYS device - ${error}`, 'SERVER')
+        logError(`IQ09 QSYS device - ${JSON.stringify(error)}`, 'SERVER')
       }
     })
     // IQ10 QSYS deviceAll
     socket.on('deviceAll', async () => {
       try {
-        console.log('deviceAll')
         fnSendSocket('qsys:devices', {})
         socket.emit('qsys:devices', await dbQsysFindAll())
       } catch (error) {
-        logError(`IQ10 QSYS deviceAll - ${error}`, 'SERVER')
+        logError(`IQ10 QSYS deviceAll - ${JSON.stringify(error)}`, 'SERVER')
       }
     })
     // IQ11 QSYS page:message
@@ -196,7 +199,7 @@ module.exports = async (socketio) => {
         const { deviceId, message } = obj
         fnSendSocket('qsys:page:message', { deviceId, message })
       } catch (error) {
-        logError(`IQ11 QSYS page:message - ${error}`, 'SERVER')
+        logError(`IQ11 QSYS page:message - ${JSON.stringify(error)}`, 'SERVER')
       }
     })
     // IQ12 QSYS EngineStatus
@@ -205,7 +208,7 @@ module.exports = async (socketio) => {
       try {
         await dbQsysUpdate({ deviceId }, { EngineStatus })
       } catch (error) {
-        logError(`IQ12 QSYS EngineStatus - ${error}`, 'SERVER')
+        logError(`IQ12 QSYS EngineStatus - ${JSON.stringify(error)}`, 'SERVER')
       }
       fnSendSocket('qsys:device', { deviceId, EngineStatus })
     })
@@ -216,7 +219,10 @@ module.exports = async (socketio) => {
         await dbQsysUpdate({ deviceId }, { ZoneStatusConfigure })
         fnSendSocket('qsys:device', { deviceId, ZoneStatusConfigure })
       } catch (error) {
-        logError(`IQ13 QSYS ZoneStatusConfigure - ${error}`, 'SERVER')
+        logError(
+          `IQ13 QSYS ZoneStatusConfigure - ${JSON.stringify(error)}`,
+          'SERVER'
+        )
       }
     })
     // IQ14 QSYS page
@@ -232,7 +238,7 @@ module.exports = async (socketio) => {
           { 'devices.$.PageID': PageID }
         )
       } catch (error) {
-        logError(`IQ14 QSYS PAGE - ${error}`, 'SERVER')
+        logError(`IQ14 QSYS PAGE - ${JSON.stringify(error)}`, 'SERVER')
       }
     })
 
@@ -279,7 +285,7 @@ module.exports = async (socketio) => {
           )
         }
       } catch (error) {
-        logError(`IQ15 QSYS PAGE STATUS RT -${error}`, 'SERVER')
+        logError(`IQ15 QSYS PAGE STATUS RT -${JSON.stringify(error)}`, 'SERVER')
       }
     })
     socket.emit('qsys:devices', await dbQsysFindAll())

@@ -29,7 +29,7 @@ router.get('/stop', async (req, res) => {
     // 로그
     logEvent(`방송 중지: ${req.query.idx}`, req.user.email, page.zones)
   } catch (error) {
-    logError(`BR01 라이브 방송 중지 - ${error}`, req.user.email)
+    logError(`BR01 라이브 방송 중지 - ${JSON.stringify(error)}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -55,7 +55,7 @@ router.post('/file', async (req, res) => {
             user: email
           })
         } catch (error) {
-          logError(`BR02 파일 업로드 - ${error}`, email)
+          logError(`BR02 파일 업로드 - ${JSON.stringify(error)}`, email)
         }
       })
     )
@@ -63,7 +63,7 @@ router.post('/file', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BR02 파일 업로드 - ${error}`, email)
+    logError(`BR02 파일 업로드 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -80,7 +80,7 @@ router.put('/active', async (req, res) => {
     }
     res.status(200).json({ result: true, active: r })
   } catch (error) {
-    logError(`BR03 방송구간 중복확인 - ${error}`, email)
+    logError(`BR03 방송구간 중복확인 - ${JSON.stringify(error)}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -102,7 +102,7 @@ router.delete('/file', async (req, res) => {
     await Promise.all(promises)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BR04 QSYS 방송 파일 삭제 - ${error}`, email)
+    logError(`BR04 QSYS 방송 파일 삭제 - ${JSON.stringify(error)}`, email)
     res.status(500).json({ result: false, error })
   }
 })

@@ -116,7 +116,7 @@ const fnSendScheduleToAPP = async () => {
     const schedules = await dbSchFindToday()
     return io.scheduler.emit('today', schedules)
   } catch (error) {
-    logError(`S03 오늘 스케줄 전송 - ${error}`, 'SERVER')
+    logError(`S03 오늘 스케줄 전송 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -157,7 +157,7 @@ const fnCleanScheduleFolder = async () => {
     )
     logInfo(`S07 스케줄 폴더 정리`, 'SERVER')
   } catch (error) {
-    logError(`S07 스케줄 폴더 정리 - ${error}`, 'SERVER')
+    logError(`S07 스케줄 폴더 정리 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -193,7 +193,7 @@ const fnSendScheduleToday = async () => {
     const schedules = await dbSchFindToday()
     io.scheduler.emit('schedules', JSON.stringify(schedules))
   } catch (error) {
-    logError(`S09 오늘 스케줄 전송 - ${error}`, 'SERVER')
+    logError(`S09 오늘 스케줄 전송 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 

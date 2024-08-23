@@ -87,7 +87,7 @@ httpServer.on('listening', () => {
   )
 })
 httpServer.on('error', (error) => {
-  logError(`APP WEB HTTP 서버 오류 ${error}`, 'SERVER')
+  logError(`APP WEB HTTP 서버 오류 ${JSON.stringify(error)}`, 'SERVER')
 })
 
 if (process.env.INSTANCE_ID == 0) {

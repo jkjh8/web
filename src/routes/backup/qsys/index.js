@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
       .status(200)
       .json({ result: true, data: await dbQsysMake({ ...req.body }) })
   } catch (error) {
-    logError(`BQ01 Q-SYS 정보 동기화 - ${error}`, 'SERVER')
+    logError(`BQ01 Q-SYS 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 
@@ -31,7 +31,7 @@ router.put('/', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BQ02 Q-SYS 정보 동기화 - ${error}`, 'SERVER')
+    logError(`BQ02 Q-SYS 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 
@@ -43,7 +43,7 @@ router.delete('/', async (req, res) => {
       .json({ result: true, data: await dbQsysRemove(req.body.id) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BQ03 Q-SYS 정보 동기화 - ${error}`, 'SERVER')
+    logError(`BQ03 Q-SYS 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 
@@ -55,7 +55,7 @@ router.put('/bulk', async (req, res) => {
       .json({ result: true, data: await dbQsysBulkWrite(req.body.arr) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BQ04 Q-SYS 정보 동기화 - ${error}`, 'SERVER')
+    logError(`BQ04 Q-SYS 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 
@@ -72,7 +72,7 @@ router.post('/many', async (req, res) => {
     logInfo('BQ05 Q-SYS 정보 동기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BQ05 Q-SYS 정보 동기화 - ${error}`, 'SERVER')
+    logError(`BQ05 Q-SYS 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 
@@ -83,7 +83,7 @@ router.delete('/reset', async (req, res) => {
     logInfo('BQ06 Q-SYS 정보 초기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BQ06 Q-SYS 정보 초기화 - ${error}`, 'SERVER')
+    logError(`BQ06 Q-SYS 정보 초기화 - ${JSON.stringify(error)}`, 'SERVER')
   }
 })
 

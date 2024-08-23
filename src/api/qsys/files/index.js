@@ -35,7 +35,9 @@ const fnQsysCheckMediaFolder = async (device) => {
     fnMakeQsysMediaFolder(device, 'schedule')
   } catch (error) {
     logError(
-      `QF02 Q-SYS 기본폴더생성 ${device.name} - ${device.deviceId} - ${error}`,
+      `QF02 Q-SYS 기본폴더생성 ${device.name} - ${
+        device.deviceId
+      } - ${JSON.stringify(error)}`,
       'SERVER'
     )
   }
@@ -118,7 +120,12 @@ const fnQsysFileDelete = async (args) => {
       await fnGetStrage(ipaddress)
     })
     .catch((error) => {
-      logError(`QF04 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${error}`, user)
+      logError(
+        `QF04 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${JSON.stringify(
+          error
+        )}`,
+        user
+      )
     })
 }
 
@@ -132,7 +139,12 @@ const fnQsysFileDeleteAsync = async (args) => {
     // 파일 삭제 후 스토리지 정보 갱신
     await fnGetStrage(ipaddress)
   } catch (error) {
-    logError(`QF04-1 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${error}`, user)
+    logError(
+      `QF04-1 Q-SYS 파일삭제 - ${deviceId} - ${file} - ${JSON.stringify(
+        error
+      )}`,
+      user
+    )
   }
 }
 
@@ -157,7 +169,7 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
     await Promise.all(promises)
     return await dbSchUpdate({ idx }, { $set: { sync: true } })
   } catch (error) {
-    logError(`QF05 Q-SYS 스케줄 동기화 ${error}`, 'SERVER')
+    logError(`QF05 Q-SYS 스케줄 동기화 ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -199,7 +211,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
       }
     })
   } catch (error) {
-    logError(`QF06 Q-SYS 스케줄 정리 ${error}`, 'SERVER')
+    logError(`QF06 Q-SYS 스케줄 정리 ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -233,7 +245,7 @@ const fnQsysDeleteLive = async (deviceId) => {
     })
     logWarn(`QF08 Q-SYS LIVE 파일삭제 - ${device.name} - ${deviceId}`)
   } catch (error) {
-    logError(`QF08 Q-SYS LIVE 파일삭제 - ${error}`, 'SERVER')
+    logError(`QF08 Q-SYS LIVE 파일삭제 - ${JSON.stringify(error)}`, 'SERVER')
   }
 }
 
@@ -246,7 +258,10 @@ const fnQsysDeleteLiveAll = async () => {
     })
     logWarn(`QF09 Q-SYS Live 파일전체삭제`)
   } catch (error) {
-    logError(`QF09 Q-SYS Live 파일전체삭제 - ${error}`, 'SERVER')
+    logError(
+      `QF09 Q-SYS Live 파일전체삭제 - ${JSON.stringify(error)}`,
+      'SERVER'
+    )
   }
 }
 

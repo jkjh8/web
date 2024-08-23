@@ -15,7 +15,7 @@ router.get('/polling', async (req, res) => {
       polling: gStatus.interval
     })
   } catch (error) {
-    logError(`RB01 Polling 조회 실패 - ${error}`, 'SERVER')
+    logError(`RB01 Polling 조회 실패 - ${JSON.stringify(error)}`, 'SERVER')
     res.status(500).json({ result: false, error })
   }
 })

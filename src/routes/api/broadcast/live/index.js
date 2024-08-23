@@ -70,7 +70,9 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 - ${error}`,
+      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 - ${JSON.stringify(
+        error
+      )}`,
       email,
       zones
     )
@@ -126,7 +128,9 @@ router.put('/message', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 - ${error}`,
+      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 - ${JSON.stringify(
+        error
+      )}`,
       email,
       zones
     )
@@ -139,7 +143,7 @@ router.delete('/message', async (req, res) => {
   try {
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL04 메시지 삭제 - ${error}`, req.user.email)
+    logError(`BL04 메시지 삭제 - ${JSON.stringify(error)}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -164,7 +168,7 @@ router.get('/stop', async (req, res) => {
     logEvent(`방송 중지`, req.user.email, [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL04 방송 중지 - ${error}`, req.user.email)
+    logError(`BL04 방송 중지 - ${JSON.stringify(error)}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -189,7 +193,7 @@ router.get('/cancel', async (req, res) => {
     logEvent(`방송 취소`, req.user.email, [r.name])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL05 방송 취소 오류 ${error}`, req.user.email)
+    logError(`BL05 방송 취소 오류 ${JSON.stringify(error)}`, req.user.email)
     res.status(500).json({ result: false, error })
   }
 })

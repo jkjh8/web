@@ -64,7 +64,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RL01 로그 데이터 가져오기 - ${error}`, email)
+    logError(`RL01 로그 데이터 가져오기 - ${JSON.stringify(error)}`, email)
   }
 })
 
@@ -77,7 +77,7 @@ router.delete('/all', isAdmin, async (req, res) => {
     logWarn(`RL02 로그 데이터 전체 삭제`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RL02 로그 데이터 전체 삭제 - ${error}`, email)
+    logError(`RL02 로그 데이터 전체 삭제 - ${JSON.stringify(error)}`, email)
   }
 })
 

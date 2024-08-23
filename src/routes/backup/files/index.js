@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 router.post('/', (req, res) => {
   multer({ storage }).any()(req, res, (error) => {
     if (error) {
-      logError(`BF02 파일 업로드 - ${error}`, 'backup')
+      logError(`BF02 파일 업로드 - ${JSON.stringify(error)}`, 'backup')
       return res.status(500).json({ result: false, error })
     }
     res.status(200).json({ result: true })
@@ -62,7 +62,7 @@ router.delete('/', (req, res) => {
     }
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BF03 파일 삭제 - ${error}`, 'SERVER')
+    logError(`BF03 파일 삭제 - ${JSON.stringify(error)}`, 'SERVER')
     res.status(500).json({ result: false, error })
   }
 })
