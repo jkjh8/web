@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
 // logger
-const { logInfo, logEvent, logError } = require('@logger')
+const { logInfo, logEvent, logWarn, logError } = require('@logger')
 // db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne } = require('@db/qsys')
@@ -30,7 +30,11 @@ const fnInTimeScheduleRun = async (data) => {
     const idx = uniqueId(16)
     // page 생성
     const page = await fnMakePageFromSchedule(data)
-
+    // page 생성 실패
+    if (page.length === 0) {
+      return logError(`S01 스케줄방송 시작 - page 생성 실패`, user, zones)
+    }
+    // qsys page commands 생성
     const commands = await fnSetLive(
       idx,
       { ...data, devices: page, schedule: true },
@@ -82,7 +86,15 @@ const fnMakePageFromSchedule = async (args) => {
   // 스케줄 반복이 한번이면 메시지 송출 후 삭제 추가 필요
   const promises = devices.map(async (item) => {
     const { ipaddress, deviceId, Zones } = item
-    const device = await dbQsysFindOne({ deviceId })
+    let device = await dbQsysFindOne({ deviceId })
+    if (!device) {
+      logWarn(`S02 스케줄러에서 Q-SYS 찾기 실패 ${deviceId}`, 'SERVER')
+      device = await dbQsysFindOne({ ipaddress })
+      if (!device) {
+        logWarn(`S02 스케줄러에서 Q-SYS 찾기 실패 ${ipaddress}`, 'SERVER')
+        return
+      }
+    }
     arr.push({
       deviceId,
       name: device.name,
