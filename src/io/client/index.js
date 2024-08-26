@@ -30,10 +30,7 @@ module.exports = async (socketio) => {
       // require('@api/setup')()
       // socket.emit('setup:status', gStatus)
     } catch (error) {
-      logError(
-        `IC01 SOCKET.IO CLIENT 사용자갱신 - ${JSON.stringify(error)}`,
-        'SERVER'
-      )
+      logError(`IC01 SOCKET.IO CLIENT 사용자갱신 - ${error}`, 'SERVER')
     }
     // const user = socket.request.user
     console.log(`IC01 SOCKET.IO CLIENT 연결 ${email}`)
@@ -64,7 +61,7 @@ module.exports = async (socketio) => {
           email
         )
       } catch (error) {
-        logError(`IC02 볼륨 변경 - ${JSON.stringify(error)}`, email)
+        logError(`IC02 볼륨 변경 - ${error}`, email)
       }
     })
 
@@ -83,7 +80,7 @@ module.exports = async (socketio) => {
           email
         )
       } catch (error) {
-        logError(`IC03 볼륨 뮤트 변경 -  ${JSON.stringify(error)}`, email)
+        logError(`IC03 볼륨 뮤트 변경 -  ${error}`, email)
       }
     })
     // IC05 채널
@@ -92,7 +89,7 @@ module.exports = async (socketio) => {
       try {
         fnSendQsys('zone:set:channel', obj)
       } catch (error) {
-        logError(`IC05 채널 재설정 - ${JSON.stringify(error)}`, email)
+        logError(`IC05 채널 재설정 - ${error}`, email)
       }
     })
     // IC06 장치
@@ -108,7 +105,7 @@ module.exports = async (socketio) => {
           logWarn(`IC06 장치 재설정 - ${name} - ${deviceId}`, email)
         }, 1000)
       } catch (error) {
-        logError(`IC06 장치 재성정 - ${JSON.stringify(error)}`, email)
+        logError(`IC06 장치 재성정 - ${error}`, email)
       }
     })
     // IC07 방송상태 갱신
@@ -121,15 +118,12 @@ module.exports = async (socketio) => {
           email
         )
       } catch (error) {
-        logError(`IC07 방송상태 갱신 - ${JSON.stringify(error)}`, email)
+        logError(`IC07 방송상태 갱신 - ${error}`, email)
       }
     })
 
     socket.on('connection_error', (error) => {
-      logError(
-        `IC01 SOCKET.IO CLIENT 연결 - ${JSON.stringify(error)}`,
-        'SERVER'
-      )
+      logError(`IC01 SOCKET.IO CLIENT 연결 - ${error}`, 'SERVER')
     })
   })
 

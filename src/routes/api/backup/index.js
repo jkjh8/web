@@ -16,7 +16,7 @@ router.get('/user', async (req, res) => {
     logInfo('RBB01 사용자 정보 동기화', email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RBB01 사용자 정보 동기화 - ${JSON.stringify(error)}`, email)
+    logError(`RBB01 사용자 정보 동기화 - ${error}`, email)
   }
 })
 
@@ -28,7 +28,7 @@ router.get('/qsys', async (req, res) => {
     logInfo('RBB02 Qsys 정보 동기화', email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RBB02 Qsys 정보 동기화 - ${JSON.stringify(error)}`, email)
+    logError(`RBB02 Qsys 정보 동기화 - ${error}`, email)
   }
 })
 
@@ -40,7 +40,7 @@ router.get('/barix', async (req, res) => {
     logInfo('RBB03 BARIX 정보 동기화', email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RBB03 BARIX 정보 동기화 - ${JSON.stringify(error)}`, email)
+    logError(`RBB03 BARIX 정보 동기화 - ${error}`, email)
   }
 })
 
@@ -52,7 +52,7 @@ router.get('/schedule', async (req, res) => {
     logInfo('RBB04 스케줄 정보 동기화', email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RBB04 스케줄 정보 동기화 - ${JSON.stringify(error)}`, email)
+    logError(`RBB04 스케줄 정보 동기화 - ${error}`, email)
   }
 })
 

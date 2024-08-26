@@ -21,7 +21,7 @@ const fnSyncUser = async () => {
       }
     }
   } catch (error) {
-    // logError(`BK03 사용자 정보 동기화 ${JSON.stringify(error)}`, 'SERVER')
+    // logError(`BK03 사용자 정보 동기화 ${error}`, 'SERVER')
     throw error
   }
 }
@@ -40,7 +40,7 @@ const fnSyncQsys = async () => {
       }
     }
   } catch (error) {
-    // logError(`BK04 QSYS 정보 동기화 ${JSON.stringify(error)}`, 'SERVER')
+    // logError(`BK04 QSYS 정보 동기화 ${error}`, 'SERVER')
     throw error
   }
 }
@@ -59,7 +59,7 @@ const fnSyncBarix = async () => {
       }
     }
   } catch (error) {
-    // logError(`BK05 BARIX 정보 동기화 ${JSON.stringify(error)}`, 'SERVER')
+    // logError(`BK05 BARIX 정보 동기화 ${error}`, 'SERVER')
     throw error
   }
 }
@@ -78,7 +78,7 @@ const fnSyncSchedule = async () => {
       }
     }
   } catch (error) {
-    // logError(`BK06 스케줄 정보 동기화 ${JSON.stringify(error)}`, 'SERVER')
+    // logError(`BK06 스케줄 정보 동기화 ${error}`, 'SERVER')
     throw error
   }
 }

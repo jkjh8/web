@@ -20,9 +20,7 @@ module.exports = async (socketio) => {
     // IS03 소켓 연결 에러
     socket.on('connection_error', (error) => {
       logError(
-        `IS03 SOCKET.IO SCHEDULER 연결 SERVER=${
-          process.env.INSTANCE_ID
-        } - ${JSON.stringify(error)}, 'SERVER'`
+        `IS03 SOCKET.IO SCHEDULER 연결 SERVER=${process.env.INSTANCE_ID} - ${error}, 'SERVER'`
       )
     })
 

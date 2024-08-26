@@ -29,7 +29,7 @@ const fnSetLive = async (idx, obj, user) => {
     )
     return arr
   } catch (error) {
-    logError(`QB01 방송 송출 - ${JSON.stringify(error)}`, user ?? 'SERVER')
+    logError(`QB01 방송 송출 - ${error}`, user ?? 'SERVER')
   }
 }
 
@@ -48,10 +48,7 @@ const fnCheckActive = async (arr, user) => {
     }
     return active
   } catch (error) {
-    logError(
-      `QB02 방송구간 중복 확인 - ${JSON.stringify(error)}`,
-      user ?? 'SERVER'
-    )
+    logError(`QB02 방송구간 중복 확인 - ${error}`, user ?? 'SERVER')
   }
 }
 
@@ -68,10 +65,7 @@ const fnClearQsysPageID = async (user) => {
     }
     logInfo(`QB03 방송 송출 PAGE 삭제`, req.user?.email ?? 'SERVER')
   } catch (error) {
-    logError(
-      `QB03 방송 송출 PAGE 삭제 - ${JSON.stringify(error)}`,
-      user ?? 'SERVER'
-    )
+    logError(`QB03 방송 송출 PAGE 삭제 - ${error}`, user ?? 'SERVER')
   }
 }
 
@@ -82,7 +76,7 @@ const fnDeleteOldPage = async () => {
     await dbPage.deleteMany({ updatedAt: { $lt: oneHourAgo } })
     logInfo('QB04 마지막 업데이트가 한시간이 PAGE 삭제', 'SERVER')
   } catch (error) {
-    logError(`QB04 페이지 완료 PAGE 삭제 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`QB04 페이지 완료 PAGE 삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -96,7 +90,7 @@ const fnSetZoneActive = async (deviceId, arr) => {
     }
     await dbQsysUpdate({ deviceId }, { ZoneStatus })
   } catch (error) {
-    logError(`QB04 Q-SYS 지역 활성화 변경 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`QB04 Q-SYS 지역 활성화 변경 - ${error}`, 'SERVER')
   }
 }
 

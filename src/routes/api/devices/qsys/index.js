@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
   try {
     res.status(200).json({ result: true, devices: await dbQsysFindAll() })
   } catch (error) {
-    logError(`RQ01 Q-SYS 장치 검색 - ${JSON.stringify(error)}`, email)
+    logError(`RQ01 Q-SYS 장치 검색 - ${error}`, email)
   }
 })
 
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ02 Q-SYS 장치 추가 - ${JSON.stringify(error)}`, email)
+    logError(`RQ02 Q-SYS 장치 추가 - ${error}`, email)
   }
 })
 
@@ -76,7 +76,7 @@ router.put('/edit', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ03 Q-SYS 장치 수정 - ${JSON.stringify(error)}`, email)
+    logError(`RQ03 Q-SYS 장치 수정 - ${error}`, email)
   }
 })
 
@@ -96,7 +96,7 @@ router.delete('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ04 Q-SYS 장치 제거 - ${JSON.stringify(error)}`, email)
+    logError(`RQ04 Q-SYS 장치 제거 - ${error}`, email)
   }
 })
 
@@ -143,7 +143,7 @@ router.put('/zoneupdate', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ06 Q-SYS 방송구간 업데이트 - ${JSON.stringify(error)}`, email)
+    logError(`RQ06 Q-SYS 방송구간 업데이트 - ${error}`, email)
   }
 })
 
@@ -161,7 +161,7 @@ router.get('/existszone', async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: false, error })
     // 로그
-    logError(`RQ07 Q-SYS 방송 지역 검색 - ${JSON.stringify(error)}`, email)
+    logError(`RQ07 Q-SYS 방송 지역 검색 - ${error}`, email)
   }
 })
 
@@ -180,7 +180,7 @@ router.get('/existszones', async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: false, error })
     // 로그
-    logError(`RQ08 Q-SYS 방송 지역 검색 - ${JSON.stringify(error)}`, email)
+    logError(`RQ08 Q-SYS 방송 지역 검색 - ${error}`, email)
   }
 })
 
@@ -204,7 +204,7 @@ router.put('/modifiedzonename', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ09 Q-SYS 방송구간 이름변경 - ${JSON.stringify(error)}`, email)
+    logError(`RQ09 Q-SYS 방송구간 이름변경 - ${error}`, email)
   }
 })
 
@@ -220,7 +220,7 @@ router.get('/gtrs', (req, res) => {
     logInfo(`RQ10 Q-SYS 스트림 채널 정보 수집 - ${deviceId}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`Q-SYS 스트림 채널 재수집 - ${JSON.stringify(error)}`, email)
+    logError(`Q-SYS 스트림 채널 재수집 - ${error}`, email)
   }
 })
 
@@ -240,7 +240,7 @@ router.put('/strs', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ11 Q-SYS 스트림 재설정 - ${JSON.stringify(error)}`, email)
+    logError(`RQ11 Q-SYS 스트림 재설정 - ${error}`, email)
   }
 })
 
@@ -263,7 +263,7 @@ router.get('/cancel', (req, res) => {
   } catch (error) {
     res.status(500).json(error)
     // 로그
-    logError(`RQ12 Q-SYS 방송 취소 - ${JSON.stringify(error)}`, email)
+    logError(`RQ12 Q-SYS 방송 취소 - ${error}`, email)
   }
 })
 
@@ -311,10 +311,7 @@ router.put('/updatenames', async (req, res) => {
   } catch (error) {
     res.status(500).json(error)
     // 로그
-    logError(
-      `RQ13 Q-SYS 방송구간 이름 및 스트림 업데이트 - ${JSON.stringify(error)}`,
-      email
-    )
+    logError(`RQ13 Q-SYS 방송구간 이름 및 스트림 업데이트 - ${error}`, email)
   }
 })
 
@@ -340,7 +337,7 @@ router.put('/volume', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ14 Q-SYS 볼륨조정 - ${JSON.stringify(error)}`, email)
+    logError(`RQ14 Q-SYS 볼륨조정 - ${error}`, email)
   }
 })
 
@@ -355,7 +352,7 @@ router.get('/all', async (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RQ15 Q-SYS 전체 송신 - ${JSON.stringify(error)}`, email)
+    logError(`RQ15 Q-SYS 전체 송신 - ${error}`, email)
   }
 })
 
@@ -366,7 +363,7 @@ router.put('/pagereset', async (req, res) => {
     fnCheckPageStatus(req.body.deviceId)
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`RQ16 Q-SYS PAGE 리셋 - ${JSON.stringify(error)}`, email)
+    logError(`RQ16 Q-SYS PAGE 리셋 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })

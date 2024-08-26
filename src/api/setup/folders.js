@@ -28,6 +28,6 @@ module.exports = async (defaultFolder, app = null) => {
     }
     logInfo(`SU01 서버 미디어 폴더가 활성화 - ${gStatus.mediaFolder}`, 'SERVER')
   } catch (error) {
-    logError(`SU01 미디어 폴더 활성화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SU01 미디어 폴더 활성화 - ${error}`, 'SERVER')
   }
 }

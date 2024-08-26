@@ -47,9 +47,7 @@ module.exports = async (socketio) => {
     // IQ03 소켓 연결 에러
     socket.on('connection_error', (error) => {
       logError(
-        `IQ03 SOCKET.IO Q-SYS 연결 SERVER=${
-          process.env.INSTANCE_ID
-        } - ${JSON.stringify(error)}`,
+        `IQ03 SOCKET.IO Q-SYS 연결 SERVER=${process.env.INSTANCE_ID} - ${error}`,
         'SERVER'
       )
     })
@@ -136,7 +134,7 @@ module.exports = async (socketio) => {
         socket.emit('qsys:device', { ...dbupdate })
       } catch (error) {
         logError(
-          `IQ06 Q-SYS ZoneStatus 에러: ${JSON.stringify(error)}`,
+          `IQ06 Q-SYS ZoneStatus 에러: ${error}`,
 
           'SERVER'
         )
@@ -150,9 +148,12 @@ module.exports = async (socketio) => {
         const ZoneStatus = device.ZoneStatus.map(
           ({ Zone, Active, gain, mute }) => ({ Zone, Active, gain, mute })
         )
-        fnSendSocket('qsys:ZoneStatus', { deviceId, ZoneStatus })
+        fnSendSocket(
+          'qsys:ZoneStatus',
+          JSON.stringify({ deviceId, ZoneStatus })
+        )
       } catch (error) {
-        logError(`IQ07 Q-SYS VolumeMute - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ07 Q-SYS VolumeMute - ${error}`, 'SERVER')
       }
     })
     // IQ08 QSYS 방송구간 확인
@@ -168,10 +169,7 @@ module.exports = async (socketio) => {
           )
         )
       } catch (error) {
-        logError(
-          `IQ08 Q-SYS 방송구간 확인 - ${JSON.stringify(error)}`,
-          'SERVER'
-        )
+        logError(`IQ08 Q-SYS 방송구간 확인 - ${error}`, 'SERVER')
       }
     })
 
@@ -181,7 +179,7 @@ module.exports = async (socketio) => {
         const { deviceId, data } = obj
         fnSendSocket('qsys:device', { deviceId, data })
       } catch (error) {
-        logError(`IQ09 QSYS device - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ09 QSYS device - ${error}`, 'SERVER')
       }
     })
     // IQ10 QSYS deviceAll
@@ -190,7 +188,7 @@ module.exports = async (socketio) => {
         fnSendSocket('qsys:devices', {})
         socket.emit('qsys:devices', await dbQsysFindAll())
       } catch (error) {
-        logError(`IQ10 QSYS deviceAll - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ10 QSYS deviceAll - ${error}`, 'SERVER')
       }
     })
     // IQ11 QSYS page:message
@@ -199,7 +197,7 @@ module.exports = async (socketio) => {
         const { deviceId, message } = obj
         fnSendSocket('qsys:page:message', { deviceId, message })
       } catch (error) {
-        logError(`IQ11 QSYS page:message - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ11 QSYS page:message - ${error}`, 'SERVER')
       }
     })
     // IQ12 QSYS EngineStatus
@@ -208,7 +206,7 @@ module.exports = async (socketio) => {
       try {
         await dbQsysUpdate({ deviceId }, { EngineStatus })
       } catch (error) {
-        logError(`IQ12 QSYS EngineStatus - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ12 QSYS EngineStatus - ${error}`, 'SERVER')
       }
       fnSendSocket('qsys:device', { deviceId, EngineStatus })
     })
@@ -219,10 +217,7 @@ module.exports = async (socketio) => {
         await dbQsysUpdate({ deviceId }, { ZoneStatusConfigure })
         fnSendSocket('qsys:device', { deviceId, ZoneStatusConfigure })
       } catch (error) {
-        logError(
-          `IQ13 QSYS ZoneStatusConfigure - ${JSON.stringify(error)}`,
-          'SERVER'
-        )
+        logError(`IQ13 QSYS ZoneStatusConfigure - ${error}`, 'SERVER')
       }
     })
     // IQ14 QSYS page
@@ -238,7 +233,7 @@ module.exports = async (socketio) => {
           { 'devices.$.PageID': PageID }
         )
       } catch (error) {
-        logError(`IQ14 QSYS PAGE - ${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ14 QSYS PAGE - ${error}`, 'SERVER')
       }
     })
 
@@ -285,7 +280,7 @@ module.exports = async (socketio) => {
           )
         }
       } catch (error) {
-        logError(`IQ15 QSYS PAGE STATUS RT -${JSON.stringify(error)}`, 'SERVER')
+        logError(`IQ15 QSYS PAGE STATUS RT -${error}`, 'SERVER')
       }
     })
     socket.emit('qsys:devices', await dbQsysFindAll())

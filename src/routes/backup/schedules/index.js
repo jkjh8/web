@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
       .status(200)
       .json({ result: true, data: await dbSchMake({ ...req.body }) })
   } catch (error) {
-    logError(`BS01 스케줄 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS01 스케줄 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -30,7 +30,7 @@ router.put('/', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BS02 스케줄 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS02 스케줄 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -42,7 +42,7 @@ router.delete('/', async (req, res) => {
       .json({ result: true, data: await dbSchRemoveById(req.body.id) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BS03 스케줄 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS03 스케줄 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -58,7 +58,7 @@ router.post('/many', async (req, res) => {
     logInfo('BS04 스케줄 정보 동기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BS04 스케줄 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS04 스케줄 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -69,7 +69,7 @@ router.delete('/reset', async (req, res) => {
     logInfo('BS05 스케줄 정보 초기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BS05 스케줄 정보 초기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS05 스케줄 정보 초기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -82,7 +82,7 @@ router.delete('/user', async (req, res) => {
     logInfo(`BS06 스케줄 사용자 삭제 완료 ${req.body.user}`, 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BS06 스케줄 사용자 삭제 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BS06 스케줄 사용자 삭제 - ${error}`, 'SERVER')
   }
 })
 

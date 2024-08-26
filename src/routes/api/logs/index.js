@@ -14,12 +14,14 @@ router.get('/', isLoggedIn, async (req, res, next) => {
     let { pagination, filter, level, start, end, devices } = JSON.parse(
       req.query.options
     )
+    console.log('logLevel', level)
+
     let { rowsPerPage, page, sortBy, descending } = pagination
     sort[sortBy] = descending ? -1 : 1
 
     const searchOptions = []
-    if (level && level !== 0) {
-      searchOptions.push({ levelNum: { $gte: level } })
+    if (level && level.length) {
+      searchOptions.push({ levelNum: { $in: level } })
     }
     if (start) {
       searchOptions.push({
@@ -64,7 +66,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RL01 로그 데이터 가져오기 - ${JSON.stringify(error)}`, email)
+    logError(`RL01 로그 데이터 가져오기 - ${error}`, email)
   }
 })
 
@@ -77,7 +79,7 @@ router.delete('/all', isAdmin, async (req, res) => {
     logWarn(`RL02 로그 데이터 전체 삭제`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RL02 로그 데이터 전체 삭제 - ${JSON.stringify(error)}`, email)
+    logError(`RL02 로그 데이터 전체 삭제 - ${error}`, email)
   }
 })
 

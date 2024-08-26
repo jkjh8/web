@@ -130,7 +130,7 @@ const fnRemoveUserFolder = (email) => {
     }
     fs.rmSync(folder, { recursive: true })
   } catch (error) {
-    logError(`F08 사용자 폴더 삭제 - ${JSON.stringify(error)}`, email)
+    logError(`F08 사용자 폴더 삭제 - ${error}`, email)
   }
 }
 

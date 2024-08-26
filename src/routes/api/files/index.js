@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
     const { folder } = req.query
     res.status(200).json({ files: fnGetFiles(folder ?? gStatus.globalFolder) })
   } catch (error) {
-    logError(`RF04 파일 검색 - ${JSON.stringify(error)}`, email)
+    logError(`RF04 파일 검색 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -34,7 +34,7 @@ router.post('/', (req, res) => {
   const { email } = req.user
   uploader.any()(req, res, (error) => {
     if (error) {
-      logError(`RF05 파일 업로드 - ${JSON.stringify(error)}`, email)
+      logError(`RF05 파일 업로드 - ${error}`, email)
       return res.status(500).json({ result: false, error })
     }
     res.status(200).json({ result: true })
@@ -59,7 +59,7 @@ router.get('/dir', (req, res) => {
   try {
     res.status(200).json(fnGetFolders(email))
   } catch (error) {
-    logError(`RF06 폴더 검색 - ${JSON.stringify(error)}`, email)
+    logError(`RF06 폴더 검색 - ${error}`, email)
   }
 })
 
@@ -78,7 +78,7 @@ router.post('/newfolder', (req, res) => {
     )
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`RF07 폴더 생성 - ${JSON.stringify(error)}`, email)
+    logError(`RF07 폴더 생성 - ${error}`, email)
   }
 })
 
@@ -96,7 +96,7 @@ router.delete('/', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RF08 파일(폴더) 삭제 - ${JSON.stringify(error)}`, email)
+    logError(`RF08 파일(폴더) 삭제 - ${error}`, email)
   }
 })
 
@@ -106,7 +106,7 @@ router.get('/downloads', async (req, res) => {
   try {
     res.download(await ziper(JSON.parse(req.query.files)))
   } catch (error) {
-    logError(`RF09 파일 다운로드 - ${JSON.stringify(error)}`, email)
+    logError(`RF09 파일 다운로드 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -118,7 +118,7 @@ router.get('/download', async (req, res) => {
     const file = JSON.parse(req.query.file)
     res.download(file.fullpath)
   } catch (error) {
-    logError(`RF10 파일 다운로드 - ${JSON.stringify(error)}`, email)
+    logError(`RF10 파일 다운로드 - ${error}`, email)
     res.status(500).json({ result: false, error })
   }
 })
@@ -138,7 +138,7 @@ router.put('/rename', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RF11 파일(폴더) 이름 변경 - ${JSON.stringify(error)}`, email)
+    logError(`RF11 파일(폴더) 이름 변경 - ${error}`, email)
   }
 })
 
@@ -151,7 +151,7 @@ router.get('/size', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RF12 파일(폴더) 크기 확인 - ${JSON.stringify(error)}`, email)
+    logError(`RF12 파일(폴더) 크기 확인 - ${error}`, email)
   }
 })
 
@@ -168,7 +168,7 @@ router.get('/exist', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RF13 파일 존재 확인 - ${JSON.stringify(error)}`, email)
+    logError(`RF13 파일 존재 확인 - ${error}`, email)
   }
 })
 
@@ -182,7 +182,7 @@ router.put('/copy', (req, res) => {
   } catch (error) {
     res.status(500).json({ result: false, error })
     // 로그
-    logError(`RF14 파일 복사 - ${JSON.stringify(error)}`, email)
+    logError(`RF14 파일 복사 - ${error}`, email)
   }
 })
 

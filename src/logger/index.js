@@ -27,6 +27,9 @@ const log = (level, levelNum, message, source = '', zones = []) => {
       case 'event':
         color = '\x1b[36m'
         break
+      case 'event error':
+        color = '\x1b[37m'
+        break
       default:
         color = ''
     }
@@ -53,5 +56,8 @@ module.exports = {
   },
   logEvent: (message, source = '', zones = []) => {
     log('event', 4, message, source, zones)
+  },
+  logErrorEvent: (message, source = '', zones = []) => {
+    log('event error', 5, message, source, zones)
   }
 }

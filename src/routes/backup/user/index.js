@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
       .status(200)
       .json({ result: true, data: await dbUserMake({ ...req.body }) })
   } catch (error) {
-    logError(`BU01 사용자 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BU01 사용자 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -25,7 +25,7 @@ router.put('/', async (req, res) => {
     })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BU02 사용자 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BU02 사용자 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -39,7 +39,7 @@ router.delete('/', async (req, res) => {
       .json({ result: true, data: await dbUserRemove(req.body.id) })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BU03 사용자 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BU03 사용자 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -57,7 +57,7 @@ router.post('/many', async (req, res) => {
     logInfo('BU04 사용자 정보 동기화 완료', 'SERVER')
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BU04 사용자 정보 동기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BU04 사용자 정보 동기화 - ${error}`, 'SERVER')
   }
 })
 
@@ -68,7 +68,7 @@ router.delete('/reset', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    logError(`BU05 사용자 정보 초기화 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`BU05 사용자 정보 초기화 - ${error}`, 'SERVER')
   }
 })
 

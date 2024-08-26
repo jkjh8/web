@@ -35,9 +35,7 @@ const fnQsysCheckMediaFolder = async (device) => {
     fnMakeQsysMediaFolder(device, 'schedule')
   } catch (error) {
     logError(
-      `QF02 Q-SYS 기본폴더생성 ${device.name} - ${
-        device.deviceId
-      } - ${JSON.stringify(error)}`,
+      `QF02 Q-SYS 기본폴더생성 ${device.name} - ${device.deviceId} - ${error}`,
       'SERVER'
     )
   }
@@ -169,7 +167,7 @@ const fnQsysSyncFileSchedule = async (idx, user) => {
     await Promise.all(promises)
     return await dbSchUpdate({ idx }, { $set: { sync: true } })
   } catch (error) {
-    logError(`QF05 Q-SYS 스케줄 동기화 ${JSON.stringify(error)}`, 'SERVER')
+    logError(`QF05 Q-SYS 스케줄 동기화 ${error}`, 'SERVER')
   }
 }
 
@@ -211,7 +209,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
       }
     })
   } catch (error) {
-    logError(`QF06 Q-SYS 스케줄 정리 ${JSON.stringify(error)}`, 'SERVER')
+    logError(`QF06 Q-SYS 스케줄 정리 ${error}`, 'SERVER')
   }
 }
 
@@ -245,7 +243,7 @@ const fnQsysDeleteLive = async (deviceId) => {
     })
     logWarn(`QF08 Q-SYS LIVE 파일삭제 - ${device.name} - ${deviceId}`)
   } catch (error) {
-    logError(`QF08 Q-SYS LIVE 파일삭제 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`QF08 Q-SYS LIVE 파일삭제 - ${error}`, 'SERVER')
   }
 }
 
@@ -258,10 +256,7 @@ const fnQsysDeleteLiveAll = async () => {
     })
     logWarn(`QF09 Q-SYS Live 파일전체삭제`)
   } catch (error) {
-    logError(
-      `QF09 Q-SYS Live 파일전체삭제 - ${JSON.stringify(error)}`,
-      'SERVER'
-    )
+    logError(`QF09 Q-SYS Live 파일전체삭제 - ${error}`, 'SERVER')
   }
 }
 

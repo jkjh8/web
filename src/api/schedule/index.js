@@ -2,7 +2,13 @@ const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
 // logger
-const { logInfo, logEvent, logWarn, logError } = require('@logger')
+const {
+  logInfo,
+  logEvent,
+  logWarn,
+  logError,
+  logErrorEvent
+} = require('@logger')
 // db
 const { dbSchFind, dbSchFindToday } = require('@db/schedule')
 const { dbQsysFind, dbQsysFindOne } = require('@db/qsys')
@@ -32,7 +38,7 @@ const fnInTimeScheduleRun = async (data) => {
     const page = await fnMakePageFromSchedule(data)
     // page 생성 실패
     if (page.length === 0) {
-      return logError(`S01 스케줄방송 시작 - page 생성 실패`, user, zones)
+      return logErrorEvent(`스케줄방송 시작 - page 생성 실패`, user, zones)
     }
     // qsys page commands 생성
     const commands = await fnSetLive(
@@ -88,10 +94,13 @@ const fnMakePageFromSchedule = async (args) => {
     const { ipaddress, deviceId, Zones } = item
     let device = await dbQsysFindOne({ deviceId })
     if (!device) {
-      logWarn(`S02 스케줄러에서 Q-SYS 찾기 실패 ${deviceId}`, 'SERVER')
+      logWarn(`스케줄러에서 방송 주장치 찾기 실패 ${deviceId}`, 'SERVER')
       device = await dbQsysFindOne({ ipaddress })
       if (!device) {
-        logWarn(`S02 스케줄러에서 Q-SYS 찾기 실패 ${ipaddress}`, 'SERVER')
+        logErrorEvent(
+          `스케줄러에서 방송 주장치 찾기 실패 ${deviceId} ${ipaddress}`,
+          'SERVER'
+        )
         return
       }
     }
@@ -128,7 +137,7 @@ const fnSendScheduleToAPP = async () => {
     const schedules = await dbSchFindToday()
     return io.scheduler.emit('today', schedules)
   } catch (error) {
-    logError(`S03 오늘 스케줄 전송 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`S03 오늘 스케줄 전송 - ${error}`, 'SERVER')
   }
 }
 
@@ -169,7 +178,7 @@ const fnCleanScheduleFolder = async () => {
     )
     logInfo(`S07 스케줄 폴더 정리`, 'SERVER')
   } catch (error) {
-    logError(`S07 스케줄 폴더 정리 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`S07 스케줄 폴더 정리 - ${error}`, 'SERVER')
   }
 }
 
@@ -205,7 +214,7 @@ const fnSendScheduleToday = async () => {
     const schedules = await dbSchFindToday()
     io.scheduler.emit('schedules', JSON.stringify(schedules))
   } catch (error) {
-    logError(`S09 오늘 스케줄 전송 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`S09 오늘 스케줄 전송 - ${error}`, 'SERVER')
   }
 }
 

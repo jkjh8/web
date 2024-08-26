@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
       relayOnTime: gStatus.relayOnTime
     })
   } catch (error) {
-    logError(`SC01 스케줄러 조회 실패 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SC01 스케줄러 조회 실패 - ${error}`, 'SERVER')
     res.status(500).json({
       result: false,
       mode: gStatus.mode,
@@ -62,7 +62,7 @@ router.get('/check', async (req, res) => {
     fnSendGlobalStatus()
   } catch (error) {
     res.status(500).send('FAIL')
-    logError(`SC02 스케줄러 체크 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SC02 스케줄러 체크 - ${error}`, 'SERVER')
   }
 })
 
@@ -76,7 +76,7 @@ router.put('/mode', (req, res) => {
     logInfo(`SC03 스케줄러 모드 변경 - ${mode}`, 'SCHEDULER')
   } catch (error) {
     res.status(500).send('FAIL')
-    logError(`SC03 스케줄러 모드 변경 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SC03 스케줄러 모드 변경 - ${error}`, 'SERVER')
   }
 })
 // SC04 스케줄 이벤트
@@ -102,7 +102,7 @@ router.put('/', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC04 스케줄방송 시작 - ${JSON.stringify(error)}`, user, zones)
+    logError(`SC04 스케줄방송 시작 - ${error}`, user, zones)
   }
 })
 
@@ -126,7 +126,7 @@ router.get('/clean', async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC05 스케줄러 폴더 정리 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SC05 스케줄러 폴더 정리 - ${error}`, 'SERVER')
   }
 })
 
@@ -137,7 +137,7 @@ router.get('/relay', (req, res) => {
     res.status(200).json({ result: true, relayOnTime })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC06 relayOnTime 조회 - ${JSON.stringify(error)}`, 'SERVER')
+    logError(`SC06 relayOnTime 조회 - ${error}`, 'SERVER')
   }
 })
 
