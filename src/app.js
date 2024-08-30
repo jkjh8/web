@@ -56,7 +56,7 @@ app.use('/media', express.static(path.join(__dirname, 'media')))
 app.use('/', require('@src/routes'))
 
 // 서버
-const httpServer = http.createServer(app)
+const httpServer = http.createServer(app, { host: '0.0.0.0' })
 
 // io
 const io = new Server(httpServer, {
