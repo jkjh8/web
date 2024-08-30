@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     folder: String,
     socketId: String,
     voice: String,
+    permitAddress: String,
     pageId: [
       {
         id: String,

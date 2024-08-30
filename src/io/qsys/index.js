@@ -78,9 +78,9 @@ module.exports = async (socketio) => {
         let device = await dbQsysFindOne({ deviceId })
         let ZoneStatus = device.ZoneStatus
 
-        if (ZoneStatus.length > update.length) {
-          ZoneStatus = ZoneStatus.slice(0, update.length - 1)
-        }
+        // if (ZoneStatus.length > update.length) {
+        //   ZoneStatus = ZoneStatus.slice(0, update.length - 1)
+        // }
         if (ZoneStatus.length === 0) {
           ZoneStatus = update
         } else {
@@ -271,7 +271,8 @@ module.exports = async (socketio) => {
               currentDevice.name ?? ''
             } - ${currentPage.idx ?? ''} - PAGEID: ${PageID ?? ''}`,
             currentPage.user,
-            [currentDevice.name]
+            [currentDevice.name],
+            [deviceId]
           )
         } else {
           dbQsysUpdate(

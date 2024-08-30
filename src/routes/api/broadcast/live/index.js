@@ -39,7 +39,12 @@ router.put('/', async (req, res) => {
       fnSetZoneActive(device.deviceId, device.params.Zones)
     })
     // 로그
-    logEvent(`실시간 방송 릴레이 구동완료: ${idx}`, email, zones)
+    logEvent(
+      `실시간 방송 릴레이 구동완료: ${idx}`,
+      email,
+      zones,
+      devices.map((e) => e.deviceId)
+    )
 
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
@@ -55,9 +60,10 @@ router.put('/', async (req, res) => {
     fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(
-      `${Priority ? '긴급' : '일반'} 실시간 방송 시작: ${idx}`,
+      `${Priority < 3 ? '긴급' : '일반'} 실시간 방송 시작: ${idx}`,
       email,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
 
     // 방송 메시지 송출(연결된 사용자에게만)
@@ -70,11 +76,12 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL01 ${Priority ? '긴급' : '일반'} 실시간 방송 - ${JSON.stringify(
+      `BL01 ${Priority < 3 ? '긴급' : '일반'} 실시간 방송 - ${JSON.stringify(
         error
       )}`,
       email,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
     res.status(500).json({ result: false, error })
   }
@@ -100,7 +107,12 @@ router.put('/message', async (req, res) => {
       fnSetZoneActive(device.deviceId, device.params.Zones)
     })
     // 로그
-    logEvent(`메시지 방송 릴레이 구동완료: ${idx}`, email, zones)
+    logEvent(
+      `메시지 방송 릴레이 구동완료: ${idx}`,
+      email,
+      zones,
+      devices.map((e) => e.deviceId)
+    )
 
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
@@ -117,9 +129,12 @@ router.put('/message', async (req, res) => {
     // )
     fnSendQsys('qsys:page:message', await fnSetLive(idx, req.body, email))
     logEvent(
-      `${Priority ? '긴급' : '일반'} 메세지 방송 시작: ${file.base} - ${idx}`,
+      `${Priority < 3 ? '긴급' : '일반'} 메세지 방송 시작: ${
+        file.base
+      } - ${idx}`,
       email,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
     //////////////// 리턴 ////////////////
     res.status(200).json({ result: true, idx })
@@ -128,9 +143,10 @@ router.put('/message', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL02 ${Priority ? '긴급' : '일반'} 메시지 방송 - ${error}`,
+      `BL02 ${Priority < 3 ? '긴급' : '일반'} 메시지 방송 - ${error}`,
       email,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
     res.status(500).json({ result: false, error })
   }
@@ -148,8 +164,8 @@ router.delete('/message', async (req, res) => {
 
 // BL04 방송 중지
 router.get('/stop', async (req, res) => {
+  const { deviceId } = req.params
   try {
-    const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
       // fnSendDeviceMuticast('qsys:page:stop', {
@@ -163,18 +179,18 @@ router.get('/stop', async (req, res) => {
         idx: item.idx
       })
     }
-    logEvent(`방송 중지`, req.user.email, [r.name])
+    logEvent(`방송 중지`, req.user.email, [r.name], [deviceId])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL04 방송 중지 - ${error}`, req.user.email)
+    logError(`BL04 방송 중지 - ${error}`, req.user.email, [], [deviceId])
     res.status(500).json({ result: false, error })
   }
 })
 
 // BL05 방송 취소
 router.get('/cancel', async (req, res) => {
+  const { deviceId } = req.params
   try {
-    const { deviceId } = req.params
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
       // fnSendDeviceMuticast('qsys:page:cancel', {
@@ -188,10 +204,10 @@ router.get('/cancel', async (req, res) => {
         idx: item.idx
       })
     }
-    logEvent(`방송 취소`, req.user.email, [r.name])
+    logEvent(`방송 취소`, req.user.email, [r.name], [deviceId])
     res.status(200).json({ result: true })
   } catch (error) {
-    logError(`BL05 방송 취소 오류 ${error}`, req.user.email)
+    logError(`BL05 방송 취소 오류 ${error}`, req.user.email, [], [deviceId])
     res.status(500).json({ result: false, error })
   }
 })

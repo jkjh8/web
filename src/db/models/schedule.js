@@ -20,7 +20,9 @@ const scheduleSchema = new mongoose.Schema(
     sync: { type: Boolean, default: false },
     devices: Array,
     zones: Array,
-    description: String
+    description: String,
+    start: String,
+    end: String
   },
   {
     timestamps: true

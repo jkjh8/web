@@ -20,6 +20,7 @@ const {
 const { fnGetBarixInfo } = require('@api/barix')
 
 const { fnSendSocket } = require('@api/client')
+const { dbQsys } = require('../../../../db/qsys')
 
 const router = express.Router()
 
@@ -37,7 +38,17 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { email } = req.user
   try {
-    const { name, ipaddress, deviceId } = req.body
+    const { name, ipaddress, deviceId, channels } = req.body
+    const ZoneStatus = []
+    for (let i = 0; i < channels; i++) {
+      ZoneStatus.push({
+        Zone: i + 1,
+        Active: false,
+        gain: 0,
+        mute: false
+      })
+    }
+
     // 데이터베이스 추가
     const data = await dbQsysMake({ ...req.body })
     // 전체 데이터 송신
@@ -59,11 +70,31 @@ router.post('/', async (req, res) => {
 router.put('/edit', async (req, res) => {
   const { email } = req.user
   try {
-    const { deviceId, ipaddress, name, amx } = req.body
+    const { deviceId, ipaddress, name, amx, channels } = req.body
+    const current = await dbQsysFindOne({ deviceId })
+    // 채널 수 확인
+    if (channels !== current.ZoneStatus.length) {
+      //채널이 작을때
+      if (channels < current.ZoneStatus.length) {
+        current.ZoneStatus = current.ZoneStatus.splice(0, channels)
+      }
+      //채널이 클때
+      if (channels > current.ZoneStatus.length) {
+        for (let i = current.ZoneStatus.length; i < channels; i++) {
+          current.ZoneStatus.push({
+            Zone: i + 1,
+            Active: false,
+            destination: null,
+            gain: 0,
+            mute: false
+          })
+        }
+      }
+    }
     // 데이터베이스 업데이트
     const data = await dbQsysUpdateBackup(
       { deviceId },
-      { ipaddress, name, amx }
+      { ipaddress, name, amx, ZoneStatus: current.ZoneStatus }
     )
     // 전체 데이터 송신
     await fnSendAllStatusAll()
@@ -246,10 +277,11 @@ router.put('/strs', (req, res) => {
 
 // RQ12 - 방송 취소
 router.get('/cancel', (req, res) => {
-  const { email, isAdmin } = req.user
+  const { email, isAdmin, zones } = req.user
+  const device = req.query.device
   try {
-    if (isAdmin) {
-      const { name, ipaddress, deviceId, pageId } = req.query.device
+    if (isAdmin || zones.includes(device.deviceId)) {
+      const { name, ipaddress, deviceId, pageId } = device
 
       fnSendQsys(`qsys:page:cancelAll`, deviceId)
       // fnSendDeviceMuticast(`qsys:page:cancelAll`, deviceId)

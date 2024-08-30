@@ -15,7 +15,7 @@ module.exports = () => {
         try {
           const { user } = jwtPayload
           if (user) {
-            return done(null, user)
+            return done(null, await dbUserFindOne({ email: user.email }))
           }
           return done(null, false, {
             message: '사용자를 찾을 수 없습니다. 이메일을 확인해 주세요'
@@ -39,7 +39,7 @@ module.exports = () => {
               message: '사용자를 찾을 수 없습니다. 이메일을 확인해 주세요'
             })
           // compare password and hash
-          if (bcrypt.compare(password, user.userPassword)) {
+          if (await bcrypt.compare(password, user.userPassword)) {
             // seccess login db update
             user.numberOfLogins++
             user.loginAt = Date.now()

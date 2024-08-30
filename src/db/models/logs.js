@@ -9,7 +9,8 @@ const logsSchema = new mongoose.Schema(
     search: String,
     idx: String,
     source: String,
-    zones: Array
+    zones: Array,
+    devices: Array
   },
   { timestamps: true }
 )

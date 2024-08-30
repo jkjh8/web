@@ -20,7 +20,7 @@ router.get('/', isAdmin, async (req, res) => {
   }
 })
 
-//RU02 사용자 권한을 변경하는 라우트입니다.
+//RU02 사용자  변경하는 라우트입니다.
 router.put('/', isAdmin, async (req, res) => {
   const { email } = req.user
   try {
@@ -62,6 +62,21 @@ router.delete('/', isAdmin, async (req, res) => {
     res.status(500).json({ result: false, error })
     console.log(error)
     logError(`RU04 사용자 삭제 - ${error}`, email)
+  }
+})
+
+// RU05 사용자 이메일을 변경하는 라우트
+router.put('/email', isAdmin, async (req, res) => {
+  const { email } = req.user
+  try {
+    const { id, oldEmail, newEmail } = req.body
+    await dbUserUpdate({ _id: id }, { email: newEmail })
+
+    res.status(200).json({ result: true })
+    logInfo(`RU05 사용자 이메일 변경 - ${oldEmail} -> ${newEmail}`, email)
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`RU05 사용자 이메일 변경 - ${error}`, email)
   }
 })
 

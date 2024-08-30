@@ -30,7 +30,7 @@ const io = require('@io')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
-  const { user, name, zones, file } = data
+  const { user, name, zones, file, devices } = data
   try {
     // Page를 위한 uniqueId 생성
     const idx = uniqueId(16)
@@ -38,7 +38,12 @@ const fnInTimeScheduleRun = async (data) => {
     const page = await fnMakePageFromSchedule(data)
     // page 생성 실패
     if (page.length === 0) {
-      return logErrorEvent(`스케줄방송 시작 - page 생성 실패`, user, zones)
+      return logErrorEvent(
+        `오류: 스케줄방송 시작 -  스케줄 방송 생성 실패`,
+        user,
+        zones,
+        devices.map((e) => e.deviceId)
+      )
     }
     // qsys page commands 생성
     const commands = await fnSetLive(
@@ -52,12 +57,15 @@ const fnInTimeScheduleRun = async (data) => {
     if (active.length > 0) {
       await dbPageUpdate({ idx }, { dub: active })
       for (const item of active) {
-        logEvent(`스케줄방송 중복확인: ${item.name ?? ''}}`, user, item.Zones)
+        logEvent(`스케줄방송 중복확인: ${item.name ?? ''}}`, user, item.Zones, [
+          item.deviceId
+        ])
       }
     }
 
     //////////////// 릴레이 구동 ////////////////
     // amx 릴레이 구동
+    console.log(page)
     await fnAmxesRelayOn(page)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
@@ -70,7 +78,8 @@ const fnInTimeScheduleRun = async (data) => {
     logEvent(
       `스케줄방송 릴레이 구동완료: ${name ?? ''} - ${idx ?? ''}`,
       user,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
 
     //////////////// 대기 ////////////////
@@ -94,12 +103,19 @@ const fnMakePageFromSchedule = async (args) => {
     const { ipaddress, deviceId, Zones } = item
     let device = await dbQsysFindOne({ deviceId })
     if (!device) {
-      logWarn(`스케줄러에서 방송 주장치 찾기 실패 ${deviceId}`, 'SERVER')
+      logWarn(
+        `오류: 스케줄러에서 방송 주장치 찾기 실패 ${deviceId}`,
+        'SERVER',
+        [],
+        [deviceId]
+      )
       device = await dbQsysFindOne({ ipaddress })
       if (!device) {
         logErrorEvent(
-          `스케줄러에서 방송 주장치 찾기 실패 ${deviceId} ${ipaddress}`,
-          'SERVER'
+          `오류: 스케줄러에서 방송 주장치 찾기 실패 ${deviceId} ${ipaddress}`,
+          'SERVER',
+          [],
+          [deviceId]
         )
         return
       }

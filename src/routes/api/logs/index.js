@@ -14,7 +14,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
     let { pagination, filter, level, start, end, devices } = JSON.parse(
       req.query.options
     )
-    console.log('logLevel', level)
+    console.log(devices)
 
     let { rowsPerPage, page, sortBy, descending } = pagination
     sort[sortBy] = descending ? -1 : 1
@@ -34,7 +34,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
       })
     }
     if (devices) {
-      searchOptions.push({ zones: { $in: devices } })
+      searchOptions.push({ devices: { $in: devices } })
     }
     if (filter) {
       // filter에서 글자에서 \가 있으면 삭제

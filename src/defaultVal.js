@@ -13,6 +13,7 @@ module.exports = {
     backupAddress: '',
     backupActive: false,
     barix: '',
+    blockIp: true,
     defaultFolder: __dirname,
     interval: 50,
     instanceId: '',

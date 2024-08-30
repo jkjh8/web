@@ -82,8 +82,7 @@ router.put('/mode', (req, res) => {
 // SC04 스케줄 이벤트
 router.put('/', async (req, res) => {
   const { schedule } = req.body
-  console.log(schedule)
-  const { name, user, zones, file, idx, active } = schedule
+  const { name, user, zones, file, idx, active, devices } = schedule
   try {
     if (active == false) {
       logWarning(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
@@ -97,12 +96,18 @@ router.put('/', async (req, res) => {
     logEvent(
       `스케줄방송 시작: ${name ?? ''} - ${file.base} - ${idx}`,
       user,
-      zones
+      zones,
+      devices.map((e) => e.deviceId)
     )
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false })
-    logError(`SC04 스케줄방송 시작 - ${error}`, user, zones)
+    logError(
+      `SC04 스케줄방송 시작 - ${error}`,
+      user,
+      zones,
+      devices.map((e) => e.deviceId)
+    )
   }
 })
 

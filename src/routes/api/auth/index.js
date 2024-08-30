@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
@@ -13,17 +14,17 @@ const router = express.Router()
 // AH01 사용자 정보 조회 및 토큰 갱신
 router.get('/', isLoggedIn, async (req, res) => {
   try {
-    const user = await dbUserFindOneNonePass({ email: req.user.email })
     let token = null
     const currentTime = Math.floor(Date.now() / 1000)
     // 토큰 만료 1시간 전에 갱신
     if (currentTime - req.user.iat < 6000) {
+      const user = await dbUserFindOneNonePass({ email: req.user.email })
       token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
         expiresIn: '3h'
       })
     }
     // 토큰이 있을 경우 토큰을 포함하여 응답
-    res.status(200).json({ result: true, user, token })
+    res.status(200).json({ result: true, user: req.user, token })
   } catch (error) {
     res.status(500).json({ result: false, user: null, error: error })
   }
@@ -50,6 +51,7 @@ router.post('/signup', async (req, res) => {
   try {
     const { name, email, userPassword } = req.body
     const salt = bcrypt.genSaltSync(10)
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     // 슈퍼 사용자 생성
     if (email === 'superuser@superuser.com') {
       await dbUserMake({
@@ -57,7 +59,8 @@ router.post('/signup', async (req, res) => {
         email: 'superuser@superuser.com',
         userPassword: bcrypt.hashSync('superuser', salt),
         isAdmin: true,
-        folder: uniqueId(16)
+        folder: uniqueId(16),
+        permitAddress: ip
       })
       logInfo('AH03 슈퍼 사용자 생성', 'SERVER')
     } else {
@@ -66,12 +69,13 @@ router.post('/signup', async (req, res) => {
         name: name,
         email: email,
         userPassword: bcrypt.hashSync(userPassword, salt),
-        folder: uniqueId(16)
+        folder: uniqueId(16),
+        permitAddress: ip
       })
       logInfo(`AH03 사용자 계정 생성: ${email}`, 'SERVER')
     }
     // 사용자 폴더 생성
-    fnMakeFolder(email)
+    fnMakeFolder(path.join(gStatus.mediaFolder, email))
     // 사용자 생성 성공 시 200 상태 코드와 결과를 응답
     res.status(200).json({ result: true })
   } catch (error) {
