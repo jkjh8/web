@@ -14,7 +14,7 @@ router.get('/', isLoggedIn, async (req, res, next) => {
     let { pagination, filter, level, start, end, devices } = JSON.parse(
       req.query.options
     )
-    console.log(devices)
+    // console.log(devices)
 
     let { rowsPerPage, page, sortBy, descending } = pagination
     sort[sortBy] = descending ? -1 : 1

@@ -283,4 +283,16 @@ router.get('/backupnow', async (req, res) => {
   }
 })
 
+// SS19 아이피 차단
+router.put('/blockip', async (req, res) => {
+  const { email } = req.user
+  try {
+    await dbSetupUpdate({ key: 'blockIp' }, { valueBoolean: req.body.blockIp })
+    res.status(200).json({ result: true, value: gStatus.blockIp })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`SS19 아이피 차단 활성화 - ${error}`, email)
+  }
+})
+
 module.exports = router

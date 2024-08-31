@@ -18,7 +18,9 @@ router.get('/', isLoggedIn, async (req, res) => {
     const currentTime = Math.floor(Date.now() / 1000)
     // 토큰 만료 1시간 전에 갱신
     if (currentTime - req.user.iat < 6000) {
-      const user = await dbUserFindOneNonePass({ email: req.user.email })
+      const user = req.user
+      delete user.userPassword
+      delete user._id
       token = jwt.sign({ user }, process.env.JWT_SECRET_KEY, {
         expiresIn: '3h'
       })
@@ -41,6 +43,14 @@ router.post('/', (req, res, next) => {
     const token = jwt.sign({ user: user }, process.env.JWT_SECRET_KEY, {
       expiresIn: '3h'
     })
+
+    logInfo(
+      `AH02 사용자 로그인: ${user.email} - ${
+        req.connectAddress ?? 'Unknown Address'
+      }`,
+      'SERVER'
+    )
+
     // 성공적으로 로그인한 경우 200 상태 코드와 사용자 정보 및 토큰을 응답
     res.status(200).json({ result: true, user, token })
   })(req, res, next)
@@ -62,7 +72,7 @@ router.post('/signup', async (req, res) => {
         folder: uniqueId(16),
         permitAddress: ip
       })
-      logInfo('AH03 슈퍼 사용자 생성', 'SERVER')
+      logInfo(`AH03 슈퍼 사용자 생성 - ${ip ?? 'Unknown Address'}`, 'SERVER')
     } else {
       // 일반 사용자 생성
       await dbUserMake({
@@ -72,7 +82,10 @@ router.post('/signup', async (req, res) => {
         folder: uniqueId(16),
         permitAddress: ip
       })
-      logInfo(`AH03 사용자 계정 생성: ${email}`, 'SERVER')
+      logInfo(
+        `AH03 사용자 계정 생성 - ${email} - ${ip ?? 'Unknown Address'}`,
+        'SERVER'
+      )
     }
     // 사용자 폴더 생성
     fnMakeFolder(path.join(gStatus.mediaFolder, email))
@@ -98,15 +111,12 @@ router.get('/exists_email', async (req, res) => {
 // AH05 로그아웃
 router.get('/signout', isLoggedIn, async (req, res) => {
   try {
-    if (req.cookies['jwt']) {
-      // logInfo(`사용자 로그아웃: ${req.user.email}`)
-      res
-        .clearCookie('jwt', { sameSite: 'none', secure: true })
-        .status(200)
-        .json({ result: true, user: null })
-    } else {
-      res.status(401).json({ error: '잘못된 토큰' })
-    }
+    logInfo(
+      `사용자 로그아웃: ${req.user.email} - ${
+        req.connectAddress ?? 'Unknown Address'
+      }`,
+      'SERVER'
+    )
   } catch (error) {
     logError(`AH05 사용자 로그아웃 - ${req.user.email} - ${error}`, 'SERVER')
   }

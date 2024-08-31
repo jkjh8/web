@@ -36,7 +36,7 @@ const fnMakeTtsFile = async (rate, text, voice, filePath) => {
       filePath
     ])
     python.stdout.on('data', (data) => {
-      console.log(data.toString())
+      // console.log(data.toString())
       resolve(JSON.parse(data.toString()))
     })
     python.stderr.on('data', (data) => {

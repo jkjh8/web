@@ -60,7 +60,7 @@ router.delete('/', isAdmin, async (req, res) => {
     res.status(200).json({ result: true })
   } catch (error) {
     res.status(500).json({ result: false, error })
-    console.log(error)
+    // console.log(error)
     logError(`RU04 사용자 삭제 - ${error}`, email)
   }
 })

@@ -14,8 +14,9 @@ module.exports = () => {
       async (jwtPayload, done) => {
         try {
           const { user } = jwtPayload
+          const newData = await dbUserFindOne({ email: jwtPayload.user.email })
           if (user) {
-            return done(null, await dbUserFindOne({ email: user.email }))
+            return done(null, newData)
           }
           return done(null, false, {
             message: '사용자를 찾을 수 없습니다. 이메일을 확인해 주세요'

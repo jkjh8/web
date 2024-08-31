@@ -24,6 +24,7 @@ module.exports = async (socketio) => {
   socketio.on('connection', async (socket) => {
     const { email } = socket.user
     // 사용자 소켓 아이디 갱신
+    const ipAddress = socket.handshake.headers['x-forwarded-for'].split(',')[0]
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
       // 전체 상태 전송
@@ -33,10 +34,10 @@ module.exports = async (socketio) => {
       logError(`IC01 SOCKET.IO CLIENT 사용자갱신 - ${error}`, 'SERVER')
     }
     // const user = socket.request.user
-    console.log(`IC01 SOCKET.IO CLIENT 연결 ${email}`)
+    logInfo(`IC01 SOCKET.IO CLIENT 연결 ${email} ${socket.id} ${ipAddress}`)
     // 연결 해제
     socket.on('disconnect', (reason) => {
-      console.log(`IC01 SOCKET.IO CLIENT 연결해제 ${email}`)
+      logWarn(`IC01 SOCKET.IO CLIENT 연결해제 ${email} ${ipAddress}`)
     })
     // 클라이언트 함수
     // 전체 상태 전송

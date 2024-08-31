@@ -72,13 +72,13 @@ module.exports = async function () {
         case 'barix':
           gStatus.barix = item.value
           break
+        case 'blockIp':
+          gStatus.blockIp = item.valueBoolean
+          break
       }
     }
     // logInfo('SU02 서버 기본 세팅 데이터 업데이트(from DB)', 'SERVER')
   } catch (error) {
-    logError(
-      `SU02 서버 기본 세팅 데이터 업데이트(from DB) ${JSON.stringify(error)}`,
-      'SERVER'
-    )
+    logError(`SU02 서버 기본 세팅 데이터 업데이트(from DB) ${error}`, 'SERVER')
   }
 }

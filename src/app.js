@@ -30,6 +30,17 @@ gStatus.instanceId = process.env.INSTANCE_ID
 // 프로듀션 모드가 아닌 경우 로깅
 if (process.env.NODE_ENV === 'development') {
   app.use(require('morgan')('dev'))
+
+  // cors
+  // 호스팅시 삭제
+  app.use(
+    cors({
+      origin: (origin, cb) => {
+        cb(null, origin)
+      },
+      credentials: true
+    })
+  )
 }
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -40,18 +51,9 @@ const passport = require('passport')
 require('@api/user/passport')()
 app.use(passport.initialize())
 
-// cors
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      cb(null, origin)
-    },
-    credentials: true
-  })
-)
-
 // static
 app.use(express.static(path.join(__dirname, 'public', 'spa')))
+
 app.use('/media', express.static(path.join(__dirname, 'media')))
 app.use('/', require('@src/routes'))
 

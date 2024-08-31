@@ -65,7 +65,6 @@ const fnInTimeScheduleRun = async (data) => {
 
     //////////////// 릴레이 구동 ////////////////
     // amx 릴레이 구동
-    console.log(page)
     await fnAmxesRelayOn(page)
     // Barix 릴레이 구동
     await fnBarixesRelayOn(page)
