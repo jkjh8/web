@@ -12,6 +12,8 @@ const scheduleSchema = new mongoose.Schema(
     time: String,
     weekDays: Array,
     Preamble: String,
+    RetryCount: Number,
+    MaxPageTime: Number,
     file: Object,
     Mode: { type: String, default: 'message' },
     Station: { type: Number, default: 1 },
@@ -21,8 +23,7 @@ const scheduleSchema = new mongoose.Schema(
     devices: Array,
     zones: Array,
     description: String,
-    start: String,
-    end: String
+    duration: Number
   },
   {
     timestamps: true

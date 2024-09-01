@@ -3,9 +3,10 @@ const path = require('node:path')
 require('module-alias/register')
 require('dotenv').config()
 require('@db')
+
 // logger
 const { logInfo, logError } = require('@logger')
-
+const pm2 = require('pm2')
 // server
 const express = require('express')
 const http = require('node:http')
@@ -96,3 +97,5 @@ if (process.env.INSTANCE_ID == 0) {
   const { getAllDeviceStorage } = require('@api/qsys')
   getAllDeviceStorage()
 }
+
+require('@api/pm2').initPM2IPC()

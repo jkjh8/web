@@ -1,8 +1,9 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const { logInfo, logError } = require('@logger')
+const ffmpeg = require('fluent-ffmpeg')
 
+const { logInfo, logError } = require('@logger')
 const { fnBackupFileFolderDelete } = require('@api/backup')
 const ziper = require('./ziper')
 const { fnBackupUploader } = require('@api/backup')
@@ -16,6 +17,8 @@ const {
 } = require('@api/files')
 
 const router = express.Router()
+ffmpeg.setFfmpegPath('C:/ffmpeg/bin/ffmpeg.exe')
+ffmpeg.setFfprobePath('C:/ffmpeg/bin/ffprobe.exe')
 
 //RF04 - 파일 목록
 router.get('/', (req, res) => {
@@ -191,6 +194,23 @@ router.get('/manual', async (req, res) => {
   const file = 'manual.pdf'
   const path = 'src/public'
   res.download(`${path}/${file}`, file)
+})
+
+// RF16 파일 duration 확인
+router.get('/duration', (req, res) => {
+  try {
+    const file = decodeURIComponent(req.query.file)
+    ffmpeg.ffprobe(file, (error, metadata) => {
+      if (error) {
+        res.status(500).json({ result: false, error })
+      }
+      res
+        .status(200)
+        .json({ result: true, duration: metadata.format.duration ?? 60 })
+    })
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+  }
 })
 
 router.use('/temp', require('./temp'))

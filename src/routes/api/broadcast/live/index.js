@@ -40,7 +40,7 @@ router.put('/', async (req, res) => {
     })
     // 로그
     logEvent(
-      `실시간 방송 릴레이 구동완료: ${idx}`,
+      `방송장비 ON - ${idx}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -51,12 +51,6 @@ router.put('/', async (req, res) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    // qsys page 시작
-    // fnSendQsysData('qsys:page:live', await fnSetLive(idx, req.body, email))
-    // fnSendDeviceMuticast(
-    //   'qsys:page:live',
-    //   await fnSetLive(idx, req.body, email)
-    // )
     fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(
@@ -90,7 +84,7 @@ router.put('/', async (req, res) => {
 // BL02 메세지 방송 시작
 router.put('/message', async (req, res) => {
   const { email } = req.user
-  const { Mode, devices, file, zones, Priority } = req.body
+  const { Mode, devices, file, zones, Priority, retry, duration } = req.body
   const socketId = await fnGetSocketId(email)
   try {
     // 변수
@@ -108,7 +102,7 @@ router.put('/message', async (req, res) => {
     })
     // 로그
     logEvent(
-      `메시지 방송 릴레이 구동완료: ${idx}`,
+      `방송장비 ON - ${idx}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -119,14 +113,6 @@ router.put('/message', async (req, res) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    // fnSendQsysData(
-    //   'qsys:page:message',
-    //   await fnSetLive(idx, req.body, user.email)
-    // )
-    // fnSendDeviceMuticast(
-    //   'qsys:page:message',
-    //   await fnSetLive(idx, req.body, user.email)
-    // )
     fnSendQsys('qsys:page:message', await fnSetLive(idx, req.body, email))
     logEvent(
       `${Priority < 3 ? '긴급' : '일반'} 메세지 방송 시작: ${
@@ -168,11 +154,6 @@ router.get('/stop', async (req, res) => {
   try {
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      // fnSendDeviceMuticast('qsys:page:stop', {
-      //   deviceId,
-      //   PageID: item.PageID,
-      //   idx
-      // })
       fnSendQsys('qsys:page:sstop', {
         deviceId,
         PageID: item.PageID,

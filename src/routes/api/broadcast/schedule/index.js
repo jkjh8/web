@@ -1,6 +1,7 @@
 const express = require('express')
 const path = require('node:path')
 const fs = require('node:fs')
+const moment = require('moment')
 // logger
 const { logError, logWarn, logInfo, logEvent } = require('@logger')
 // db
@@ -113,10 +114,12 @@ router.post('/', async (req, res) => {
 // SH05 스케줄 중복 확인
 router.get('/exists', async (req, res) => {
   try {
+    const date = moment()
+    const weekday = date.day()
+    const toDay = date.format('YYYY-MM-DD')
     res.status(200).json({
       result: true,
       schedules: await dbSchFind({
-        'time': req.query.time,
         'devices.deviceId': { $in: req.query.devices }
       })
     })

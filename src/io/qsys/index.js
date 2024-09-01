@@ -1,5 +1,11 @@
 const moment = require('moment')
-const { logInfo, logWarn, logError, logEvent } = require('@logger')
+const {
+  logInfo,
+  logWarn,
+  logError,
+  logEvent,
+  logErrorEvent
+} = require('@logger')
 const {
   dbQsysUpdate,
   dbQsysUpdateOne,
@@ -239,6 +245,7 @@ module.exports = async (socketio) => {
 
     // IQ15 QSYS page:status
     socket.on('page:status', async (obj) => {
+      console.log(obj)
       try {
         const { deviceId, ...params } = obj
         const { PageID, State } = params
@@ -254,8 +261,21 @@ module.exports = async (socketio) => {
             ]
           setTimeout(async () => {
             setTimeout(async () => {
-              await fnAmxRelayOff(currentDevice)
-              await fnBarixRelayOff(currentDevice)
+              try {
+                await fnAmxRelayOff(currentDevice)
+                await fnBarixRelayOff(currentDevice)
+                logEvent(
+                  `방송장비 OFF - ${currentDevice.name}`,
+                  currentPage.user,
+                  [currentDevice.name]
+                )
+              } catch (error) {
+                logErrorEvent(
+                  `방송장비 OFF - ${currentDevice.name}`,
+                  currentPage.user,
+                  [currentDevice.name]
+                )
+              }
             }, 1000)
           })
           await dbQsysUpdate(
