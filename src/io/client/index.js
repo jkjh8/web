@@ -4,6 +4,7 @@ const { dbQsysUpdateBackup } = require('@db/qsys')
 // api
 const { fnSendQsys } = require('@api/qsys')
 const { fnQsysCheckMediaFolder, fnQsysDeleteLive } = require('@api/qsys/files')
+const { fnSendGlobalStatus } = require('@api/client')
 
 const jwt = require('jsonwebtoken')
 
@@ -27,9 +28,6 @@ module.exports = async (socketio) => {
     const ipAddress = socket.handshake.headers['x-forwarded-for'].split(',')[0]
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
-      // 전체 상태 전송
-      // require('@api/setup')()
-      // socket.emit('setup:status', gStatus)
     } catch (error) {
       logError(`IC01 SOCKET.IO CLIENT 사용자갱신 - ${error}`, 'SERVER')
     }
@@ -39,9 +37,9 @@ module.exports = async (socketio) => {
     socket.on('disconnect', (reason) => {
       logWarn(`IC01 SOCKET.IO CLIENT 연결해제 ${email} ${ipAddress}`)
     })
-    // 클라이언트 함수
     // 전체 상태 전송
-    socket.emit('setup:status', gStatus)
+    fnSendGlobalStatus()
+    // 클라이언트 함수
     // IC02 볼륨
     socket.on('qsys:volume', async (obj) => {
       const { email } = socket.user

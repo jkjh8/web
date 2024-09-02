@@ -23,7 +23,8 @@ const scheduleSchema = new mongoose.Schema(
     devices: Array,
     zones: Array,
     description: String,
-    duration: Number
+    duration: Number,
+    MaxPageTime: Number
   },
   {
     timestamps: true

@@ -69,8 +69,9 @@ router.put('/active', async (req, res) => {
 
 // SH04
 router.post('/', async (req, res) => {
+  console.log(req.body)
   const { email } = req.user
-  const { pageMode, file, devices } = req.body
+  const { Mode, file, devices } = req.body
   try {
     // schedule idx 생성
     const idx = uniqueId(16)
@@ -79,7 +80,7 @@ router.post('/', async (req, res) => {
     // 스케줄 파일 경로
     const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
     // 스케줄 파일 복사
-    if (pageMode === 'file') {
+    if (Mode !== 'live') {
       fs.copyFileSync(file.fullpath, currentFilePath)
     } else {
       fs.renameSync(file.fullpath, currentFilePath)

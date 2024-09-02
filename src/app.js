@@ -19,6 +19,7 @@ const { setupWorker } = require('@socket.io/sticky')
 // app install
 // npm install @socket.io/cluster-adapter @socket.io/sticky -g
 // npm install @socket.io/pm2 -g
+require('@api/pm2').initPM2IPC()
 
 // start codes
 const app = express()
@@ -97,5 +98,3 @@ if (process.env.INSTANCE_ID == 0) {
   const { getAllDeviceStorage } = require('@api/qsys')
   getAllDeviceStorage()
 }
-
-require('@api/pm2').initPM2IPC()

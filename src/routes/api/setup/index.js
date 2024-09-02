@@ -3,6 +3,7 @@ const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
 // api
 const initSetup = require('@api/setup')
+const { fnSendGlobalStatus } = require('@api/client')
 const {
   fnSendActiveScheduleToAPP,
   fnSendAutoScheduleToAPP
@@ -13,13 +14,13 @@ const { fnSendMessagePM2 } = require('@api/pm2')
 const router = require('express').Router()
 
 router.use('/barix', require('./barix'))
-router.use('/qsys', require('./qsys'))
 
 //SS01 서버 설정값 초기화
 router.get('/', async (req, res) => {
   const { email } = req.user
   try {
-    await initSetup()
+    // await initSetup()
+    // fnSendMessagePM2({ type: 'setup', data: gStatus })
     res.status(200).json({ result: true, value: gStatus })
   } catch (error) {
     res.status(500).json({ result: false, error: error.message })
@@ -66,6 +67,7 @@ router.put('/servermode', async (req, res) => {
     await dbSetupUpdate({ key: 'mode' }, { value: mode })
     gStatus.mode = mode
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, mode: gStatus.mode })
     // 로그 기록
     logInfo(`SS03 서버모드 변경 - ${mode}`, email)
@@ -83,6 +85,7 @@ router.put('/backupaddress', async (req, res) => {
     await dbSetupUpdate({ key: 'backupAddress' }, { value: backupAddress })
     gStatus.backupAddress = backupAddress
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, address: gStatus.backupAddress })
     // 로그 기록
     logInfo(`SS04 백업서버 주소 변경 - ${backupAddress}`, email)
@@ -111,6 +114,7 @@ router.put('/backupactive', async (req, res) => {
     await dbSetupUpdate({ key: 'backupActive' }, { valueBoolean: active })
     gStatus.backupActive = active
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, active: gStatus.backupActive })
     // 로그 기록
     logInfo(`SS06 백업 활성화 변경 - ${active}`, email)
@@ -132,6 +136,7 @@ router.put('/scheduleactive', async (req, res) => {
     // send socket.io
     fnSendActiveScheduleToAPP(active)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, active: gStatus.scheduler.active })
     logInfo(`SS07 스케줄러 동작 변경 - ${active}`, email)
   } catch (error) {
@@ -151,6 +156,7 @@ router.put('/scheduleauto', async (req, res) => {
     // send socket.io
     fnSendAutoScheduleToAPP(auto)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, auto: gStatus.scheduler.auto })
     logInfo(`SS08 스케줄러 자동 전환 변경 - ${auto}`, email)
   } catch (error) {
@@ -167,6 +173,7 @@ router.put('/backupid', async (req, res) => {
     await dbSetupUpdate({ key: 'backupId' }, { value: backupId })
     gStatus.backupId = backupId
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, backupId: gStatus.backupId })
     logInfo(`SS09 백업 ID 변경 - ${backupId}`, email)
   } catch (error) {
@@ -194,6 +201,7 @@ router.put('/relayontime', async (req, res) => {
     await dbSetupUpdate({ key: 'relayOnTime' }, { valueNum: newTime })
     gStatus.relayOnTime = newTime
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, value: gStatus.relayOnTime })
     logInfo(`SS10 릴레이 동작 시간 변경 - ${gStatus.relayOnTime}`, email)
   } catch (error) {
@@ -220,6 +228,7 @@ router.put('/ttsmode', async (req, res) => {
     await dbSetupUpdate({ key: 'ttsMode' }, { value: newMode })
     gStatus.ttsMode = newMode
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, value: gStatus.ttsMode })
     logInfo(`SS13 TTS Mode 변경 - ${gStatus.ttsMode}`, email)
   } catch (error) {
@@ -247,6 +256,7 @@ router.put('/voicewarevoice', async (req, res) => {
     await dbSetupUpdate({ key: 'voiceWareVoice' }, { value: newVoice })
     gStatus.voiceWareVoice = newVoice
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
   } catch (error) {
     res.status(200).json({ result: true, value: gStatus.voiceWareVoice })
@@ -273,6 +283,7 @@ router.put('/backupfile', async (req, res) => {
     await dbSetupUpdate({ key: 'backupFile' }, { valueBoolean: newValue })
     gStatus.backupFile = newValue
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, value: gStatus.backupFile })
     logInfo(`SS17 백업 파일 변경 - ${gStatus.backupFile}`, email)
   } catch (error) {
@@ -300,7 +311,9 @@ router.put('/blockip', async (req, res) => {
   const { email } = req.user
   try {
     await dbSetupUpdate({ key: 'blockIp' }, { valueBoolean: req.body.blockIp })
+    gStatus.blockIp = req.body.blockIp
     fnSendMessagePM2({ type: 'setup', data: gStatus })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, value: gStatus.blockIp })
   } catch (error) {
     res.status(500).json({ result: false, error })

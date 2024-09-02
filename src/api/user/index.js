@@ -1,8 +1,6 @@
 const passport = require('passport')
 const { dbUserFindOne } = require('@db/user')
 const { logWarn } = require('@logger')
-const { dbSetupFindOne } = require('../../db/setup')
-const { gStatus } = require('../../defaultVal')
 module.exports = {
   isLoggedIn: (req, res, next) => {
     passport.authenticate(
@@ -21,6 +19,10 @@ module.exports = {
           req.connectAddress &&
           req.connectAddress !== user.permitAddress
         ) {
+          logWarn(
+            `허가된 IP 주소가 일치하지 않음 - ${req.connectAddress} - ${user.permitAddress}`,
+            'SERVER'
+          )
           return res.status(403).json({
             result: false,
             user: null,
@@ -58,12 +60,10 @@ module.exports = {
     // 호출 당사자 ip 주소 확인
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     req.connectAddress = ip
-    const value = await dbSetupFindOne({ key: 'blockIp' })
-    if (value.valueBoolean === gStatus.blockIp)
-      gStatus.blockIp = value.valueBoolean
     if (!gStatus.blockIp) return next()
     if (ip.includes('127.0.0.1')) return next()
     if (await dbUserFindOne({ permitAddress: ip })) return next()
+    logWarn(`허가되지 않은 IP 주소 - ${ip}`, 'SERVER')
     res.status(501).json({ result: false, message: '허가되지 않은 IP 주소' })
   }
 }

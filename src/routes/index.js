@@ -2,10 +2,11 @@
 
 const path = require('path')
 const express = require('express')
-const { checkAddress } = require('../api/user')
-const { dbSetupUpdate } = require('../db/setup')
+const { checkAddress } = require('@api/user')
+const { dbSetupUpdate } = require('@db/setup')
 const { gStatus } = require('../defaultVal')
 const { logInfo, logError } = require('../logger')
+const { fnSendMessagePM2 } = require('@api/pm2')
 const router = express.Router()
 
 // use router
@@ -16,6 +17,7 @@ router.get('/address', async (req, res) => {
     const value = req.query.value
     await dbSetupUpdate({ key: 'blockIp' }, { valueBoolean: value === 'true' })
     gStatus.blockIp = value === 'true'
+    fnSendMessagePM2({ type: 'setup', data: { blockIp: gStatus.blockIp } })
     logInfo(`blockIp: ${gStatus.blockIp}`, 'SERVER')
     res.send({ blockIp: gStatus.blockIp })
   } catch (error) {
