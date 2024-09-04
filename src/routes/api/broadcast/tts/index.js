@@ -7,6 +7,7 @@ const { dbTtsMake } = require('@db/tts')
 const { dbUserUpdate } = require('@db/user')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGetFile } = require('@api/files')
+const { fnSendMessagePM2 } = require('@api/pm2')
 const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()
@@ -103,6 +104,7 @@ router.put('/voice', async (req, res) => {
     await dbSetupUpdate({ key: 'voice' }, { value: newVoice })
     // update global tts voice
     gStatus.voice = newVoice
+    fnSendMessagePM2({ type: 'setup', data: { voice: newVoice } })
     logInfo(`TT05 TTS SAPI 음성 변경 완료 - ${newVoice}`, email)
     res.status(200).json({ result: true })
   } catch (error) {

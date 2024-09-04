@@ -5,8 +5,9 @@ const { logInfo, logError, logEvent } = require('@logger')
 const { dbSchFindToday, dbSchFind } = require('@db/schedule')
 const { dbSetupUpdate } = require('@db/setup')
 const { dbUserUpdate } = require('@db/user')
-
+// api
 const { fnSendGlobalStatus } = require('@api/client')
+const { fnSendMessagePM2 } = require('@api/pm2')
 
 const {
   fnCleanQsysScheduleFolder,
@@ -17,6 +18,7 @@ const {
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
 const { fnQsysDeleteLiveAll } = require('@api/qsys/files')
+const { gStatus } = require('../../../defaultVal')
 
 const router = express.Router()
 
@@ -47,11 +49,13 @@ router.get('/check', async (req, res) => {
   try {
     const { mode } = req.query
     gStatus.scheduler[mode] = moment().format('YYYY-MM-DD HH:mm:ss')
-    await dbSetupUpdate({ key: 'scheduler' }, { ...gStatus.scheduler })
     await dbSetupUpdate(
       { key: 'scheduler' },
       { valueObj: { ...gStatus.scheduler } }
     )
+
+    fnSendMessagePM2({ type: 'setup', data: { scheduler: gStatus.scheduler } })
+    fnSendGlobalStatus()
 
     res.status(200).json({
       mode: gStatus.mode,
@@ -59,7 +63,6 @@ router.get('/check', async (req, res) => {
       auto: gStatus.scheduler.auto,
       relayOnTime: gStatus.relayOnTime
     })
-    fnSendGlobalStatus()
   } catch (error) {
     res.status(500).send('FAIL')
     logError(`SC02 스케줄러 체크 - ${error}`, 'SERVER')
@@ -72,6 +75,8 @@ router.put('/mode', (req, res) => {
     const { mode } = req.body
     gStatus.activeMode = mode
     dbSetupUpdate({ key: 'activeMode' }, { value: mode })
+    fnSendMessagePM2({ type: 'setup', data: { activeMode: mode } })
+    fnSendGlobalStatus()
     res.status(200).json({ result: true, mode })
     logInfo(`SC03 스케줄러 모드 변경 - ${mode}`, 'SCHEDULER')
   } catch (error) {
@@ -82,7 +87,7 @@ router.put('/mode', (req, res) => {
 // SC04 스케줄 이벤트
 router.put('/', async (req, res) => {
   const { schedule } = req.body
-  const { name, user, zones, file, idx, active, devices } = schedule
+  const { name, user, zones, file, idx, active, devices, Mode } = schedule
   try {
     if (active == false) {
       logWarning(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
@@ -94,7 +99,9 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
     // 로그 기록
     logEvent(
-      `스케줄방송 시작: ${name ?? ''} - ${file.base} - ${idx}`,
+      `스케줄방송 시작: ${name ?? ''} - ${Mode.toUppcase()} ${
+        Mode === 'live' ? '' : file.base
+      } - ${idx}`,
       user,
       zones,
       devices.map((e) => e.deviceId)

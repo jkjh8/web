@@ -69,25 +69,26 @@ router.put('/active', async (req, res) => {
 
 // SH04
 router.post('/', async (req, res) => {
-  console.log(req.body)
   const { email } = req.user
   const { Mode, file, devices } = req.body
+  let newFile = null
   try {
     // schedule idx 생성
     const idx = uniqueId(16)
-    // 스케줄 폴더 생성
-    fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
-    // 스케줄 파일 경로
-    const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
-    // 스케줄 파일 복사
     if (Mode !== 'live') {
-      fs.copyFileSync(file.fullpath, currentFilePath)
-    } else {
-      fs.renameSync(file.fullpath, currentFilePath)
+      // 스케줄 폴더 생성
+      fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
+      // 스케줄 파일 경로
+      const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
+      // 스케줄 파일 복사
+      if (Mode === 'message') {
+        fs.copyFileSync(file.fullpath, currentFilePath)
+      } else {
+        fs.renameSync(file.fullpath, currentFilePath)
+      }
+      // 스케줄 파일 정보
+      newFile = fnGetFile(currentFilePath)
     }
-
-    // 스케줄 파일 정보
-    const newFile = fnGetFile(currentFilePath)
     // 스케줄 db 추가
     const schedule = await dbSchMake({
       ...req.body,
@@ -101,11 +102,7 @@ router.post('/', async (req, res) => {
     await fnSendScheduleToday()
     // 사용자 사용회수 증가
     dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
-    res.status(200).json({
-      result: schedule,
-      idx,
-      file: newFile
-    })
+    res.status(200).json({ result: schedule, idx })
   } catch (error) {
     logError(`SH04 스케줄 추가 - ${error}`, email)
     res.status(500).json({ result: false, error })

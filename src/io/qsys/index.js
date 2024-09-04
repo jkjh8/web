@@ -20,6 +20,7 @@ const { fnSendSocket } = require('@api/client')
 const { fnQsysCheckMediaFolder } = require('@api/qsys/files')
 const { fnAmxRelayOff } = require('@api/amx')
 const { fnBarixRelayOff } = require('@api/barix')
+const { fnSendMessagePM2 } = require('@api/pm2')
 
 module.exports = async (socketio) => {
   // IQ01 클라이언트 소켓 연결
@@ -32,6 +33,10 @@ module.exports = async (socketio) => {
     let timeString = moment().format('YYYY-MM-DD HH:mm:ss')
     gStatus.qsys = timeString
     gStatus.qsysConnected = true
+    fnSendMessagePM2({
+      type: 'setup',
+      data: { qsys: timeString, qsysConnected: true }
+    })
     // DB에 업데이트
     await dbSetupUpdate({ key: 'qsys' }, { value: timeString })
     await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: true })
@@ -45,6 +50,10 @@ module.exports = async (socketio) => {
       let timeString = moment().format('YYYY-MM-DD HH:mm:ss')
       gStatus.qsysConnected = false
       gStatus.qsys = timeString
+      fnSendMessagePM2({
+        type: 'setup',
+        data: { qsys: timeString, qsysConnected: false }
+      })
       // DB에 업데이트
       await dbSetupUpdate({ key: 'qsys' }, { value: timeString })
       await dbSetupUpdate({ key: 'qsysConnected' }, { valueBoolean: false })

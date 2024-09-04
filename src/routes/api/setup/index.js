@@ -1,4 +1,3 @@
-const { gStatus } = require('../../../defaultVal')
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
 // api

@@ -21,23 +21,16 @@ const router = express.Router()
 // BL01 실시간 방송 시작
 router.put('/', async (req, res) => {
   const { email } = req.user
-  const { devices, zones, Priority } = req.body
+  const { devices, zones, Priority, Mode } = req.body
   const socketId = await fnGetSocketId(email)
   try {
-    // 변수
-
     const idx = uniqueId(16)
-
     //////////////// 릴레이 구동 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 중')
-    // amx 릴레이 구동
     await fnAmxesRelayOn(devices)
-    // Barix 릴레이 구동
     await fnBarixesRelayOn(devices)
     // db에서 방송 중으로 변경
-    devices.forEach(async (device) => {
-      fnSetZoneActive(device.deviceId, device.params.Zones)
-    })
+    devices.forEach(async (d) => fnSetZoneActive(d.deviceId, d.params.Zones))
     // 로그
     logEvent(
       `방송장비 ON - ${idx}`,
@@ -45,16 +38,16 @@ router.put('/', async (req, res) => {
       zones,
       devices.map((e) => e.deviceId)
     )
-
     ////////////////  동작 대기 ////////////////
     fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
     await fnWaitRelayOnTime()
-
     //////////////// 방송 시작 ////////////////
-    fnSendQsys('qsys:page:live', await fnSetLive(idx, req.body, email))
+    fnSendQsys('qsys:page', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(
-      `${Priority < 3 ? '긴급' : '일반'} 실시간 방송 시작: ${idx}`,
+      `${
+        Priority < 3 ? '긴급' : '일반'
+      } ${Mode.toUpperCase()} 방송 시작: ${idx}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -70,66 +63,9 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL01 ${Priority < 3 ? '긴급' : '일반'} 실시간 방송 - ${JSON.stringify(
-        error
-      )}`,
-      email,
-      zones,
-      devices.map((e) => e.deviceId)
-    )
-    res.status(500).json({ result: false, error })
-  }
-})
-
-// BL02 메세지 방송 시작
-router.put('/message', async (req, res) => {
-  const { email } = req.user
-  const { Mode, devices, file, zones, Priority, retry, duration } = req.body
-  const socketId = await fnGetSocketId(email)
-  try {
-    // 변수
-    const idx = uniqueId(16)
-
-    //////////////// 릴레이 구동 ////////////////
-    fnSendPageMessage(socketId, 'all', '방송 장비 기동 중')
-    // amx 릴레이 구동
-    await fnAmxesRelayOn(devices)
-    // Barix 릴레이 구동
-    await fnBarixesRelayOn(devices)
-    // db에서 방송 중으로 변경
-    devices.forEach(async (device) => {
-      fnSetZoneActive(device.deviceId, device.params.Zones)
-    })
-    // 로그
-    logEvent(
-      `방송장비 ON - ${idx}`,
-      email,
-      zones,
-      devices.map((e) => e.deviceId)
-    )
-
-    ////////////////  동작 대기 ////////////////
-    fnSendPageMessage(socketId, 'all', '방송 장비 기동 대기')
-    await fnWaitRelayOnTime()
-
-    //////////////// 방송 시작 ////////////////
-    fnSendQsys('qsys:page:message', await fnSetLive(idx, req.body, email))
-    logEvent(
-      `${Priority < 3 ? '긴급' : '일반'} 메세지 방송 시작: ${
-        file.base
-      } - ${idx}`,
-      email,
-      zones,
-      devices.map((e) => e.deviceId)
-    )
-    //////////////// 리턴 ////////////////
-    res.status(200).json({ result: true, idx })
-
-    // 사용자 사용회수 증가
-    await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
-  } catch (error) {
-    logError(
-      `BL02 ${Priority < 3 ? '긴급' : '일반'} 메시지 방송 - ${error}`,
+      `BL01 ${
+        Priority < 3 ? '긴급' : '일반'
+      } ${Mode.toUpperCase()} 방송 - ${JSON.stringify(error)}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -174,11 +110,6 @@ router.get('/cancel', async (req, res) => {
   try {
     const r = await dbQsysFindOne({ deviceId })
     for (let item of r.pageId) {
-      // fnSendDeviceMuticast('qsys:page:cancel', {
-      //   deviceId,
-      //   PageID: item.PageID,
-      //   idx: item.idx
-      // })
       fnSendQsys('qsys:page:cancel', {
         deviceId,
         PageID: item.PageID,

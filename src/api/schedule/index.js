@@ -75,7 +75,7 @@ const fnInTimeScheduleRun = async (data) => {
     })
     // 로그
     logEvent(
-      `스케줄방송 릴레이 구동완료: ${name ?? ''} - ${idx ?? ''}`,
+      `스케줄 방송 방송장비 ON: ${name ?? ''} - ${idx ?? ''}`,
       user,
       zones,
       devices.map((e) => e.deviceId)
@@ -85,7 +85,7 @@ const fnInTimeScheduleRun = async (data) => {
     await fnWaitRelayOnTime()
 
     //////////////// 방송 시작 ////////////////
-    fnSendQsys('qsys:page:message', commands)
+    fnSendQsys('qsys:page', commands)
     // 로그
     return
   } catch (error) {
@@ -95,7 +95,7 @@ const fnInTimeScheduleRun = async (data) => {
 
 // S02 스케줄에서 페이징을 만들어서 qsys로 보내는 함수
 const fnMakePageFromSchedule = async (args) => {
-  const { idx, devices, file, Preamble } = args
+  const { idx, devices, file, Preamble, Mode, MaxPageTime } = args
   const arr = []
   // 스케줄 반복이 한번이면 메시지 송출 후 삭제 추가 필요
   const promises = devices.map(async (item) => {
@@ -123,13 +123,14 @@ const fnMakePageFromSchedule = async (args) => {
       deviceId,
       name: device.name,
       params: {
-        Mode: 'message',
+        Mode: Mode === 'live' ? 'live' : 'message',
         Zones,
         Preamble,
         Station: 1,
         Priority: 3,
-        Message: `schedule/${idx}/${file.base}`,
+        Message: Mode === 'live' ? '' : `schedule/${idx}/${file.base}`,
         MessageDelete: false,
+        MaxPageTime,
         Start: true
       },
       barix: device.ZoneStatus.map((e) => e.destination),

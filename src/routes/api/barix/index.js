@@ -2,6 +2,8 @@ const express = require('express')
 const moment = require('moment')
 const { dbSetupUpdate } = require('@db/setup')
 const { logError } = require('@logger')
+// api
+const { fnSendMessagePM2 } = require('@api/pm2')
 
 const router = express.Router()
 
@@ -9,6 +11,7 @@ const router = express.Router()
 router.get('/polling', async (req, res) => {
   try {
     gStatus.barix = moment().format('YYYY-MM-DD HH:mm:ss')
+    fnSendMessagePM2({ type: 'setup', data: { barix: gStatus.barix } })
     await dbSetupUpdate({ key: 'barix' }, { value: gStatus.barix })
     res.status(200).json({
       result: true,

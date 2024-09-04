@@ -148,6 +148,7 @@ const fnQsysFileDeleteAsync = async (args) => {
 
 // QF05 스케줄 파일 동기화
 const fnQsysSyncFileSchedule = async (idx, user) => {
+  console.log('fnQsysSyncFileSchedule', idx)
   const schedule = await dbSchFindOne({ idx })
   const { devices, file } = schedule
   try {
@@ -205,7 +206,10 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
     data.forEach(async (d) => {
       const find = schedules.find((s) => s.idx === d.name)
       if (!find) {
-        await axios.delete(`${fnMakeAddr(device.ipaddress)}/schedule/${d.name}`)
+        await axios.delete(
+          `${fnMakeAddr(device.ipaddress)}/schedule/${d.name}`,
+          { httpsAgent: Agent }
+        )
       }
     })
   } catch (error) {
