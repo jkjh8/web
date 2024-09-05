@@ -164,7 +164,6 @@ router.get('/exist', (req, res) => {
   try {
     const { data } = req.query
     const { folder, name } = JSON.parse(data)
-    console.log(folder, name)
     res
       .status(200)
       .json({ result: true, exist: fs.existsSync(path.join(folder, name)) })

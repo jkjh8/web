@@ -1,12 +1,10 @@
 module.exports = {
   gStatus: {
     version: '',
-    scheduler: {
-      main: '',
-      backup: '',
-      active: 'main',
-      auto: false
-    },
+    schedulerActive: 'main',
+    schedulerBackup: '',
+    schedulerAuto: false,
+    schedulerMain: '',
     activeMode: 'main',
     backupFile: false,
     backupId: '',

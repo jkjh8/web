@@ -6,7 +6,7 @@ const { dbSchFindToday, dbSchFind } = require('@db/schedule')
 const { dbSetupUpdate } = require('@db/setup')
 const { dbUserUpdate } = require('@db/user')
 // api
-const { fnSendGlobalStatus } = require('@api/client')
+const { fnSendSocket, fnSendGlobalStatus } = require('@api/client')
 const { fnSendMessagePM2 } = require('@api/pm2')
 
 const {
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
       schedules: scheduleToday,
       mode: gStatus.mode,
       active: gStatus.activeMode,
-      auto: gStatus.scheduler.auto,
+      auto: gStatus.schedulerAuto,
       relayOnTime: gStatus.relayOnTime
     })
   } catch (error) {
@@ -48,19 +48,34 @@ router.get('/', async (req, res) => {
 router.get('/check', async (req, res) => {
   try {
     const { mode } = req.query
-    gStatus.scheduler[mode] = moment().format('YYYY-MM-DD HH:mm:ss')
-    await dbSetupUpdate(
-      { key: 'scheduler' },
-      { valueObj: { ...gStatus.scheduler } }
-    )
+    if (mode === 'main') {
+      gStatus.schedulerMain = moment().format('YYYY-MM-DD HH:mm:ss')
+      await dbSetupUpdate(
+        { key: 'schedulerMain' },
+        { valueObj: { ...gStatus.schedulerMain } }
+      )
+      fnSendSocket('setup:status', { schedulerMain: gStatus.schedulerMain })
+    } else {
+      gStatus.schedulerBackup = moment().format('YYYY-MM-DD HH:mm:ss')
+      await dbSetupUpdate(
+        { key: 'schedulerBackup' },
+        { valueObj: { ...gStatus.schedulerBackup } }
+      )
+      fnSendSocket('setup:status', { schedulerBackup: gStatus.schedulerBackup })
+    }
 
-    fnSendMessagePM2({ type: 'setup', data: { scheduler: gStatus.scheduler } })
-    fnSendGlobalStatus()
+    fnSendMessagePM2({
+      type: 'setup',
+      data: {
+        schedulerMain: gStatus.schedulerMain,
+        schedulerBackup: gStatus.schedulerBackup
+      }
+    })
 
     res.status(200).json({
       mode: gStatus.mode,
       active: gStatus.activeMode,
-      auto: gStatus.scheduler.auto,
+      auto: gStatus.schedulerAuto,
       relayOnTime: gStatus.relayOnTime
     })
   } catch (error) {

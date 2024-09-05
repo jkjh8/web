@@ -25,7 +25,7 @@ const initPM2IPC = () => {
           switch (packet.data.type) {
             case 'setup':
               gStatus = { ...gStatus, ...packet.data.data }
-              console.log('gStatus:', gStatus)
+              // console.log('gStatus:', gStatus)
               break
             case 'broadcast':
               // broadcast

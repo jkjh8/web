@@ -130,13 +130,13 @@ router.put('/scheduleactive', async (req, res) => {
   try {
     const { active } = req.body
     // db update
-    await dbSetupUpdate({ key: 'scheduler' }, { active: active })
-    gStatus.scheduler.active = active
+    await dbSetupUpdate({ key: 'schedulerActive' }, { value: active })
+    gStatus.schedulerActive = active
     // send socket.io
     fnSendActiveScheduleToAPP(active)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
     fnSendGlobalStatus()
-    res.status(200).json({ result: true, active: gStatus.scheduler.active })
+    res.status(200).json({ result: true, active: gStatus.schedulerActive })
     logInfo(`SS07 스케줄러 동작 변경 - ${active}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })
@@ -150,13 +150,13 @@ router.put('/scheduleauto', async (req, res) => {
   try {
     const { auto } = req.body
     // db update
-    await dbSetupUpdate({ key: 'scheduler' }, { auto: auto })
-    gStatus.scheduler.auto = auto
+    await dbSetupUpdate({ key: 'schedulerAuto' }, { valueBoolean: auto })
+    gStatus.schedulerAuto = auto
     // send socket.io
     fnSendAutoScheduleToAPP(auto)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
     fnSendGlobalStatus()
-    res.status(200).json({ result: true, auto: gStatus.scheduler.auto })
+    res.status(200).json({ result: true, auto: gStatus.schedulerAuto })
     logInfo(`SS08 스케줄러 자동 전환 변경 - ${auto}`, email)
   } catch (error) {
     res.status(500).json({ result: false, error })

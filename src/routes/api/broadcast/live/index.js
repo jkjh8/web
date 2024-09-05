@@ -33,7 +33,7 @@ router.put('/', async (req, res) => {
     devices.forEach(async (d) => fnSetZoneActive(d.deviceId, d.params.Zones))
     // 로그
     logEvent(
-      `방송장비 ON - ${idx}`,
+      `방송장비 ON: ${idx}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
