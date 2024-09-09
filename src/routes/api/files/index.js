@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const ffmpeg = require('fluent-ffmpeg')
+const { gStatus } = require('@src/defaultVal.js')
 
 const { logInfo, logError } = require('@logger')
 const { fnBackupFileFolderDelete } = require('@api/backup')

@@ -33,6 +33,7 @@ const fnQsysCheckMediaFolder = async (device) => {
   try {
     fnMakeQsysMediaFolder(device, 'live')
     fnMakeQsysMediaFolder(device, 'schedule')
+    await fnGetStrage(device.ipaddress)
   } catch (error) {
     logError(
       `QF02 Q-SYS 기본폴더생성 ${device.name} - ${device.deviceId} - ${error}`,
@@ -212,6 +213,7 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
         )
       }
     })
+    await fnGetStrage(device.ipaddress)
   } catch (error) {
     logError(`QF06 Q-SYS 스케줄 정리 ${error}`, 'SERVER')
   }
@@ -220,9 +222,11 @@ const fnQsysCheckScheduleFolder = async (device, schedules) => {
 // QF07 폴더 삭제
 const fnQsysDeleteFolder = async (deviceId, ipaddress, folder) => {
   try {
-    return await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`, {
+    await axios.delete(`${fnMakeAddr(ipaddress)}/${folder}`, {
       httpsAgent: Agent
     })
+    await fnGetStrage(ipaddress)
+    return
   } catch (error) {
     return new Error(error)
   }
@@ -245,6 +249,7 @@ const fnQsysDeleteLive = async (deviceId) => {
         httpsAgent: Agent
       })
     })
+    await fnGetStrage(device.ipaddress)
     logWarn(`QF08 Q-SYS LIVE 파일삭제 - ${device.name} - ${deviceId}`)
   } catch (error) {
     logError(`QF08 Q-SYS LIVE 파일삭제 - ${error}`, 'SERVER')
@@ -271,7 +276,7 @@ const fnGetStrage = async (ipaddress) => {
       httpsAgent: Agent
     })
     .then((res) => {
-      dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage })
+      dbQsysUpdate({ ipaddress }, { storage: res.data.meta.storage ?? 0 })
     })
     .catch((err) => {
       logError(`Q10 Q-SYS 저장소 정보수집 ${err}`, 'SERVER')

@@ -8,6 +8,7 @@ const uniqueId = require('@api/utils/uniqueId')
 const { isLoggedIn } = require('@api/user')
 const { fnMakeFolder } = require('@api/files')
 const { logInfo, logError } = require('@logger')
+const { gStatus } = require('@src/defaultVal.js')
 
 const router = express.Router()
 
@@ -117,8 +118,10 @@ router.get('/signout', isLoggedIn, async (req, res) => {
       }`,
       'SERVER'
     )
+    res.status(200).json({ result: true })
   } catch (error) {
     logError(`AH05 사용자 로그아웃 - ${req.user.email} - ${error}`, 'SERVER')
+    res.status(500).json({ result: false, error })
   }
 })
 

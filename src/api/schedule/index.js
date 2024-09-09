@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
+const { gStatus } = require('@src/defaultVal.js')
 // logger
 const {
   logInfo,
@@ -75,7 +76,7 @@ const fnInTimeScheduleRun = async (data) => {
     })
     // 로그
     logEvent(
-      `스케줄 방송 방송장비 ON: ${name ?? ''} - ${idx ?? ''}`,
+      `스케줄 방송 방송장비 ON: ${name ?? ''} - ${zones.join(', ')}`,
       user,
       zones,
       devices.map((e) => e.deviceId)

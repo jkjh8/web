@@ -25,7 +25,8 @@ module.exports = async (socketio) => {
   socketio.on('connection', async (socket) => {
     const { email } = socket.user
     // 사용자 소켓 아이디 갱신
-    const ipAddress = socket.handshake.headers['x-forwarded-for'].split(',')[0]
+    let ipAddress = socket.handshake.headers['x-forwarded-for']
+    ipAddress = ipAddress ? ipAddress.split(',')[0] : socket.handshake.address
     try {
       await dbUserUpdate({ email }, { socketId: socket.id })
     } catch (error) {

@@ -289,6 +289,7 @@ router.get('/cancel', (req, res) => {
         `RQ12 Q-SYS ${name} - ${deviceId} - ${ipaddress} 방송 취소`,
         email
       )
+      logEvent(`방송 취소: ${name}`, email, [name], [deviceId])
       return res.status(200).json({ result: true })
     }
     res.status(401).json({ result: false, message: 'Invaild Auth' })

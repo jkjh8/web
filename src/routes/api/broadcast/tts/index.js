@@ -8,6 +8,8 @@ const { dbUserUpdate } = require('@db/user')
 const { logError, logWarn, logInfo } = require('@logger')
 const { fnGetFile } = require('@api/files')
 const { fnSendMessagePM2 } = require('@api/pm2')
+const { gStatus } = require('@src/defaultVal.js')
+
 const uniqueId = require('@api/utils/uniqueId.js')
 
 const router = express.Router()

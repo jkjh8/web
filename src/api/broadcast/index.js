@@ -1,3 +1,4 @@
+const { gStatus } = require('@src/defaultVal.js')
 function fnWaitRelayOnTime() {
   return new Promise((resolve) => {
     setTimeout(() => {

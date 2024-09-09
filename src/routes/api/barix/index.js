@@ -5,6 +5,7 @@ const { logError } = require('@logger')
 const { fnSendSocket } = require('@api/client')
 // api
 const { fnSendMessagePM2 } = require('@api/pm2')
+const { gStatus } = require('@src/defaultVal.js')
 
 const router = express.Router()
 

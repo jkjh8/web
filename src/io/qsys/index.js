@@ -1,4 +1,5 @@
 const moment = require('moment')
+const { gStatus } = require('@src/defaultVal.js')
 const {
   logInfo,
   logWarn,
@@ -297,7 +298,7 @@ module.exports = async (socketio) => {
           logEvent(
             `방송 종료: ${currentPage.name ?? ''} - ${
               currentDevice.name ?? ''
-            } - ${currentPage.idx ?? ''} - PAGEID: ${PageID ?? ''}`,
+            } - PAGEID: ${PageID ?? ''}`,
             currentPage.user,
             [currentDevice.name],
             [deviceId]

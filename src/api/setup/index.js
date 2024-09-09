@@ -1,6 +1,6 @@
 const { dbSetupFind } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
-const { gStatus } = require('../../defaultVal')
+const { gStatus } = require('@src/defaultVal.js')
 
 // su02
 module.exports = async function () {

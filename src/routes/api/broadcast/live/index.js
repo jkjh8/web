@@ -33,7 +33,7 @@ router.put('/', async (req, res) => {
     devices.forEach(async (d) => fnSetZoneActive(d.deviceId, d.params.Zones))
     // 로그
     logEvent(
-      `방송장비 ON: ${idx}`,
+      `방송장비 ON: ${zones.join(', ')}`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -45,9 +45,9 @@ router.put('/', async (req, res) => {
     fnSendQsys('qsys:page', await fnSetLive(idx, req.body, email))
     // 방송 송출 로그
     logEvent(
-      `${
-        Priority < 3 ? '긴급' : '일반'
-      } ${Mode.toUpperCase()} 방송 시작: ${idx}`,
+      `${Priority < 3 ? '긴급' : '일반'} ${Mode} 방송 시작: ${
+        Mode === 'live' ? '' : req.body.file.base
+      }`,
       email,
       zones,
       devices.map((e) => e.deviceId)
@@ -63,9 +63,9 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email }, { $inc: { numberOfPaging: 1 } })
   } catch (error) {
     logError(
-      `BL01 ${
-        Priority < 3 ? '긴급' : '일반'
-      } ${Mode.toUpperCase()} 방송 - ${JSON.stringify(error)}`,
+      `BL01 ${Priority < 3 ? '긴급' : '일반'} ${Mode} 방송 - ${JSON.stringify(
+        error
+      )}`,
       email,
       zones,
       devices.map((e) => e.deviceId)

@@ -1,5 +1,5 @@
 const io = require('@io')
-
+const { gStatus } = require('@src/defaultVal.js')
 const fnSendPageMessage = (socket, deviceId, message) => {
   return io.client.to(socket).emit('qsys:page:message', { deviceId, message })
 }

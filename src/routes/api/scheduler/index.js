@@ -1,6 +1,6 @@
 const express = require('express')
 const moment = require('moment')
-const { logInfo, logError, logEvent } = require('@logger')
+const { logInfo, logWarn, logError, logEvent } = require('@logger')
 // db
 const { dbSchFindToday, dbSchFind } = require('@db/schedule')
 const { dbSetupUpdate } = require('@db/setup')
@@ -18,7 +18,7 @@ const {
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
 const { fnQsysDeleteLiveAll } = require('@api/qsys/files')
-const { gStatus } = require('../../../defaultVal')
+const { gStatus } = require('@src/defaultVal.js')
 
 const router = express.Router()
 
@@ -105,7 +105,7 @@ router.put('/', async (req, res) => {
   const { name, user, zones, file, idx, active, devices, Mode } = schedule
   try {
     if (active == false) {
-      logWarning(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
+      logWarn(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
       return
     }
     // 스케줄 방송 시작
@@ -114,9 +114,9 @@ router.put('/', async (req, res) => {
     await dbUserUpdate({ email: user }, { $inc: { numberOfScheduleCall: 1 } })
     // 로그 기록
     logEvent(
-      `스케줄방송 시작: ${name ?? ''} - ${Mode.toUppcase()} ${
+      `스케줄방송 시작: ${name ?? ''} - ${Mode} ${
         Mode === 'live' ? '' : file.base
-      } - ${idx}`,
+      }`,
       user,
       zones,
       devices.map((e) => e.deviceId)

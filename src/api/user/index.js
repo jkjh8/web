@@ -1,6 +1,7 @@
 const passport = require('passport')
 const { dbUserFindOne } = require('@db/user')
 const { logWarn } = require('@logger')
+const { gStatus } = require('@src/defaultVal.js')
 module.exports = {
   isLoggedIn: (req, res, next) => {
     passport.authenticate(
@@ -62,8 +63,7 @@ module.exports = {
     req.connectAddress = ip
     if (!gStatus.blockIp) return next()
     if (ip.includes('127.0.0.1')) return next()
-    if (await dbUserFindOne({ permitAddress: ip })) return next()
-    logWarn(`허가되지 않은 IP 주소 - ${ip}`, 'SERVER')
-    res.status(501).json({ result: false, message: '허가되지 않은 IP 주소' })
+    if (await dbUserFindOne({ permitAddress: new RegExp(ip, 'i') }))
+      return next()
   }
 }

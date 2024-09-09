@@ -3,6 +3,7 @@ const { dbSetupFindOne, dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
 const { fnSendGlobalStatus } = require('@api/client')
 const { fnSendMessagePM2 } = require('@api/pm2')
+const { gStatus } = require('@src/defaultVal.js')
 const router = express.Router()
 
 // RS01 BARIX GET HTTP DATA INTERVAL

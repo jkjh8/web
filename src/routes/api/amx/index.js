@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const { gStatus } = require('@src/defaultVal.js')
 const { dbQsysFindOnePop } = require('@db/qsys')
 
 router.get('/barix', async (req, res) => {

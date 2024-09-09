@@ -1,4 +1,5 @@
 const pm2 = require('pm2')
+const { gStatus } = require('@src/defaultVal.js')
 // connect to pm2
 let neighborIds = []
 
@@ -24,7 +25,9 @@ const initPM2IPC = () => {
         if (neighborIds.includes(packet.process.pm_id))
           switch (packet.data.type) {
             case 'setup':
-              gStatus = { ...gStatus, ...packet.data.data }
+              for (let key in packet.data.data) {
+                gStatus[key] = packet.data.data[key]
+              }
               // console.log('gStatus:', gStatus)
               break
             case 'broadcast':

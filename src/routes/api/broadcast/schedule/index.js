@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('node:path')
 const fs = require('node:fs')
 const moment = require('moment')
+const { gStatus } = require('@src/defaultVal.js')
 // logger
 const { logError, logWarn, logInfo, logEvent } = require('@logger')
 // db
@@ -26,7 +27,6 @@ const {
   fnCleanQsysScheduleFolder,
   fnSendScheduleToday
 } = require('@api/schedule')
-const { fnWaitRelayOnTime } = require('@api/broadcast')
 
 // router
 const router = express.Router()
@@ -67,10 +67,10 @@ router.put('/active', async (req, res) => {
   }
 })
 
-// SH04
+// SH03
 router.post('/', async (req, res) => {
   const { email } = req.user
-  const { Mode, file, devices } = req.body
+  const { name, Mode, file, devices, zones } = req.body
   let newFile = null
   try {
     // schedule idx 생성
@@ -102,10 +102,63 @@ router.post('/', async (req, res) => {
     await fnSendScheduleToday()
     // 사용자 사용회수 증가
     dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
+    logInfo(
+      `SH03 스케줄 추가 - ${name}`,
+      email,
+      zones,
+      devices.map((e) => e.deviceId)
+    )
     res.status(200).json({ result: schedule, idx })
   } catch (error) {
-    logError(`SH04 스케줄 추가 - ${error}`, email)
+    logError(`SH03 스케줄 추가 - ${error}`, email)
     res.status(500).json({ result: false, error })
+  }
+})
+
+// SH04 스케줄 수정
+router.put('/', async (req, res) => {
+  const { email } = req.user
+  const { _id, idx, name, Mode, file, devices, zones } = req.body
+  let newFile = null
+  try {
+    if (Mode === 'live') {
+      // 스케줄 폴더가 있으면 삭제
+      if (fs.existsSync(path.join(gStatus.scheduleFolder, idx))) {
+        fs.rmSync(path.join(gStatus.scheduleFolder, idx), { recursive: true })
+      }
+    } else {
+      // 스케줄 폴더 생성
+      fnMakeFolder(path.join(gStatus.scheduleFolder, idx))
+      // 스케줄 파일 경로
+      const currentFilePath = path.join(gStatus.scheduleFolder, idx, file.base)
+      // 스케줄 파일 복사
+      if (Mode === 'message') {
+        fs.copyFileSync(file.fullpath, currentFilePath)
+      } else {
+        fs.renameSync(file.fullpath, currentFilePath)
+      }
+      // 스케줄 파일 정보
+      newFile = fnGetFile(currentFilePath)
+    }
+    // 스케줄 db 수정
+    await dbSchUpdate(
+      { _id },
+      {
+        ...req.body,
+        file: newFile
+      }
+    )
+    // 스케줄 APP으로 전송
+    await fnSendScheduleToday()
+    logInfo(
+      `SH04 스케줄 수정 - ${name}`,
+      email,
+      zones,
+      devices.map((e) => e.deviceId)
+    )
+    res.status(200).json({ result: true, idx })
+  } catch (error) {
+    logError(`SH04 스케줄 수정 - ${error}`, email)
   }
 })
 
@@ -152,7 +205,12 @@ router.delete('/', async (req, res) => {
   // SH07 db 삭제
   try {
     await dbSchRemoveById(schedule._id)
-    logWarn(`SH07 스케줄 삭제 - ${schedule.name}`, req.user.email)
+    logWarn(
+      `SH07 스케줄 삭제 - ${schedule.name}`,
+      req.user.email,
+      schedule.zones,
+      schedule.devices.map((e) => e.deviceId)
+    )
     res.status(200).json({ result: true })
     // 스케줄 APP으로 전송
     await fnSendScheduleToday()
@@ -204,18 +262,3 @@ router.delete('/user', async (req, res) => {
 })
 
 module.exports = router
-
-// Helper functions
-
-// async function runRelays(devices) {
-//   // amx 릴레이 구동
-//   await fnAmxesRelayOn(devices)
-//   // Barix 릴레이 구동
-//   await fnBarixesRelayOn(devices)
-//   // 로그
-//   logEvent(`스케줄 방송 릴레이 구동 완료: ${idx}`, email, zones)
-// }
-
-// function wait(ms) {
-//   return new Promise((resolve) => setTimeout(resolve, ms))
-// }

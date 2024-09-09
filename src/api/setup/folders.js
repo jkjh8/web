@@ -2,7 +2,7 @@ const path = require('path')
 const express = require('express')
 const { fnMakeFolder } = require('@api/files')
 const { logError, logInfo } = require('@logger')
-const { gStatus } = require('../../defaultVal')
+const { gStatus } = require('@src/defaultVal.js')
 
 // su01
 module.exports = async (defaultFolder, app = null) => {

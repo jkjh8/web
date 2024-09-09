@@ -1,6 +1,7 @@
 const { logWarn, logError } = require('@logger')
 const fs = require('fs')
 const path = require('path')
+const { gStatus } = require('@src/defaultVal.js')
 
 // F01 폴더내 파일 확인
 const fnGetFolder = (dir) =>

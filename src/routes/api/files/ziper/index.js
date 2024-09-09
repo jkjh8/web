@@ -1,6 +1,7 @@
 const fs = require('fs')
 const archiver = require('archiver')
 const hash = require('@api/utils/uniqueId')
+const { gStatus } = require('@src/defaultVal.js')
 
 // RF03 - 파일 압축
 module.exports = (files) => {

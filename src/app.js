@@ -15,7 +15,7 @@ const cors = require('cors')
 const { Server } = require('socket.io')
 const { createAdapter } = require('@socket.io/cluster-adapter')
 const { setupWorker } = require('@socket.io/sticky')
-
+const { gStatus } = require('@src/defaultVal.js')
 // app install
 // npm install @socket.io/cluster-adapter @socket.io/sticky -g
 // npm install @socket.io/pm2 -g
@@ -24,10 +24,9 @@ require('@api/pm2').initPM2IPC()
 // start codes
 const app = express()
 // global settings
-global.gStatus = require('./defaultVal').gStatus
 require('@api/setup')()
 require('@api/setup/folders')(__dirname, app)
-global.gStatus.version = require('../package.json').version
+gStatus.version = require('../package.json').version
 gStatus.instanceId = process.env.INSTANCE_ID
 // 프로듀션 모드가 아닌 경우 로깅
 if (process.env.NODE_ENV === 'development') {
