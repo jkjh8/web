@@ -31,7 +31,7 @@ const io = require('@io')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
-  const { user, name, zones, file, devices } = data
+  const { user, name, zones, file, devices, Station } = data
   try {
     // Page를 위한 uniqueId 생성
     const idx = uniqueId(16)
@@ -127,7 +127,7 @@ const fnMakePageFromSchedule = async (args) => {
         Mode: Mode === 'live' ? 'live' : 'message',
         Zones,
         Preamble,
-        Station: 1,
+        Station: Station ?? 3,
         Priority: 3,
         Message: Mode === 'live' ? '' : `schedule/${idx}/${file.base}`,
         MessageDelete: false,

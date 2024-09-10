@@ -27,6 +27,7 @@ const {
   fnCleanQsysScheduleFolder,
   fnSendScheduleToday
 } = require('@api/schedule')
+const user = require('../../../../api/user')
 
 // router
 const router = express.Router()
@@ -145,11 +146,14 @@ router.put('/', async (req, res) => {
       { _id },
       {
         ...req.body,
+        user: email,
         file: newFile
       }
     )
     // 스케줄 APP으로 전송
     await fnSendScheduleToday()
+    // 사용자 사용회수 증가
+    dbUserUpdate({ email }, { $inc: { numberOfSchedule: 1 } })
     logInfo(
       `SH04 스케줄 수정 - ${name}`,
       email,

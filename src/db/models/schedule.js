@@ -24,7 +24,8 @@ const scheduleSchema = new mongoose.Schema(
     zones: Array,
     description: String,
     duration: Number,
-    MaxPageTime: Number
+    MaxPageTime: Number,
+    Station: { type: Number, default: 3 }
   },
   {
     timestamps: true
