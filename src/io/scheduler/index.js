@@ -4,6 +4,16 @@ const { fnSendScheduleToday } = require('@api/schedule')
 module.exports = async (socketio) => {
   // IS01 클라이언트 소켓 연결
   socketio.on('connection', async (socket) => {
+    socketio.use((socket, next) => {
+      try {
+        const token = socket.handshake.headers['token']
+        if (token && token === process.env.SCHEDULER_PASS) {
+          next()
+        }
+      } catch (error) {
+        next(new Error('invaild token'))
+      }
+    })
     // const user = socket.request.user
     logInfo(
       `IS01 SOCKET.IO SCHEDULER 연결 SERVER=${process.env.INSTANCE_ID}`,

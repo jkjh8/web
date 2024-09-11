@@ -27,7 +27,7 @@ const {
   fnCleanQsysScheduleFolder,
   fnSendScheduleToday
 } = require('@api/schedule')
-const user = require('../../../../api/user')
+const user = require('@api/user')
 
 // router
 const router = express.Router()

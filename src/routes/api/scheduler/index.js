@@ -99,6 +99,7 @@ router.put('/mode', (req, res) => {
     logError(`SC03 스케줄러 모드 변경 - ${error}`, 'SERVER')
   }
 })
+
 // SC04 스케줄 이벤트
 router.put('/', async (req, res) => {
   const { schedule } = req.body
