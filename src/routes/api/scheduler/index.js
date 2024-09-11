@@ -13,7 +13,8 @@ const {
   fnCleanQsysScheduleFolder,
   fnCleanScheduleFolder,
   fnInTimeScheduleRun,
-  fnCleanQsysScheduleTypeOnce
+  fnCleanQsysScheduleTypeOnce,
+  fnSendActiveScheduleToAPP
 } = require('@api/schedule')
 const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
@@ -92,6 +93,7 @@ router.put('/mode', (req, res) => {
     dbSetupUpdate({ key: 'activeMode' }, { value: mode })
     fnSendMessagePM2({ type: 'setup', data: { activeMode: mode } })
     fnSendGlobalStatus()
+    fnSendActiveScheduleToAPP(mode)
     res.status(200).json({ result: true, mode })
     logInfo(`SC03 스케줄러 모드 변경 - ${mode}`, 'SCHEDULER')
   } catch (error) {
