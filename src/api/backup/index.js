@@ -78,7 +78,7 @@ const fnBackupFileFolderDelete = (list) => {
   if (gStatus.backupActive === false) return
   if (gStatus.backupAddress) {
     axios
-      .delete(`http://${gStatus.backupAddress}/backup/files`, {
+      .delete(`https://${gStatus.backupAddress}/backup/files`, {
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
         headers: { backupid: gStatus.backupId },
         data: { list }
