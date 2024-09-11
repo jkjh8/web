@@ -1,5 +1,6 @@
 const express = require('express')
 const { logInfo, logError } = require('@logger')
+const { fnSendAllStatusAll } = require('@api/qsys')
 const {
   dbQsys,
   dbQsysMake,
@@ -67,6 +68,7 @@ router.post('/many', async (req, res) => {
     for (let i = 0; i < qsys.length; i++) {
       await dbQsys.create(qsys[i])
     }
+    fnSendAllStatusAll()
     res.status(200).json({ result: true })
 
     logInfo('BQ05 Q-SYS 정보 동기화 완료', 'SERVER')

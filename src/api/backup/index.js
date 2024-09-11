@@ -12,8 +12,9 @@ function fnBackupRequest(addr, data, method) {
   if (gStatus.mode !== 'Backup') {
     if (gStatus.backupActive) {
       if (gStatus.backupAddress) {
+        if (gStatus.backupAddress == '10.20.0.191') return
         axios({
-          url: `http://${gStatus.backupAddress}${addr}`,
+          url: `https://${gStatus.backupAddress}${addr}`,
           method: method,
           data: data,
           httpsAgent: new https.Agent({ rejectUnauthorized: false }),

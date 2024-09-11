@@ -11,7 +11,7 @@ const router = express.Router()
 
 // use router
 router.use('/api', checkAddress, require('./api'))
-router.use('/backup', checkAddress, require('./backup'))
+router.use('/backup', require('./backup'))
 router.get('/address', async (req, res) => {
   try {
     const value = req.query.value
