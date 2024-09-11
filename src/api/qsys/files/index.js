@@ -149,7 +149,7 @@ const fnQsysFileDeleteAsync = async (args) => {
 
 // QF05 스케줄 파일 동기화
 const fnQsysSyncFileSchedule = async (idx, user) => {
-  console.log('fnQsysSyncFileSchedule', idx)
+  // console.log('fnQsysSyncFileSchedule', idx)
   const schedule = await dbSchFindOne({ idx })
   const { devices, file } = schedule
   try {

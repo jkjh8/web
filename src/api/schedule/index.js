@@ -31,7 +31,7 @@ const io = require('@io')
 
 // S01 스케줄 방송 시작 로직
 const fnInTimeScheduleRun = async (data) => {
-  const { user, name, zones, file, devices, Station } = data
+  const { user, name, zones, file, devices } = data
   try {
     // Page를 위한 uniqueId 생성
     const idx = uniqueId(16)
@@ -96,7 +96,7 @@ const fnInTimeScheduleRun = async (data) => {
 
 // S02 스케줄에서 페이징을 만들어서 qsys로 보내는 함수
 const fnMakePageFromSchedule = async (args) => {
-  const { idx, devices, file, Preamble, Mode, MaxPageTime } = args
+  const { idx, devices, file, Preamble, Mode, MaxPageTime, Station } = args
   const arr = []
   // 스케줄 반복이 한번이면 메시지 송출 후 삭제 추가 필요
   const promises = devices.map(async (item) => {
