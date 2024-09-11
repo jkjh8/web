@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
       result: true,
       schedules: scheduleToday,
       mode: gStatus.mode,
-      active: gStatus.activeMode,
+      activeMode: gStatus.activeMode,
       auto: gStatus.schedulerAuto,
       relayOnTime: gStatus.relayOnTime
     })
@@ -75,7 +75,7 @@ router.get('/check', async (req, res) => {
 
     res.status(200).json({
       mode: gStatus.mode,
-      active: gStatus.activeMode,
+      activeMode: gStatus.activeMode,
       auto: gStatus.schedulerAuto,
       relayOnTime: gStatus.relayOnTime
     })

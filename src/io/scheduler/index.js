@@ -37,6 +37,11 @@ module.exports = async (socketio) => {
     socket.on('schedules', async () => {
       await fnSendScheduleToday()
     })
+
+    socket.on('oclock', () => {
+      console.log('oclock')
+    })
+
     socket.emit('setup', {})
 
     logInfo(`IS01 SOCKET.IO SCHEDULER 시작`, 'SERVER')
