@@ -73,6 +73,7 @@ router.delete('/reset', async (req, res) => {
   }
 })
 
+// BS06 사용자 스케줄 삭제
 router.delete('/user', async (req, res) => {
   try {
     res.status(200).json({
@@ -86,4 +87,18 @@ router.delete('/user', async (req, res) => {
   }
 })
 
+// BS07 스케줄 동작 변경
+router.put('/active', async (req, res) => {
+  try {
+    const { active } = req.body
+    fnSendActiveScheduleToAPP(active)
+    res.status(200).json({
+      result: true
+    })
+    logInfo(`BS07 스케줄 동작 변경 완료 ${id} ${active}`, 'SERVER')
+  } catch (error) {
+    res.status(500).json({ result: false, error })
+    logError(`BS07 스케줄 동작 변경 - ${error}`, 'SERVER')
+  }
+})
 module.exports = router

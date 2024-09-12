@@ -1,6 +1,7 @@
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
 // api
+const { fnBackupRequest } = require('@api/backup')
 const initSetup = require('@api/setup')
 const { fnSendGlobalStatus } = require('@api/client')
 const {
@@ -137,6 +138,7 @@ router.put('/scheduleactive', async (req, res) => {
     fnSendActiveScheduleToAPP(active)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
     fnSendGlobalStatus()
+    fnBackupRequest('/backup/schedules/active', active, 'PUT')
     res.status(200).json({ result: true, active: gStatus.schedulerActive })
     logInfo(`SS07 스케줄러 동작 변경 - ${active}`, email)
   } catch (error) {
