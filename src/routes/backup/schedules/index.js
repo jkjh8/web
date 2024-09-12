@@ -6,6 +6,7 @@ const {
   dbSchUpdate,
   dbSchRemoveById
 } = require('@db/schedule')
+const { fnSendActiveScheduleToAPP } = require('@api/schedule')
 
 const router = express.Router()
 
