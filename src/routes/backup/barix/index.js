@@ -52,7 +52,7 @@ router.post('/many', async (req, res) => {
     const { barixs } = req.body
     // barixs array를 받아서 개별로 db 문서 생성
     for (let i = 0; i < barixs.length; i++) {
-      await dbBarix.create(barixs[i])
+      await dbBarixUpdate({ _id: barixs[i]._id }, { ...barixs[i] })
     }
     res.status(200).json({ result: true })
 

@@ -1,7 +1,9 @@
 const { dbSetupUpdate } = require('@db/setup')
 const { logInfo, logError } = require('@logger')
+const axios = require('axios')
+const https = require('https')
 // api
-const { fnBackupRequest } = require('@api/backup')
+
 const initSetup = require('@api/setup')
 const { fnSendGlobalStatus } = require('@api/client')
 const {
@@ -138,7 +140,17 @@ router.put('/scheduleactive', async (req, res) => {
     fnSendActiveScheduleToAPP(active)
     fnSendMessagePM2({ type: 'setup', data: gStatus })
     fnSendGlobalStatus()
-    fnBackupRequest('/backup/schedules/active', active, 'PUT')
+    if (gStatus.backupAddress) {
+      axios.put(
+        `https://${gStatus.backupAddress}/api/scheduler/mode`,
+        { mode: active },
+        {
+          headers: { authenticate: process.env.SCHEDULER_PASS },
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+          withCredentials: true
+        }
+      )
+    }
     res.status(200).json({ result: true, active: gStatus.schedulerActive })
     logInfo(`SS07 스케줄러 동작 변경 - ${active}`, email)
   } catch (error) {

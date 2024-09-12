@@ -20,6 +20,8 @@ const { fnRTemp } = require('@api/files')
 const { fnCheckPageStatusAll } = require('@api/qsys')
 const { fnQsysDeleteLiveAll } = require('@api/qsys/files')
 const { gStatus } = require('@src/defaultVal.js')
+const { default: axios } = require('axios')
+const https = require('https')
 
 const router = express.Router()
 
@@ -89,11 +91,11 @@ router.get('/check', async (req, res) => {
 router.put('/mode', (req, res) => {
   try {
     const { mode } = req.body
+    console.log(mode)
     gStatus.activeMode = mode
     dbSetupUpdate({ key: 'activeMode' }, { value: mode })
     fnSendMessagePM2({ type: 'setup', data: { activeMode: mode } })
     fnSendGlobalStatus()
-    fnSendActiveScheduleToAPP(mode)
     res.status(200).json({ result: true, mode })
     logInfo(`SC03 스케줄러 모드 변경 - ${mode}`, 'SCHEDULER')
   } catch (error) {

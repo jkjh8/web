@@ -58,7 +58,7 @@ const fnBackupUploader = (file, folder) => {
     const form = new FormData()
     form.append('media', fs.createReadStream(file))
     axios
-      .post(`http://${gStatus.backupAddress}/backup/files`, form, {
+      .post(`https://${gStatus.backupAddress}/backup/files`, form, {
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
         headers: { ...form.getHeaders(), folder, backupid: gStatus.backupId }
       })
