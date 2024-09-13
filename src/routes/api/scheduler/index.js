@@ -91,7 +91,6 @@ router.get('/check', async (req, res) => {
 router.put('/mode', (req, res) => {
   try {
     const { mode } = req.body
-    console.log(mode)
     gStatus.activeMode = mode
     dbSetupUpdate({ key: 'activeMode' }, { value: mode })
     fnSendMessagePM2({ type: 'setup', data: { activeMode: mode } })
@@ -113,6 +112,7 @@ router.put('/', async (req, res) => {
       logWarn(`비활성화된 스케줄 - ${name ?? ''} - ${idx}`, user, zones)
       return
     }
+    fnSendSocket('schedule', schedule)
     // 스케줄 방송 시작
     await fnInTimeScheduleRun(schedule)
     // 사용자 방송 횟수 추가
