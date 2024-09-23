@@ -26,11 +26,15 @@ const router = express.Router()
 
 // RQ01 - Qsys 장치 관리
 router.get('/', async (req, res) => {
-  const { email } = req.user
+  const { email, isAdmin, zones } = req.user
+  const filter =
+    !isAdmin && zones && zones.length ? { deviceId: { $in: zones } } : {}
   try {
-    res.status(200).json({ result: true, devices: await dbQsysFindAll() })
+    const devices = await dbQsysFindAll(filter)
+    res.status(200).json({ result: true, devices })
   } catch (error) {
     logError(`RQ01 Q-SYS 장치 검색 - ${error}`, email)
+    res.status(500).json({ result: false, error })
   }
 })
 

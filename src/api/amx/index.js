@@ -1,5 +1,5 @@
 const dgram = require('dgram')
-const { dbQsysFindOne } = require('@db/qsys')
+const { dbQsysFindOne, dbQsysFindAll } = require('@db/qsys')
 const { logError } = require('@logger')
 
 //A01 릴레이 여러개 구동
@@ -57,9 +57,63 @@ const fnAmxRelayOff = async (device) => {
     logError(`A03 AMX 릴레이 끄기 - ${error}`, 'SERVER')
   }
 }
+// A04 All on
+const fnAmxAllOn = async () => {
+  try {
+    const devices = await dbQsysFindAll({})
+    for (let device of devices) {
+      if (device.amx) {
+        const udp = dgram.createSocket('udp4')
+        // device.ZoneStatus에서 Zone만 추출
+        const Zones = device.ZoneStatus.map((zone) => zone.Zone)
+        console.log(Zones)
+        udp.send(`#on,${Zones.join(',')}!`, 9000, device.amx, (error) => {
+          if (error) {
+            logError(
+              `A04 AMX 릴레이 전체 켜기 - ${device.name} - ${error}`,
+              'SERVER'
+            )
+            throw error
+          }
+          udp.close()
+        })
+      }
+    }
+  } catch (error) {
+    logError(`A04 AMX 릴레이 전체 켜기 - ${error}`, 'SERVER')
+  }
+}
+// A05 All off
+const fnAmxAllOff = async () => {
+  try {
+    const devices = await dbQsysFindAll({})
+    for (let device of devices) {
+      if (device.amx) {
+        const udp = dgram.createSocket('udp4')
+        // device.ZoneStatus에서 Zone만 추출
+        const Zones = device.ZoneStatus.map((zone) => zone.Zone)
+        console.log(Zones)
+        udp.send(`#off,${Zones.join(',')}!`, 9000, device.amx, (error) => {
+          if (error) {
+            logError(
+              `A05 AMX 릴레이 전체 켜기 - ${device.name} - ${error}`,
+              'SERVER'
+            )
+            throw error
+          }
+          udp.close()
+        })
+      }
+    }
+  } catch (error) {
+    logError(`A05 AMX 릴레이 전체 끄기 - ${error}`, 'SERVER')
+  }
+}
 
 module.exports = {
   fnAmxesRelayOn,
   fnAmxRelayOn,
-  fnAmxRelayOff
+  fnAmxRelayOff,
+  fnAmxAllOn,
+  fnAmxAllOff
 }

@@ -4,9 +4,10 @@ const { Worker } = require('worker_threads')
 const { logError, logDebug } = require('@logger')
 // db
 const { dbBarixFind, dbBarixUpdate, dbBarixFindOne } = require('@db/barix')
-const { dbQsys, dbQsysFindOne, fnSendQsys } = require('@db/qsys')
-// api
+const { dbQsys, dbQsysFindOne, dbQsysFindAll } = require('@db/qsys')
 
+// api
+const { fnSendQsys } = require('@api/qsys')
 let barixInterval = null
 
 //b01
@@ -172,6 +173,34 @@ const fnBarixChangeQsys = async (obj) => {
   }
 }
 
+// B08 바릭스 전체 켜기
+const fnBarixAllOn = async () => {
+  try {
+    const devices = await dbQsysFindAll()
+    return await Promise.all(
+      devices.map(async (device) => {
+        await fnBarixRelayOn(device)
+      })
+    )
+  } catch (error) {
+    logError(`B08 BARIX 전체 켜기 - ${error}`, 'SERVER')
+  }
+}
+
+// B09 바릭스 전체 켜기
+const fnBarixAllOff = async () => {
+  try {
+    const devices = await dbQsysFindAll()
+    return await Promise.all(
+      devices.map(async (device) => {
+        await fnBarixRelayOn(device)
+      })
+    )
+  } catch (error) {
+    logError(`B09 BARIX 전체 켜기 - ${error}`, 'SERVER')
+  }
+}
+
 module.exports = {
   fnGetBarixInfo,
   fnGetBarixes,
@@ -179,5 +208,7 @@ module.exports = {
   fnBarixRelayOff,
   fnBarixesRelayOn,
   fnBarixesRelayOff,
-  fnBarixChangeQsys
+  fnBarixChangeQsys,
+  fnBarixAllOn,
+  fnBarixAllOff
 }

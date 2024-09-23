@@ -28,7 +28,7 @@ router.get('/stop', async (req, res) => {
     res.status(200).json({ result: true })
     // 로그
     logEvent(
-      `방송 중지: ${page.zones.join(', ')}`,
+      `방송 중지`,
       req.user.email,
       page.zones,
       page.devices.map((e) => e.deviceId)

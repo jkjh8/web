@@ -3,6 +3,9 @@ const path = require('node:path')
 require('module-alias/register')
 require('dotenv').config()
 require('@db')
+const dgram = require('dgram')
+const { fnAmxAllOn, fnAmxAllOff } = require('@api/amx')
+const { fnBarixAllOn, fnBarixAllOff } = require('@api/barix')
 
 // logger
 const { logInfo, logError } = require('@logger')
@@ -49,6 +52,7 @@ app.use(cookieParser())
 
 // passport
 const passport = require('passport')
+const { fn } = require('moment')
 require('@api/user/passport')()
 app.use(passport.initialize())
 
@@ -96,4 +100,54 @@ httpServer.on('error', (error) => {
 if (process.env.INSTANCE_ID == 0) {
   const { getAllDeviceStorage } = require('@api/qsys')
   getAllDeviceStorage()
+
+  const net = require('net')
+  const ipaddr = '0.0.0.0'
+  const port = 2031
+
+  let tcp = net.createServer(function (socket) {
+    console.log(socket.address().address + ' connected.')
+
+    // setting encoding
+    socket.setEncoding('utf8')
+
+    // print data from client
+    socket.on('data', async function (data) {
+      switch (data) {
+        case 'on':
+          await fnAmxAllOn()
+          await fnBarixAllOn()
+          break
+        case 'off':
+          setTimeout(async () => {
+            await fnAmxAllOff()
+            await fnBarixAllOff()
+          }, 5000)
+          break
+        default:
+          console.log(data)
+          break
+      }
+    })
+
+    // print message for disconnection with client
+    socket.on('close', function () {
+      console.log('client disconnted.')
+    })
+
+    // send message to client
+    setTimeout(() => {
+      socket.write('welcome to server')
+    }, 500)
+  })
+
+  // print error message
+  tcp.on('error', function (err) {
+    console.log('err: ', err.code)
+  })
+
+  // listening
+  tcp.listen(port, ipaddr, function () {
+    console.log('listening on 2031..')
+  })
 }

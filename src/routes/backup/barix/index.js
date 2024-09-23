@@ -6,6 +6,7 @@ const {
   dbBarixUpdate,
   dbBarixRemoveById
 } = require('@db/barix')
+const { dbQsysUpdate } = require('../../../db/qsys')
 
 const router = express.Router()
 
@@ -37,6 +38,12 @@ router.put('/', async (req, res) => {
 // BB03 delete
 router.delete('/', async (req, res) => {
   try {
+    // qsys db의 ZoneStatus.destinations 에서 해당 id를 찾아서 null로 만들어준다.
+    await dbQsysUpdate(
+      { 'ZoneStatus.destination': req.body.id },
+      { destination: null }
+    )
+
     res
       .status(200)
       .json({ result: true, data: await dbBarixRemoveById(req.body.id) })

@@ -151,7 +151,8 @@ const fnQsysFileDeleteAsync = async (args) => {
 const fnQsysSyncFileSchedule = async (idx, user) => {
   // console.log('fnQsysSyncFileSchedule', idx)
   const schedule = await dbSchFindOne({ idx })
-  const { devices, file } = schedule
+  const { devices, file, Mode } = schedule
+  if (Mode === 'live') return
   try {
     const promises = devices.map(async (device) => {
       const { deviceId, ipaddress } = device
