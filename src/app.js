@@ -97,6 +97,7 @@ httpServer.on('error', (error) => {
   logError(`APP WEB HTTP 서버 오류 ${error}`, 'SERVER')
 })
 
+let offDelay = null
 if (process.env.INSTANCE_ID == 0) {
   const { getAllDeviceStorage } = require('@api/qsys')
   getAllDeviceStorage()
@@ -117,9 +118,13 @@ if (process.env.INSTANCE_ID == 0) {
         case 'on':
           await fnAmxAllOn()
           await fnBarixAllOn()
+          if (offDelay) {
+            clearTimeout(offDelay)
+            offDelay = null
+          }
           break
         case 'off':
-          setTimeout(async () => {
+          offDelay = setTimeout(async () => {
             await fnAmxAllOff()
             await fnBarixAllOff()
           }, 5000)

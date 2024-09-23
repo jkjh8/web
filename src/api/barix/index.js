@@ -8,6 +8,7 @@ const { dbQsys, dbQsysFindOne, dbQsysFindAll } = require('@db/qsys')
 
 // api
 const { fnSendQsys } = require('@api/qsys')
+const { fn } = require('moment')
 let barixInterval = null
 
 //b01
@@ -177,9 +178,24 @@ const fnBarixChangeQsys = async (obj) => {
 const fnBarixAllOn = async () => {
   try {
     const devices = await dbQsysFindAll()
+    console.log(devices)
     return await Promise.all(
       devices.map(async (device) => {
-        await fnBarixRelayOn(device)
+        for (let i = 0; i < device.ZoneStatus.length; i++) {
+          if (
+            device.ZoneStatus[i].destination &&
+            device.ZoneStatus[i].destination.ipaddress
+          ) {
+            try {
+              await axios.get(
+                `http://${device.ZoneStatus[i].destination.ipaddress}/rc.cgi?R=1`,
+                { timeout: 5000 }
+              )
+            } catch (error) {
+              logError(`B04 BARIX 릴레이 켜기 - ${error}`, 'SERVER')
+            }
+          }
+        }
       })
     )
   } catch (error) {
@@ -193,7 +209,21 @@ const fnBarixAllOff = async () => {
     const devices = await dbQsysFindAll()
     return await Promise.all(
       devices.map(async (device) => {
-        await fnBarixRelayOn(device)
+        for (let i = 0; i < device.ZoneStatus.length; i++) {
+          if (
+            device.ZoneStatus[i].destination &&
+            device.ZoneStatus[i].destination.ipaddress
+          ) {
+            try {
+              await axios.get(
+                `http://${device.ZoneStatus[i].destination.ipaddress}/rc.cgi?R=0`,
+                { timeout: 5000 }
+              )
+            } catch (error) {
+              logError(`B04 BARIX 릴레이 끄기 - ${error}`, 'SERVER')
+            }
+          }
+        }
       })
     )
   } catch (error) {
