@@ -127,7 +127,8 @@ router.put('/vw', async (req, res) => {
       filePath,
       name
     })
-    if (!result) {
+    if (result == 'false') {
+      logError(`TT06 보이스웨어 TTS 생성 - ${error}`, email)
       return res.status(500).json({ result: false, error })
     }
     // 파일 정보 수집

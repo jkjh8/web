@@ -16,7 +16,7 @@ const fnMakeTtsFileVW = (args) => {
     vw.stdout.on('data', (data) => {
       try {
         const ret = data.toString()
-        // console.log(ret)
+        console.log(ret)
         // ret를 ,로 구분하고 :를 분리해서 Object로 만들어준다.
         const obj = ret.split(',').reduce((acc, cur) => {
           const [key, value] = cur.split('=')
