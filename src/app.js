@@ -6,7 +6,7 @@ require('@db')
 const dgram = require('dgram')
 const { fnAmxAllOn, fnAmxAllOff } = require('@api/amx')
 const { fnBarixAllOn, fnBarixAllOff } = require('@api/barix')
-
+const compression = require('compression')
 // logger
 const { logInfo, logError } = require('@logger')
 const pm2 = require('pm2')
@@ -49,10 +49,11 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+// yanr add compression
+app.use(compression())
 
 // passport
 const passport = require('passport')
-const { fn } = require('moment')
 require('@api/user/passport')()
 app.use(passport.initialize())
 
