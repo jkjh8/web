@@ -141,7 +141,8 @@ router.put('/', async (req, res) => {
 // SC05 스케줄러 폴더 정리
 router.get('/clean', async (req, res) => {
   try {
-    if (gStatus.mode === 'Normal') {
+    // 월요일이면 실행
+    if (gStatus.mode === 'Normal' && moment().day() === 1) {
       // qsys page 초기화
       fnCheckPageStatusAll()
       //qsys 스케줄 폴더 비우기
