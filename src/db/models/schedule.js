@@ -25,7 +25,8 @@ const scheduleSchema = new mongoose.Schema(
     description: String,
     duration: Number,
     MaxPageTime: Number,
-    Station: { type: Number, default: 3 }
+    Station: { type: Number, default: 3 },
+    tts: { type: mongoose.Types.ObjectId, ref: 'TTS' }
   },
   {
     timestamps: true

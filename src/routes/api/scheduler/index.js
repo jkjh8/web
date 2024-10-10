@@ -151,9 +151,9 @@ router.get('/clean', async (req, res) => {
       fnCleanQsysScheduleTypeOnce()
       // qsys 라이브 폴더 비우기
       fnQsysDeleteLiveAll()
+      //스케줄 폴더 비우기
+      fnCleanScheduleFolder()
     }
-    //스케줄 폴더 비우기
-    fnCleanScheduleFolder()
     //temp 폴더 비우기
     fnRTemp()
     res.status(200).json({ result: true })

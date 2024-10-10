@@ -5,7 +5,7 @@ module.exports = {
     return await Tts.create({ ...obj })
   },
   dbTtsFind: async (obj) => {
-    return await Tts.find({ ...obj }).sort({ time: 1 })
+    return await Tts.find({ ...obj })
   },
   dbTtsFindOne: (obj) => {
     return new Promise((resolve, reject) => {

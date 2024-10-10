@@ -9,7 +9,9 @@ module.exports = {
     fnBackupRequest('/backup/schedules', obj, 'POST')
   },
   dbSchFind: async (obj) => {
-    return await Sch.find({ ...obj }).sort({ time: 1 })
+    return await Sch.find({ ...obj })
+      .populate('tts')
+      .sort({ time: 1 })
   },
   dbSchFindOne: (obj) => {
     return new Promise((resolve, reject) => {

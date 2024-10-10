@@ -51,13 +51,14 @@ router.put('/', async (req, res) => {
     // 파일 정보 수집
     const file = await fnGetFile(filePath)
     // 데이터 업데이트
-    await dbTtsMake({ rate, text, voice, user: email })
+    const ttsData = await dbTtsMake({ rate, text, voice, user: email })
     await dbUserUpdate({ email }, { $inc: { numberOfTtsCalls: 1 } })
     res.status(200).json({
       result: true,
       value: {
         ...data,
-        file
+        file,
+        id: ttsData._id
       }
     })
   } catch (error) {
@@ -118,7 +119,8 @@ router.put('/voice', async (req, res) => {
 // TT06 voiceware make
 router.put('/vw', async (req, res) => {
   const { email } = req.user
-  const { text, voice } = req.body
+  const { text, voice, volume, speed, pitch } = req.body
+  console.log(req.body)
   try {
     const name = uniqueId(16)
     const filePath = path.join(gStatus.tempFolder, `${name}.wav`)
@@ -134,12 +136,21 @@ router.put('/vw', async (req, res) => {
     // 파일 정보 수집
     const file = await fnGetFile(filename)
     // 데이터 업데이트
-    await dbTtsMake({ text, voice, user: email })
+    const ttsData = await dbTtsMake({
+      text,
+      voice,
+      user: email,
+      volume,
+      speed,
+      pitch
+    })
+    console.log(ttsData)
     await dbUserUpdate({ email }, { $inc: { numberOfTtsCalls: 1 } })
     res.status(200).json({
       result: true,
       value: {
-        file
+        file,
+        id: ttsData._id
       }
     })
   } catch (error) {

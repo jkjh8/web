@@ -5,7 +5,10 @@ const ttsSchema = new mongoose.Schema(
     voice: Object,
     user: String,
     text: String,
-    rate: Number
+    rate: Number,
+    volume: Number,
+    speed: Number,
+    pitch: Number
   },
   { timestamps: true }
 )
