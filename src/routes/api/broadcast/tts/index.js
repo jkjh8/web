@@ -120,7 +120,6 @@ router.put('/voice', async (req, res) => {
 router.put('/vw', async (req, res) => {
   const { email } = req.user
   const { text, voice, volume, speed, pitch } = req.body
-  console.log(req.body)
   try {
     const name = uniqueId(16)
     const filePath = path.join(gStatus.tempFolder, `${name}.wav`)
@@ -144,7 +143,6 @@ router.put('/vw', async (req, res) => {
       speed,
       pitch
     })
-    console.log(ttsData)
     await dbUserUpdate({ email }, { $inc: { numberOfTtsCalls: 1 } })
     res.status(200).json({
       result: true,

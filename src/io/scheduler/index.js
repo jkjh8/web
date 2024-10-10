@@ -56,7 +56,7 @@ module.exports = async (socketio) => {
     })
 
     socket.on('oclock', () => {
-      console.log('oclock')
+      // console.log('oclock')
       // sendSchedulerStatus()
     })
 
